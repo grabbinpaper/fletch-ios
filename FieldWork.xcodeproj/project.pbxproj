@@ -37,6 +37,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		10D120AF9A23C5A57C4576B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		12BFA3CEC304527B30E2A2BA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		208D9278EB6833136A75573E /* ActiveVisitViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveVisitViewModel.swift; sourceTree = "<group>"; };
 		257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
@@ -285,6 +286,7 @@
 			isa = PBXGroup;
 			children = (
 				94A8D7FEB3D39DBFBBDF6920 /* FieldWork.entitlements */,
+				10D120AF9A23C5A57C4576B8 /* Info.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -470,23 +472,15 @@
 				CODE_SIGN_ENTITLEMENTS = FieldWork/Resources/FieldWork.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FieldWork needs camera access to take photos of job sites and surfaces.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "FieldWork uses your location to record GPS coordinates during site visits.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FieldWork needs photo library access to attach existing photos to jobs.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = FieldWork/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stoneflow.fieldwork;
+				PRODUCT_NAME = FieldWork;
 				SDKROOT = iphoneos;
-				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				SUPABASE_URL = "$(SUPABASE_URL)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -500,23 +494,15 @@
 				CODE_SIGN_ENTITLEMENTS = FieldWork/Resources/FieldWork.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FieldWork needs camera access to take photos of job sites and surfaces.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "FieldWork uses your location to record GPS coordinates during site visits.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FieldWork needs photo library access to attach existing photos to jobs.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = FieldWork/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stoneflow.fieldwork;
+				PRODUCT_NAME = FieldWork;
 				SDKROOT = iphoneos;
-				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				SUPABASE_URL = "$(SUPABASE_URL)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";

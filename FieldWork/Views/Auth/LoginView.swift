@@ -120,10 +120,13 @@ struct LoginView: View {
     private func signInWithEmail() async {
         isSigningIn = true
         error = nil
+        NSLog("[FieldWork] Attempting email sign-in for: %@", email)
         do {
             let authId = try await appState.authManager.signInWithEmail(email: email, password: password)
+            NSLog("[FieldWork] Auth succeeded, authId: %@", authId)
             await appState.signIn(authProviderId: authId)
         } catch {
+            NSLog("[FieldWork] Sign-in error: %@", "\(error)")
             self.error = error.localizedDescription
         }
         isSigningIn = false

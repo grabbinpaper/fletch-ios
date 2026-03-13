@@ -29,6 +29,13 @@ struct MeasurementTabView: View {
     }
 }
 
+private func formatInchesDisplay(_ value: Double) -> String {
+    if value.truncatingRemainder(dividingBy: 1) == 0 {
+        return "\(Int(value))\""
+    }
+    return String(format: "%.2f\"", value)
+}
+
 struct SurfaceMeasurementCard: View {
     let surface: CachedSurface
     let isReadOnly: Bool
@@ -78,7 +85,7 @@ struct SurfaceMeasurementCard: View {
                         Text("Estimated:")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text("\(formatInches(estL)) x \(formatInches(estW))")
+                        Text("\(formatInchesDisplay(estL)) x \(formatInchesDisplay(estW))")
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                         if let sqft = surface.estimatedSqft {
@@ -95,32 +102,50 @@ struct SurfaceMeasurementCard: View {
                         Text("Length (in)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        TextField("0", text: $lengthText)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(.roundedBorder)
-                            .disabled(isReadOnly)
-                            .onChange(of: lengthText) { commitMeasurements() }
+                        HStack(spacing: 4) {
+                            TextField("0", text: $lengthText)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(maxWidth: 80)
+                                .disabled(isReadOnly)
+                                .onChange(of: lengthText) {
+                                    lengthText = filterNumeric(lengthText)
+                                    commitMeasurements()
+                                }
+                            Text("\"")
+                                .foregroundStyle(.secondary)
+                        }
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Width (in)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        TextField("0", text: $widthText)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(.roundedBorder)
-                            .disabled(isReadOnly)
-                            .onChange(of: widthText) { commitMeasurements() }
+                        HStack(spacing: 4) {
+                            TextField("0", text: $widthText)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(maxWidth: 80)
+                                .disabled(isReadOnly)
+                                .onChange(of: widthText) {
+                                    widthText = filterNumeric(widthText)
+                                    commitMeasurements()
+                                }
+                            Text("\"")
+                                .foregroundStyle(.secondary)
+                        }
                     }
+
+                    Spacer()
 
                     // Auto sqft
                     if let sqft = calculatedSqft {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .trailing, spacing: 4) {
                             Text("Sqft")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             Text(String(format: "%.1f", sqft))
-                                .font(.subheadline.bold())
+                                .font(.title3.bold())
                                 .foregroundStyle(.green)
                         }
                     }
@@ -135,7 +160,7 @@ struct SurfaceMeasurementCard: View {
                             .foregroundStyle(.secondary)
                         ForEach(surface.backsplashPieces, id: \.surfaceBacksplashId) { piece in
                             HStack {
-                                Text("\(formatInches(piece.heightInches))H x \(formatInches(piece.lengthInches))L")
+                                Text("\(formatInchesDisplay(piece.heightInches))H x \(formatInchesDisplay(piece.lengthInches))L")
                                     .font(.caption)
                                 Text("\(piece.finishedEnds) finished end(s)")
                                     .font(.caption2)
@@ -162,8 +187,8 @@ struct SurfaceMeasurementCard: View {
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onAppear {
-            lengthText = surface.actualLengthInches.map { String(format: "%.1f", $0) } ?? ""
-            widthText = surface.actualWidthInches.map { String(format: "%.1f", $0) } ?? ""
+            lengthText = surface.actualLengthInches.map { formatValue($0) } ?? ""
+            widthText = surface.actualWidthInches.map { formatValue($0) } ?? ""
             notesText = surface.templateNotes ?? ""
         }
     }
@@ -180,10 +205,24 @@ struct SurfaceMeasurementCard: View {
         onUpdate(length, width, notes)
     }
 
-    private func formatInches(_ value: Double) -> String {
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return "\(Int(value))\""
+    private func filterNumeric(_ text: String) -> String {
+        var result = ""
+        var hasDecimal = false
+        for char in text {
+            if char.isNumber {
+                result.append(char)
+            } else if char == "." && !hasDecimal {
+                hasDecimal = true
+                result.append(char)
+            }
         }
-        return String(format: "%.1f\"", value)
+        return result
+    }
+
+    private func formatValue(_ value: Double) -> String {
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return "\(Int(value))"
+        }
+        return String(format: "%.2f", value)
     }
 }

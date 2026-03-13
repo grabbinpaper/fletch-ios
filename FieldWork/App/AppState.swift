@@ -66,12 +66,15 @@ final class AppState {
     }
 
     private func loadUserContext(authProviderId: String) async {
+        let normalizedId = authProviderId.lowercased()
         do {
+            NSLog("[FieldWork] Loading user context for auth ID: %@", normalizedId)
+
             // Look up user_account by auth_provider_id
             let userAccount: UserAccount = try await supabaseManager.client
                 .from("user_account")
                 .select()
-                .eq("auth_provider_id", value: authProviderId)
+                .eq("auth_provider_id", value: normalizedId)
                 .eq("is_active", value: true)
                 .single()
                 .execute()
@@ -79,6 +82,7 @@ final class AppState {
 
             self.staffId = userAccount.staffId
             self.organizationId = userAccount.organizationId
+            NSLog("[FieldWork] Found user account, staffId: %@", userAccount.staffId.uuidString)
 
             // Look up staff name
             let staff: Staff = try await supabaseManager.client
@@ -90,6 +94,7 @@ final class AppState {
                 .value
 
             self.staffName = staff.preferredName ?? staff.firstName
+            NSLog("[FieldWork] Staff name: %@", self.staffName)
 
             // Look up crew membership
             let crewMembers: [CrewMember] = try await supabaseManager.client
@@ -102,8 +107,9 @@ final class AppState {
 
             self.crewId = crewMembers.first?.crewId
             self.isAuthenticated = true
+            NSLog("[FieldWork] Auth complete. crewId: %@", crewId?.uuidString ?? "nil")
         } catch {
-            print("Failed to load user context: \(error)")
+            NSLog("[FieldWork] Failed to load user context: %@", "\(error)")
             self.isAuthenticated = false
         }
     }
