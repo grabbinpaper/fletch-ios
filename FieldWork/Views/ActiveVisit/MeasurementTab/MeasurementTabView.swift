@@ -4,6 +4,7 @@ import SwiftData
 struct MeasurementTabView: View {
     @Bindable var viewModel: ActiveVisitViewModel
     @Environment(\.modelContext) private var modelContext
+    var onCameraForSurface: ((UUID) -> Void)?
 
     var body: some View {
         ScrollView {
@@ -20,7 +21,10 @@ struct MeasurementTabView: View {
                                 notes: notes,
                                 context: modelContext
                             )
-                        }
+                        },
+                        onCamera: onCameraForSurface != nil ? {
+                            onCameraForSurface?(surface.surfaceId)
+                        } : nil
                     )
                 }
             }
@@ -40,6 +44,7 @@ struct SurfaceMeasurementCard: View {
     let surface: CachedSurface
     let isReadOnly: Bool
     let onUpdate: (Double?, Double?, String?) -> Void
+    var onCamera: (() -> Void)?
 
     @State private var lengthText: String = ""
     @State private var widthText: String = ""
@@ -49,29 +54,48 @@ struct SurfaceMeasurementCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Header
-            Button {
-                withAnimation { isExpanded.toggle() }
-            } label: {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(surface.displayName)
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.primary)
+            HStack {
+                Button {
+                    withAnimation { isExpanded.toggle() }
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(surface.displayName)
+                                .font(.subheadline.bold())
+                                .foregroundStyle(.primary)
 
-                        if let material = surface.materialName {
-                            Text(material)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            if let material = surface.materialName {
+                                Text(material)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+
+                        Spacer()
                     }
+                }
 
-                    Spacer()
-
-                    if surface.actualLengthInches != nil && surface.actualWidthInches != nil {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                if !isReadOnly, let onCamera {
+                    Button {
+                        onCamera()
+                    } label: {
+                        Image(systemName: "camera")
+                            .font(.subheadline)
+                            .foregroundStyle(.blue)
+                            .padding(6)
+                            .background(.blue.opacity(0.1))
+                            .clipShape(Circle())
                     }
+                }
 
+                if surface.actualLengthInches != nil && surface.actualWidthInches != nil {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
+
+                Button {
+                    withAnimation { isExpanded.toggle() }
+                } label: {
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption)
                         .foregroundStyle(.secondary)

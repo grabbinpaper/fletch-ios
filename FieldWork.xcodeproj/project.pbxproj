@@ -26,6 +26,8 @@
 		AAC7F1F46DEAD091E49FD8DD /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525D048B1A8E1E03AE1D8FB /* Date+Extensions.swift */; };
 		AC26F6265EDEB751A67F5A2C /* CompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */; };
 		ADE924DA8514BC1B59D5E216 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 816733177A0C7F55E99F876D /* Supabase */; };
+		BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */; };
+		C0085DDD0CCB71E6AC0B1829 /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409EFBC2A787F66C203B3575 /* ImageProcessor.swift */; };
 		C5E196C8DA9030C9DD039053 /* CachedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610CB6823B8F76751FEE61CB /* CachedModels.swift */; };
 		D42B1A34C42A84C7503F392F /* ScheduleJobRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D095DABC0D652B9DD333FBB /* ScheduleJobRow.swift */; };
 		D53707B73B6EFDD0A1698314 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7255C6712031C2B57777E9B /* ScheduleView.swift */; };
@@ -43,6 +45,8 @@
 		257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementTabView.swift; sourceTree = "<group>"; };
 		37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionView.swift; sourceTree = "<group>"; };
+		3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMarkupView.swift; sourceTree = "<group>"; };
+		409EFBC2A787F66C203B3575 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
 		5D095DABC0D652B9DD333FBB /* ScheduleJobRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleJobRow.swift; sourceTree = "<group>"; };
 		610CB6823B8F76751FEE61CB /* CachedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedModels.swift; sourceTree = "<group>"; };
 		67534B67BA973A83BD5C1EFE /* ScheduleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewModel.swift; sourceTree = "<group>"; };
@@ -200,6 +204,7 @@
 		7C87382E755F746C94B4A2AB /* PhotoTab */ = {
 			isa = PBXGroup;
 			children = (
+				3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */,
 				CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */,
 			);
 			path = PhotoTab;
@@ -246,6 +251,7 @@
 		AF0F956D0A84636C05B516BD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				409EFBC2A787F66C203B3575 /* ImageProcessor.swift */,
 				D14CC94B66B869E13D4CEA21 /* Auth */,
 				9F1225F5CCE4C73571C43B15 /* Location */,
 				EAE5CA1906BC8A487F8E6E6C /* Supabase */,
@@ -387,12 +393,14 @@
 				AC26F6265EDEB751A67F5A2C /* CompletionView.swift in Sources */,
 				AAC7F1F46DEAD091E49FD8DD /* Date+Extensions.swift in Sources */,
 				4E39643D5C43964BE71E5859 /* FieldWorkApp.swift in Sources */,
+				C0085DDD0CCB71E6AC0B1829 /* ImageProcessor.swift in Sources */,
 				A452A9259F703B23B14E28B2 /* JobDetailView.swift in Sources */,
 				287664ED5EE6FA31FF67E7A6 /* JobDetailViewModel.swift in Sources */,
 				DFD6751720E8BC77D2CBFCB5 /* LocationManager.swift in Sources */,
 				D8EFCE5EA67D0CA6AA8C7DF3 /* LoginView.swift in Sources */,
 				6F9B8816F92E996B155BCEA6 /* MeasurementTabView.swift in Sources */,
 				87188F997B4458025F430685 /* NetworkMonitor.swift in Sources */,
+				BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */,
 				E6CE5DF4EFFC55090B2D9618 /* PhotoTabView.swift in Sources */,
 				538B9725B724C3BA6FBE9B11 /* RemoteModels.swift in Sources */,
 				D42B1A34C42A84C7503F392F /* ScheduleJobRow.swift in Sources */,

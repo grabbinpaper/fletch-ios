@@ -159,7 +159,7 @@ actor SyncEngine {
 
         let fileData = try Data(contentsOf: fileURL)
 
-        // Upload to storage
+        // Upload compressed photo to storage
         try await supabase.client.storage
             .from("job-attachments")
             .upload(
@@ -167,6 +167,22 @@ actor SyncEngine {
                 file: fileData,
                 options: .init(contentType: payload.mimeType)
             )
+
+        // Upload thumbnail if available
+        var uploadedThumbPath: String?
+        if let thumbLocal = payload.thumbnailLocalPath,
+           let thumbStorage = payload.thumbnailStoragePath,
+           FileManager.default.fileExists(atPath: thumbLocal) {
+            let thumbData = try Data(contentsOf: URL(fileURLWithPath: thumbLocal))
+            try await supabase.client.storage
+                .from("job-attachments")
+                .upload(
+                    path: thumbStorage,
+                    file: thumbData,
+                    options: .init(contentType: "image/jpeg")
+                )
+            uploadedThumbPath = thumbStorage
+        }
 
         // Create job_attachment record
         struct AttachmentInsert: Encodable {
@@ -210,6 +226,8 @@ actor SyncEngine {
                 let caption: String?
                 let uploaded_by: String
                 let surface_id: String?
+                let thumbnail_path: String?
+                let has_annotations: Bool
             }
 
             try await supabase.client
@@ -225,9 +243,22 @@ actor SyncEngine {
                     captured_lng: payload.longitude,
                     caption: payload.caption,
                     uploaded_by: payload.uploadedBy.uuidString,
-                    surface_id: payload.surfaceId?.uuidString
+                    surface_id: payload.surfaceId?.uuidString,
+                    thumbnail_path: uploadedThumbPath,
+                    has_annotations: payload.hasAnnotations
                 ))
                 .execute()
+        }
+
+        // Mark photo as synced in SwiftData
+        let photoEntityId = operation.entityId
+        let context = ModelContext(modelContainer)
+        let descriptor = FetchDescriptor<CachedPhoto>(
+            predicate: #Predicate { $0.localId.uuidString == photoEntityId }
+        )
+        if let photo = try? context.fetch(descriptor).first {
+            photo.isSynced = true
+            try? context.save()
         }
     }
 
@@ -356,6 +387,9 @@ struct PhotoUploadPayload: Codable {
     let caption: String?
     let latitude: Double?
     let longitude: Double?
+    let thumbnailLocalPath: String?
+    let thumbnailStoragePath: String?
+    let hasAnnotations: Bool
 }
 
 struct ChecklistItemPayload: Codable {

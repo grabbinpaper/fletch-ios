@@ -6,6 +6,7 @@ struct ActiveVisitView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ActiveVisitViewModel
+    @State private var showCameraFromSurface = false
 
     init(booking: CachedBooking) {
         _viewModel = State(initialValue: ActiveVisitViewModel(booking: booking))
@@ -24,8 +25,14 @@ struct ActiveVisitView: View {
 
             // Tab content
             TabView(selection: $viewModel.selectedTab) {
-                MeasurementTabView(viewModel: viewModel)
-                    .tag(VisitTab.measurements)
+                MeasurementTabView(
+                    viewModel: viewModel,
+                    onCameraForSurface: { surfaceId in
+                        viewModel.pendingSurfaceId = surfaceId
+                        showCameraFromSurface = true
+                    }
+                )
+                .tag(VisitTab.measurements)
 
                 PhotoTabView(viewModel: viewModel)
                     .tag(VisitTab.photos)
@@ -59,6 +66,42 @@ struct ActiveVisitView: View {
         }
         .sheet(isPresented: $viewModel.showCompletionSheet) {
             CompletionView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showCameraFromSurface) {
+            CameraView { image in
+                viewModel.capturePhoto(
+                    image: image,
+                    surfaceId: viewModel.pendingSurfaceId,
+                    context: modelContext
+                )
+            }
+        }
+        .sheet(isPresented: $viewModel.showMarkup) {
+            if let image = viewModel.pendingImage {
+                PhotoMarkupView(
+                    image: image,
+                    onSave: { compositedImage, drawingData in
+                        viewModel.savePhoto(
+                            image: compositedImage,
+                            annotationData: drawingData,
+                            surfaceId: viewModel.pendingSurfaceId,
+                            caption: viewModel.pendingCaption,
+                            context: modelContext
+                        )
+                        viewModel.pendingImage = nil
+                    },
+                    onSkip: {
+                        viewModel.savePhoto(
+                            image: image,
+                            annotationData: nil,
+                            surfaceId: viewModel.pendingSurfaceId,
+                            caption: viewModel.pendingCaption,
+                            context: modelContext
+                        )
+                        viewModel.pendingImage = nil
+                    }
+                )
+            }
         }
     }
 

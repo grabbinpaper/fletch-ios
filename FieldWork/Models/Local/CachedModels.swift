@@ -266,18 +266,24 @@ final class CachedPhoto {
     var latitude: Double?
     var longitude: Double?
     var isSynced: Bool
+    var hasAnnotations: Bool
+    var annotationData: Data?
 
     init(
         localFilePath: String,
+        thumbnailPath: String? = nil,
         jobId: UUID,
         visitId: UUID?,
         surfaceId: UUID? = nil,
         caption: String? = nil,
         latitude: Double? = nil,
-        longitude: Double? = nil
+        longitude: Double? = nil,
+        hasAnnotations: Bool = false,
+        annotationData: Data? = nil
     ) {
         self.localId = UUID()
         self.localFilePath = localFilePath
+        self.thumbnailPath = thumbnailPath
         self.caption = caption
         self.surfaceId = surfaceId
         self.jobId = jobId
@@ -286,6 +292,8 @@ final class CachedPhoto {
         self.latitude = latitude
         self.longitude = longitude
         self.isSynced = false
+        self.hasAnnotations = hasAnnotations
+        self.annotationData = annotationData
     }
 }
 

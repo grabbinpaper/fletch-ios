@@ -75,43 +75,81 @@ final class ActiveVisitViewModel {
 
     // MARK: - Photos
 
+    /// Pending image awaiting markup decision
+    var pendingImage: UIImage?
+    var pendingSurfaceId: UUID?
+    var pendingCaption: String?
+    var showMarkup = false
+
     func capturePhoto(
         image: UIImage,
         surfaceId: UUID? = nil,
         caption: String? = nil,
         context: ModelContext
     ) {
+        // Store pending image and show markup sheet
+        pendingImage = image
+        pendingSurfaceId = surfaceId
+        pendingCaption = caption
+        showMarkup = true
+    }
+
+    func savePhoto(
+        image: UIImage,
+        annotationData: Data?,
+        surfaceId: UUID? = nil,
+        caption: String? = nil,
+        context: ModelContext
+    ) {
         guard let appState, let jobId = booking.jobId else { return }
 
-        // Save to documents directory
-        let fileName = "\(UUID().uuidString).jpg"
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileId = UUID().uuidString
+        let fileName = "\(fileId).jpg"
+        let thumbName = "\(fileId)_thumb.jpg"
         let fileURL = documentsURL.appendingPathComponent(fileName)
+        let thumbURL = documentsURL.appendingPathComponent(thumbName)
 
-        guard let jpegData = image.jpegData(compressionQuality: 0.8) else { return }
-        try? jpegData.write(to: fileURL)
+        // Compress image (1200px longest edge, 72% quality → ~150-300KB)
+        guard let compressedData = ImageProcessor.compress(image) else { return }
+        try? compressedData.write(to: fileURL)
+
+        // Generate thumbnail (200px square → ~10-20KB)
+        var thumbPath: String?
+        if let thumbData = ImageProcessor.generateThumbnail(image) {
+            try? thumbData.write(to: thumbURL)
+            thumbPath = thumbURL.path
+        }
+
+        let hasAnnotations = annotationData != nil
 
         let photo = CachedPhoto(
             localFilePath: fileURL.path,
+            thumbnailPath: thumbPath,
             jobId: jobId,
             visitId: booking.visitId,
             surfaceId: surfaceId,
             caption: caption,
             latitude: appState.locationManager.latitude,
-            longitude: appState.locationManager.longitude
+            longitude: appState.locationManager.longitude,
+            hasAnnotations: hasAnnotations,
+            annotationData: annotationData
         )
         context.insert(photo)
         photos.append(photo)
         try? context.save()
 
         // Queue upload
-        let storagePath = "\(appState.organizationId?.uuidString ?? "unknown")/\(jobId.uuidString)/\(fileName)"
+        let orgId = appState.organizationId?.uuidString ?? "unknown"
+        let storagePath = "\(orgId)/\(jobId.uuidString)/\(fileName)"
+        let thumbStoragePath = thumbPath != nil ? "\(orgId)/\(jobId.uuidString)/thumbs/\(thumbName)" : nil
+
         let payload = PhotoUploadPayload(
             localFilePath: fileURL.path,
             storagePath: storagePath,
             fileName: fileName,
             mimeType: "image/jpeg",
-            fileSizeBytes: jpegData.count,
+            fileSizeBytes: compressedData.count,
             organizationId: appState.organizationId ?? UUID(),
             jobId: jobId,
             visitId: booking.visitId,
@@ -119,7 +157,10 @@ final class ActiveVisitViewModel {
             uploadedBy: appState.staffId ?? UUID(),
             caption: caption,
             latitude: appState.locationManager.latitude,
-            longitude: appState.locationManager.longitude
+            longitude: appState.locationManager.longitude,
+            thumbnailLocalPath: thumbPath,
+            thumbnailStoragePath: thumbStoragePath,
+            hasAnnotations: hasAnnotations
         )
         if let data = try? JSONEncoder().encode(payload) {
             Task {
