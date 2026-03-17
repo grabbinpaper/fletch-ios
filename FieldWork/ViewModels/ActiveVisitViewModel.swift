@@ -8,7 +8,6 @@ final class ActiveVisitViewModel {
     var selectedTab: VisitTab = .measurements
     var checklistItems: [CachedChecklistItem] = []
     var photos: [CachedPhoto] = []
-    var siteConditions: [CachedSiteCondition] = []
     var isCompleting = false
     var showCompletionSheet = false
     var completionNotes = ""
@@ -79,9 +78,16 @@ final class ActiveVisitViewModel {
     /// Pending image awaiting markup decision
     var pendingImage: UIImage?
     var pendingSurfaceId: UUID?
-    var pendingSiteConditionKey: String?
     var pendingCaption: String?
     var showMarkup = false
+
+    /// Site photo tagging flow
+    var isSiteCapture = false
+    var showSiteTagPicker = false
+    var pendingTagImage: UIImage?
+    var pendingTagAnnotationData: Data?
+    var selectedSiteTags: Set<String> = []
+    var sitePhotoNote = ""
 
     func capturePhoto(
         image: UIImage,
@@ -141,14 +147,6 @@ final class ActiveVisitViewModel {
         )
         context.insert(photo)
         photos.append(photo)
-
-        // Update photo count on the matching site condition
-        if let key = siteConditionKey,
-           let condition = siteConditions.first(where: { $0.conditionKey == key }) {
-            condition.photoCount += 1
-            condition.isSynced = false
-        }
-
         try? context.save()
 
         // Queue upload
@@ -188,79 +186,44 @@ final class ActiveVisitViewModel {
         }
     }
 
-    // MARK: - Site Conditions
+    // MARK: - Site Photo Tagging
 
-    func loadSiteConditions(context: ModelContext) {
-        guard let visitId = booking.visitId else { return }
+    /// Called after markup completes for a site capture — defers save until tags are picked
+    func deferSitePhoto(image: UIImage, annotationData: Data?) {
+        pendingTagImage = image
+        pendingTagAnnotationData = annotationData
+        selectedSiteTags = []
+        sitePhotoNote = ""
+        showSiteTagPicker = true
+    }
 
-        let descriptor = FetchDescriptor<CachedSiteCondition>(
-            predicate: #Predicate<CachedSiteCondition> { $0.visitId == visitId }
+    /// Saves the deferred site photo with selected tags and note
+    func savePendingSitePhoto(context: ModelContext) {
+        guard let image = pendingTagImage else { return }
+        let tags = selectedSiteTags.isEmpty ? nil : selectedSiteTags.sorted().joined(separator: ",")
+        let caption = sitePhotoNote.isEmpty ? nil : sitePhotoNote
+
+        savePhoto(
+            image: image,
+            annotationData: pendingTagAnnotationData,
+            caption: caption,
+            siteConditionKey: tags,
+            context: context
         )
-        let cached = (try? context.fetch(descriptor)) ?? []
 
-        if cached.isEmpty {
-            // Initialize one CachedSiteCondition per definition
-            var created: [CachedSiteCondition] = []
-            for def in SiteConditions.all {
-                let condition = CachedSiteCondition(visitId: visitId, conditionKey: def.id)
-                context.insert(condition)
-                created.append(condition)
-            }
-            try? context.save()
-            siteConditions = created
-        } else {
-            siteConditions = cached
-        }
+        pendingTagImage = nil
+        pendingTagAnnotationData = nil
+        selectedSiteTags = []
+        sitePhotoNote = ""
+        isSiteCapture = false
     }
 
-    func updateSiteCondition(
-        _ condition: CachedSiteCondition,
-        status: String? = nil,
-        detailValue: String? = nil,
-        notes: String? = nil,
-        context: ModelContext
-    ) {
-        if let status { condition.status = status }
-        if let detailValue { condition.detailValue = detailValue }
-        if let notes { condition.notes = notes }
-        condition.assessedAt = Date()
-        condition.isSynced = false
-        try? context.save()
-
-        // Queue sync
-        guard let appState, let visitId = booking.visitId else { return }
-        let payload = SiteConditionPayload(
-            visitId: visitId,
-            conditionKey: condition.conditionKey,
-            status: condition.status,
-            detailValue: condition.detailValue,
-            notes: condition.notes,
-            photoCount: condition.photoCount,
-            assessedAt: condition.assessedAt,
-            assessedBy: appState.staffId
-        )
-        if let data = try? JSONEncoder().encode(payload) {
-            Task {
-                await appState.syncEngine.queueOperation(
-                    type: "upsert_site_condition",
-                    entityType: "site_condition",
-                    entityId: condition.id.uuidString,
-                    payload: data,
-                    in: context
-                )
-            }
-        }
-    }
-
-    func siteCondition(for key: String) -> CachedSiteCondition? {
-        siteConditions.first { $0.conditionKey == key }
-    }
-
-    /// Number of flagged conditions (concern/problem) missing required photos
-    var flaggedConditionsMissingPhotos: Int {
-        siteConditions.filter { condition in
-            (condition.status == "concern" || condition.status == "problem") && condition.photoCount == 0
-        }.count
+    func cancelPendingSitePhoto() {
+        pendingTagImage = nil
+        pendingTagAnnotationData = nil
+        selectedSiteTags = []
+        sitePhotoNote = ""
+        isSiteCapture = false
     }
 
     // MARK: - Checklist
@@ -405,9 +368,8 @@ final class ActiveVisitViewModel {
             .filter { $0.status == "pending" }
             .isEmpty || checklistItems.isEmpty
         let signatureOk = !booking.signatureRequired || booking.signatureCaptured
-        let sitePhotosOk = flaggedConditionsMissingPhotos == 0
 
-        return allMeasured && requiredChecklistDone && signatureOk && sitePhotosOk
+        return allMeasured && requiredChecklistDone && signatureOk
     }
 
     @MainActor

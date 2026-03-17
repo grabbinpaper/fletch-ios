@@ -329,30 +329,6 @@ final class CachedPhoto {
     }
 }
 
-// MARK: - Site Condition Cache
-
-@Model
-final class CachedSiteCondition {
-    @Attribute(.unique) var id: UUID
-    var visitId: UUID
-    var conditionKey: String
-    var status: String
-    var detailValue: String?
-    var notes: String?
-    var photoCount: Int
-    var assessedAt: Date?
-    var isSynced: Bool
-
-    init(visitId: UUID, conditionKey: String) {
-        self.id = UUID()
-        self.visitId = visitId
-        self.conditionKey = conditionKey
-        self.status = "no_issue"
-        self.photoCount = 0
-        self.isSynced = false
-    }
-}
-
 // MARK: - Sync Operation
 
 @Model

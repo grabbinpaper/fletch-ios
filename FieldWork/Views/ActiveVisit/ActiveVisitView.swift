@@ -64,7 +64,6 @@ struct ActiveVisitView: View {
         }
         .task {
             viewModel.configure(appState: appState)
-            viewModel.loadSiteConditions(context: modelContext)
             viewModel.loadChecklist(context: modelContext)
             viewModel.loadPhotos(context: modelContext)
         }
@@ -82,33 +81,52 @@ struct ActiveVisitView: View {
         }
         .sheet(isPresented: $viewModel.showMarkup, onDismiss: {
             viewModel.pendingImage = nil
-            viewModel.pendingSiteConditionKey = nil
         }) {
             if let image = viewModel.pendingImage {
                 PhotoMarkupView(
                     image: image,
                     onSave: { compositedImage, drawingData in
-                        viewModel.savePhoto(
-                            image: compositedImage,
-                            annotationData: drawingData,
-                            surfaceId: viewModel.pendingSurfaceId,
-                            caption: viewModel.pendingCaption,
-                            siteConditionKey: viewModel.pendingSiteConditionKey,
-                            context: modelContext
-                        )
+                        if viewModel.isSiteCapture {
+                            viewModel.deferSitePhoto(image: compositedImage, annotationData: drawingData)
+                        } else {
+                            viewModel.savePhoto(
+                                image: compositedImage,
+                                annotationData: drawingData,
+                                surfaceId: viewModel.pendingSurfaceId,
+                                caption: viewModel.pendingCaption,
+                                context: modelContext
+                            )
+                        }
                     },
                     onSkip: {
-                        viewModel.savePhoto(
-                            image: image,
-                            annotationData: nil,
-                            surfaceId: viewModel.pendingSurfaceId,
-                            caption: viewModel.pendingCaption,
-                            siteConditionKey: viewModel.pendingSiteConditionKey,
-                            context: modelContext
-                        )
+                        if viewModel.isSiteCapture {
+                            viewModel.deferSitePhoto(image: image, annotationData: nil)
+                        } else {
+                            viewModel.savePhoto(
+                                image: image,
+                                annotationData: nil,
+                                surfaceId: viewModel.pendingSurfaceId,
+                                caption: viewModel.pendingCaption,
+                                context: modelContext
+                            )
+                        }
                     }
                 )
             }
+        }
+        .sheet(isPresented: $viewModel.showSiteTagPicker) {
+            SiteTagPickerSheet(
+                selectedTags: $viewModel.selectedSiteTags,
+                note: $viewModel.sitePhotoNote,
+                onSave: {
+                    viewModel.showSiteTagPicker = false
+                    viewModel.savePendingSitePhoto(context: modelContext)
+                },
+                onCancel: {
+                    viewModel.showSiteTagPicker = false
+                    viewModel.savePendingSitePhoto(context: modelContext)
+                }
+            )
         }
     }
 
