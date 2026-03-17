@@ -25,6 +25,7 @@ final class AppState {
             CachedVisit.self,
             CachedChecklistItem.self,
             CachedPhoto.self,
+            CachedSiteCondition.self,
             SyncOperation.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)

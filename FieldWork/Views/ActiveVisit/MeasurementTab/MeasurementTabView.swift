@@ -58,11 +58,10 @@ struct SurfaceMeasurementCard: View {
                 Button {
                     withAnimation { isExpanded.toggle() }
                 } label: {
-                    HStack {
+                    HStack(spacing: 8) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(surface.displayName)
                                 .font(.subheadline.bold())
-                                .foregroundStyle(.primary)
 
                             if let material = surface.materialName {
                                 Text(material)
@@ -71,35 +70,40 @@ struct SurfaceMeasurementCard: View {
                             }
                         }
 
+                        if surface.actualLengthInches != nil && surface.actualWidthInches != nil {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.caption)
+                        }
+
                         Spacer()
                     }
                 }
+                .tint(.primary)
 
                 if !isReadOnly, let onCamera {
                     Button {
                         onCamera()
                     } label: {
-                        Image(systemName: "camera")
+                        Image(systemName: "camera.fill")
                             .font(.subheadline)
                             .foregroundStyle(.blue)
-                            .padding(6)
+                            .frame(width: 36, height: 36)
                             .background(.blue.opacity(0.1))
                             .clipShape(Circle())
                     }
-                }
-
-                if surface.actualLengthInches != nil && surface.actualWidthInches != nil {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                    .padding(.trailing, 8)
                 }
 
                 Button {
                     withAnimation { isExpanded.toggle() }
                 } label: {
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.primary)
+                        .frame(width: 32, height: 32)
                 }
+                .tint(.primary)
             }
 
             if isExpanded {
@@ -170,7 +174,7 @@ struct SurfaceMeasurementCard: View {
                                 .foregroundStyle(.secondary)
                             Text(String(format: "%.1f", sqft))
                                 .font(.title3.bold())
-                                .foregroundStyle(.green)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }

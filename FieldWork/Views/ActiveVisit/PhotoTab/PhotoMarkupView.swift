@@ -3,23 +3,30 @@ import PencilKit
 
 struct PhotoMarkupView: View {
     let image: UIImage
-    let onSave: (UIImage, Data?) -> Void  // composited image + PKDrawing data
+    let onSave: (UIImage, Data?) -> Void  // base image + PKDrawing data (compositing done by caller)
     let onSkip: () -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var canvasView = PKCanvasView()
-    @State private var selectedColor: Color = .red
+    @State private var selectedColorIndex = 0
     @State private var toolType: ToolType = .pen
 
     enum ToolType {
         case pen, marker
     }
 
-    private let colors: [(Color, UIColor)] = [
-        (.red, .systemRed),
-        (.blue, .systemBlue),
-        (.black, .black),
-        (.white, .white)
+    private struct ColorOption: Identifiable {
+        let id: Int
+        let label: String
+        let swatchColor: Color
+        let inkColor: UIColor
+    }
+
+    private let colors: [ColorOption] = [
+        ColorOption(id: 0, label: "Red", swatchColor: .red, inkColor: .systemRed),
+        ColorOption(id: 1, label: "Yellow", swatchColor: .yellow, inkColor: .systemYellow),
+        ColorOption(id: 2, label: "White", swatchColor: .white, inkColor: .white),
+        ColorOption(id: 3, label: "Cyan", swatchColor: .cyan, inkColor: .cyan),
     ]
 
     var body: some View {
@@ -29,10 +36,6 @@ struct PhotoMarkupView: View {
 
                 GeometryReader { geo in
                     let imageSize = fitSize(for: image.size, in: geo.size)
-                    let offset = CGPoint(
-                        x: (geo.size.width - imageSize.width) / 2,
-                        y: (geo.size.height - imageSize.height) / 2
-                    )
 
                     ZStack {
                         Image(uiImage: image)
@@ -54,16 +57,22 @@ struct PhotoMarkupView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Skip") {
-                        onSkip()
                         dismiss()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            onSkip()
+                        }
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button {
                         saveAndDismiss()
+                    } label: {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(.white, .green)
                     }
-                    .bold()
                 }
 
                 ToolbarItemGroup(placement: .bottomBar) {
@@ -77,28 +86,28 @@ struct PhotoMarkupView: View {
     }
 
     private var toolBar: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 12) {
             // Color picker
-            ForEach(colors, id: \.1) { color, _ in
+            ForEach(colors) { option in
                 Button {
-                    selectedColor = color
+                    selectedColorIndex = option.id
                     updateTool()
                 } label: {
                     Circle()
-                        .fill(color)
-                        .frame(width: 28, height: 28)
+                        .fill(option.swatchColor)
+                        .frame(width: 32, height: 32)
                         .overlay {
-                            if selectedColor == color {
-                                Circle()
-                                    .strokeBorder(.white, lineWidth: 2.5)
-                                    .frame(width: 34, height: 34)
-                            }
+                            Circle()
+                                .strokeBorder(
+                                    selectedColorIndex == option.id ? Color.white : Color.gray.opacity(0.5),
+                                    lineWidth: selectedColorIndex == option.id ? 3 : 1
+                                )
                         }
                 }
             }
 
             Divider()
-                .frame(height: 24)
+                .frame(height: 28)
 
             // Tool picker
             Button {
@@ -106,33 +115,41 @@ struct PhotoMarkupView: View {
                 updateTool()
             } label: {
                 Image(systemName: "pencil.tip")
+                    .font(.title3)
                     .foregroundStyle(toolType == .pen ? .white : .gray)
             }
+            .frame(width: 36, height: 36)
 
             Button {
                 toolType = .marker
                 updateTool()
             } label: {
                 Image(systemName: "highlighter")
+                    .font(.title3)
                     .foregroundStyle(toolType == .marker ? .white : .gray)
             }
+            .frame(width: 36, height: 36)
 
             Divider()
-                .frame(height: 24)
+                .frame(height: 28)
 
             // Undo
             Button {
                 canvasView.undoManager?.undo()
             } label: {
                 Image(systemName: "arrow.uturn.backward")
+                    .font(.title3)
             }
+            .frame(width: 36, height: 36)
 
             // Clear
             Button {
                 canvasView.drawing = PKDrawing()
             } label: {
                 Image(systemName: "trash")
+                    .font(.title3)
             }
+            .frame(width: 36, height: 36)
         }
     }
 
@@ -144,12 +161,12 @@ struct PhotoMarkupView: View {
     }
 
     private func updateTool() {
-        let uiColor = colors.first { $0.0 == selectedColor }?.1 ?? .systemRed
+        let uiColor = colors[selectedColorIndex].inkColor
         switch toolType {
         case .pen:
-            canvasView.tool = PKInkingTool(.pen, color: uiColor, width: 4)
+            canvasView.tool = PKInkingTool(.pen, color: uiColor, width: 5)
         case .marker:
-            canvasView.tool = PKInkingTool(.marker, color: uiColor.withAlphaComponent(0.5), width: 15)
+            canvasView.tool = PKInkingTool(.marker, color: uiColor.withAlphaComponent(0.5), width: 20)
         }
     }
 
@@ -157,34 +174,34 @@ struct PhotoMarkupView: View {
         let drawing = canvasView.drawing
         let hasDrawing = !drawing.strokes.isEmpty
 
+        // Capture drawing data and canvas info NOW, before dismiss tears down the view
+        var drawingData: Data?
+        var compositedImage = image
+
         if hasDrawing {
-            // Composite the drawing over the image at image resolution
-            let compositedImage = renderComposite()
-            onSave(compositedImage, drawing.dataRepresentation())
-        } else {
-            onSave(image, nil)
-        }
-        dismiss()
-    }
-
-    private func renderComposite() -> UIImage {
-        let imageSize = image.size
-        let renderer = UIGraphicsImageRenderer(size: imageSize)
-        return renderer.image { context in
-            image.draw(at: .zero)
-
-            // Scale the canvas drawing to match the original image dimensions
+            drawingData = drawing.dataRepresentation()
             let canvasSize = canvasView.bounds.size
-            guard canvasSize.width > 0, canvasSize.height > 0 else { return }
+            if canvasSize.width > 0, canvasSize.height > 0 {
+                let imageSize = image.size
+                let scaleX = imageSize.width / canvasSize.width
+                let scaleY = imageSize.height / canvasSize.height
+                let drawingImage = drawing.image(
+                    from: CGRect(origin: .zero, size: canvasSize),
+                    scale: max(scaleX, scaleY)
+                )
+                let renderer = UIGraphicsImageRenderer(size: imageSize)
+                compositedImage = renderer.image { _ in
+                    image.draw(at: .zero)
+                    drawingImage.draw(in: CGRect(origin: .zero, size: imageSize))
+                }
+            }
+        }
 
-            let scaleX = imageSize.width / canvasSize.width
-            let scaleY = imageSize.height / canvasSize.height
+        // Dismiss first, then deliver result after the sheet is gone
+        dismiss()
 
-            let drawingImage = canvasView.drawing.image(
-                from: canvasView.bounds,
-                scale: max(scaleX, scaleY)
-            )
-            drawingImage.draw(in: CGRect(origin: .zero, size: imageSize))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            onSave(compositedImage, drawingData)
         }
     }
 

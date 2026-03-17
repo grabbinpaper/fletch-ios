@@ -120,6 +120,8 @@ actor SyncEngine {
             try await syncChecklistItem(operation)
         case "upload_signature":
             try await syncSignatureUpload(operation)
+        case "upsert_site_condition":
+            try await syncSiteCondition(operation)
         case "rpc":
             try await syncRPCCall(operation)
         default:
@@ -228,6 +230,7 @@ actor SyncEngine {
                 let surface_id: String?
                 let thumbnail_path: String?
                 let has_annotations: Bool
+                let site_condition_key: String?
             }
 
             try await supabase.client
@@ -245,20 +248,22 @@ actor SyncEngine {
                     uploaded_by: payload.uploadedBy.uuidString,
                     surface_id: payload.surfaceId?.uuidString,
                     thumbnail_path: uploadedThumbPath,
-                    has_annotations: payload.hasAnnotations
+                    has_annotations: payload.hasAnnotations,
+                    site_condition_key: payload.siteConditionKey
                 ))
                 .execute()
         }
 
         // Mark photo as synced in SwiftData
-        let photoEntityId = operation.entityId
-        let context = ModelContext(modelContainer)
-        let descriptor = FetchDescriptor<CachedPhoto>(
-            predicate: #Predicate { $0.localId.uuidString == photoEntityId }
-        )
-        if let photo = try? context.fetch(descriptor).first {
-            photo.isSynced = true
-            try? context.save()
+        if let photoUUID = UUID(uuidString: operation.entityId) {
+            let context = ModelContext(modelContainer)
+            let descriptor = FetchDescriptor<CachedPhoto>(
+                predicate: #Predicate { $0.localId == photoUUID }
+            )
+            if let photo = try? context.fetch(descriptor).first {
+                photo.isSynced = true
+                try? context.save()
+            }
         }
     }
 
@@ -343,6 +348,47 @@ actor SyncEngine {
             .execute()
     }
 
+    private func syncSiteCondition(_ operation: SyncOperation) async throws {
+        let payload = try JSONDecoder().decode(SiteConditionPayload.self, from: operation.payload)
+
+        struct SiteConditionUpsert: Encodable {
+            let visit_id: String
+            let condition_key: String
+            let status: String
+            let detail_value: String?
+            let notes: String?
+            let photo_count: Int
+            let assessed_at: String?
+            let assessed_by: String?
+        }
+
+        try await supabase.client
+            .from("visit_site_condition")
+            .upsert(SiteConditionUpsert(
+                visit_id: payload.visitId.uuidString,
+                condition_key: payload.conditionKey,
+                status: payload.status,
+                detail_value: payload.detailValue,
+                notes: payload.notes,
+                photo_count: payload.photoCount,
+                assessed_at: payload.assessedAt?.ISO8601Format(),
+                assessed_by: payload.assessedBy?.uuidString
+            ), onConflict: "visit_id,condition_key")
+            .execute()
+
+        // Mark as synced in SwiftData
+        if let conditionUUID = UUID(uuidString: operation.entityId) {
+            let context = ModelContext(modelContainer)
+            let descriptor = FetchDescriptor<CachedSiteCondition>(
+                predicate: #Predicate { $0.id == conditionUUID }
+            )
+            if let condition = try? context.fetch(descriptor).first {
+                condition.isSynced = true
+                try? context.save()
+            }
+        }
+    }
+
     private func syncRPCCall(_ operation: SyncOperation) async throws {
         let payload = try JSONDecoder().decode(RPCPayload.self, from: operation.payload)
 
@@ -390,6 +436,18 @@ struct PhotoUploadPayload: Codable {
     let thumbnailLocalPath: String?
     let thumbnailStoragePath: String?
     let hasAnnotations: Bool
+    let siteConditionKey: String?
+}
+
+struct SiteConditionPayload: Codable {
+    let visitId: UUID
+    let conditionKey: String
+    let status: String
+    let detailValue: String?
+    let notes: String?
+    let photoCount: Int
+    let assessedAt: Date?
+    let assessedBy: UUID?
 }
 
 struct ChecklistItemPayload: Codable {

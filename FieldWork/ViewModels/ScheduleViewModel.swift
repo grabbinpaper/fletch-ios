@@ -32,14 +32,22 @@ final class ScheduleViewModel {
 
     @MainActor
     func loadSchedule(context: ModelContext) async {
-        guard let appState else { return }
+        guard let appState else {
+            NSLog("[FieldWork] loadSchedule: appState is nil")
+            return
+        }
 
         isLoading = true
         error = nil
 
+        let hasNetwork = appState.networkMonitor.isConnected
+        let staffId = appState.staffId
+        NSLog("[FieldWork] loadSchedule: network=%d staffId=%@", hasNetwork ? 1 : 0, staffId?.uuidString ?? "nil")
+
         // Try to load from remote first
-        if appState.networkMonitor.isConnected, let staffId = appState.staffId {
+        if hasNetwork, let staffId {
             do {
+                NSLog("[FieldWork] Fetching schedule for staff: %@ date: %@", staffId.uuidString, Date.todayString)
                 let response: ScheduleResponse = try await appState.supabaseManager.client
                     .rpc("get_tech_schedule", params: [
                         "p_staff_id": staffId.uuidString,
@@ -48,17 +56,22 @@ final class ScheduleViewModel {
                     .execute()
                     .value
 
+                NSLog("[FieldWork] Decoded %d bookings", response.bookings.count)
+
                 // Upsert into SwiftData
                 upsertBookings(response.bookings, in: context)
                 lastRefreshed = Date()
             } catch {
-                self.error = "Failed to load schedule: \(error.localizedDescription)"
-                print("Schedule load error: \(error)")
+                self.error = "Failed to load schedule: \(error)"
+                NSLog("[FieldWork] Schedule load error: %@", "\(error)")
             }
+        } else if staffId == nil {
+            self.error = "Not signed in"
         }
 
         // Always read from local cache
         loadFromCache(context: context)
+        NSLog("[FieldWork] loadFromCache returned %d bookings", bookings.count)
         isLoading = false
     }
 

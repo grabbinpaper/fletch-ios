@@ -34,6 +34,9 @@ struct ActiveVisitView: View {
                 )
                 .tag(VisitTab.measurements)
 
+                SiteConditionTabView(viewModel: viewModel)
+                    .tag(VisitTab.site)
+
                 PhotoTabView(viewModel: viewModel)
                     .tag(VisitTab.photos)
 
@@ -61,6 +64,7 @@ struct ActiveVisitView: View {
         }
         .task {
             viewModel.configure(appState: appState)
+            viewModel.loadSiteConditions(context: modelContext)
             viewModel.loadChecklist(context: modelContext)
             viewModel.loadPhotos(context: modelContext)
         }
@@ -76,7 +80,10 @@ struct ActiveVisitView: View {
                 )
             }
         }
-        .sheet(isPresented: $viewModel.showMarkup) {
+        .sheet(isPresented: $viewModel.showMarkup, onDismiss: {
+            viewModel.pendingImage = nil
+            viewModel.pendingSiteConditionKey = nil
+        }) {
             if let image = viewModel.pendingImage {
                 PhotoMarkupView(
                     image: image,
@@ -86,9 +93,9 @@ struct ActiveVisitView: View {
                             annotationData: drawingData,
                             surfaceId: viewModel.pendingSurfaceId,
                             caption: viewModel.pendingCaption,
+                            siteConditionKey: viewModel.pendingSiteConditionKey,
                             context: modelContext
                         )
-                        viewModel.pendingImage = nil
                     },
                     onSkip: {
                         viewModel.savePhoto(
@@ -96,9 +103,9 @@ struct ActiveVisitView: View {
                             annotationData: nil,
                             surfaceId: viewModel.pendingSurfaceId,
                             caption: viewModel.pendingCaption,
+                            siteConditionKey: viewModel.pendingSiteConditionKey,
                             context: modelContext
                         )
-                        viewModel.pendingImage = nil
                     }
                 )
             }
@@ -106,7 +113,7 @@ struct ActiveVisitView: View {
     }
 
     private var visibleTabs: [VisitTab] {
-        var tabs: [VisitTab] = [.measurements, .photos, .checklist]
+        var tabs: [VisitTab] = [.measurements, .site, .photos, .checklist]
         if viewModel.booking.signatureRequired {
             tabs.append(.signature)
         }

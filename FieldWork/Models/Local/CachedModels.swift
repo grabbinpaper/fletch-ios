@@ -1,6 +1,31 @@
 import Foundation
 import SwiftData
 
+// Shared date parsers for RPC response formats
+private let iso8601Formatter: ISO8601DateFormatter = {
+    let f = ISO8601DateFormatter()
+    f.formatOptions = [.withInternetDateTime]
+    return f
+}()
+
+private let plainDateFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateFormat = "yyyy-MM-dd"
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.timeZone = .current
+    return f
+}()
+
+/// Parse a datetime string from the RPC (ISO8601 with timezone, e.g. "2026-03-14T09:00:00+00:00")
+func parseDatetime(_ string: String) -> Date? {
+    iso8601Formatter.date(from: string)
+}
+
+/// Parse a plain date string from the RPC (e.g. "2026-03-14")
+func parsePlainDate(_ string: String) -> Date? {
+    plainDateFormatter.date(from: string) ?? iso8601Formatter.date(from: string)
+}
+
 @Model
 final class CachedBooking {
     @Attribute(.unique) var bookingId: UUID
@@ -64,9 +89,9 @@ final class CachedBooking {
 
     init(from booking: ScheduleBooking) {
         self.bookingId = booking.bookingId
-        self.scheduledDate = ISO8601DateFormatter().date(from: booking.scheduledDate) ?? Date()
-        self.startDatetime = ISO8601DateFormatter().date(from: booking.startDatetime) ?? Date()
-        self.endDatetime = ISO8601DateFormatter().date(from: booking.endDatetime) ?? Date()
+        self.scheduledDate = parsePlainDate(booking.scheduledDate) ?? Date()
+        self.startDatetime = parseDatetime(booking.startDatetime) ?? Date()
+        self.endDatetime = parseDatetime(booking.endDatetime) ?? Date()
         self.status = booking.status
         self.priority = booking.priority
         self.siteAddress = booking.siteAddress
@@ -108,9 +133,9 @@ final class CachedBooking {
         self.visitId = booking.visit?.visitId
         self.visitStatus = booking.visit?.status
         self.visitOutcome = booking.visit?.outcome
-        self.visitDepartedAt = booking.visit?.departedAt.flatMap { ISO8601DateFormatter().date(from: $0) }
-        self.visitArrivedAt = booking.visit?.arrivedAt.flatMap { ISO8601DateFormatter().date(from: $0) }
-        self.visitCompletedAt = booking.visit?.completedAt.flatMap { ISO8601DateFormatter().date(from: $0) }
+        self.visitDepartedAt = booking.visit?.departedAt.flatMap { parseDatetime($0) }
+        self.visitArrivedAt = booking.visit?.arrivedAt.flatMap { parseDatetime($0) }
+        self.visitCompletedAt = booking.visit?.completedAt.flatMap { parseDatetime($0) }
         self.signatureRequired = booking.visit?.signatureRequired ?? false
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
 
@@ -119,14 +144,18 @@ final class CachedBooking {
     }
 
     func update(from booking: ScheduleBooking) {
+        self.scheduledDate = parsePlainDate(booking.scheduledDate) ?? self.scheduledDate
+        self.startDatetime = parseDatetime(booking.startDatetime) ?? self.startDatetime
+        self.endDatetime = parseDatetime(booking.endDatetime) ?? self.endDatetime
         self.status = booking.status
         self.priority = booking.priority
+        self.siteAddress = booking.siteAddress
         self.visitId = booking.visit?.visitId
         self.visitStatus = booking.visit?.status
         self.visitOutcome = booking.visit?.outcome
-        self.visitDepartedAt = booking.visit?.departedAt.flatMap { ISO8601DateFormatter().date(from: $0) }
-        self.visitArrivedAt = booking.visit?.arrivedAt.flatMap { ISO8601DateFormatter().date(from: $0) }
-        self.visitCompletedAt = booking.visit?.completedAt.flatMap { ISO8601DateFormatter().date(from: $0) }
+        self.visitDepartedAt = booking.visit?.departedAt.flatMap { parseDatetime($0) }
+        self.visitArrivedAt = booking.visit?.arrivedAt.flatMap { parseDatetime($0) }
+        self.visitCompletedAt = booking.visit?.completedAt.flatMap { parseDatetime($0) }
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
         self.lastSyncedAt = Date()
     }
@@ -268,6 +297,7 @@ final class CachedPhoto {
     var isSynced: Bool
     var hasAnnotations: Bool
     var annotationData: Data?
+    var siteConditionKey: String?
 
     init(
         localFilePath: String,
@@ -279,7 +309,8 @@ final class CachedPhoto {
         latitude: Double? = nil,
         longitude: Double? = nil,
         hasAnnotations: Bool = false,
-        annotationData: Data? = nil
+        annotationData: Data? = nil,
+        siteConditionKey: String? = nil
     ) {
         self.localId = UUID()
         self.localFilePath = localFilePath
@@ -294,6 +325,31 @@ final class CachedPhoto {
         self.isSynced = false
         self.hasAnnotations = hasAnnotations
         self.annotationData = annotationData
+        self.siteConditionKey = siteConditionKey
+    }
+}
+
+// MARK: - Site Condition Cache
+
+@Model
+final class CachedSiteCondition {
+    @Attribute(.unique) var id: UUID
+    var visitId: UUID
+    var conditionKey: String
+    var status: String
+    var detailValue: String?
+    var notes: String?
+    var photoCount: Int
+    var assessedAt: Date?
+    var isSynced: Bool
+
+    init(visitId: UUID, conditionKey: String) {
+        self.id = UUID()
+        self.visitId = visitId
+        self.conditionKey = conditionKey
+        self.status = "no_issue"
+        self.photoCount = 0
+        self.isSynced = false
     }
 }
 

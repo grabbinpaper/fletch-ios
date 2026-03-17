@@ -36,6 +36,8 @@
 		DFD6751720E8BC77D2CBFCB5 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06F9D94DB4C7A89413C8969 /* LocationManager.swift */; };
 		E6CE5DF4EFFC55090B2D9618 /* PhotoTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */; };
 		E783D1D0CECCA1285D750ED3 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BFA3CEC304527B30E2A2BA /* AppState.swift */; };
+		F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */; };
+		F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,6 +73,8 @@
 		F06F9D94DB4C7A89413C8969 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		FA96418329537BF140D5DA9D /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		FB23038FEC23AD1153D01E93 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionDefinitions.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionTabView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +132,7 @@
 				C3F335D6F3BB44A35B9825E4 /* MeasurementTab */,
 				7C87382E755F746C94B4A2AB /* PhotoTab */,
 				D408CB66ECA5538BE40F980D /* SignatureTab */,
+				C4D5E6F7A8B9C0D1E2F3A4B5 /* SiteConditionTab */,
 			);
 			path = ActiveVisit;
 			sourceTree = "<group>";
@@ -179,6 +184,7 @@
 			children = (
 				0211C08ED8B656931CDEAD64 /* Local */,
 				3D135E7F5BD586E55F4FA23B /* Remote */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -313,6 +319,14 @@
 			path = SignatureTab;
 			sourceTree = "<group>";
 		};
+		C4D5E6F7A8B9C0D1E2F3A4B5 /* SiteConditionTab */ = {
+			isa = PBXGroup;
+			children = (
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */,
+			);
+			path = SiteConditionTab;
+			sourceTree = "<group>";
+		};
 		EAE5CA1906BC8A487F8E6E6C /* Supabase */ = {
 			isa = PBXGroup;
 			children = (
@@ -411,6 +425,8 @@
 				13A0BDA236A02410DF984D6D /* SignatureTabView.swift in Sources */,
 				D581C4D28793B15791631074 /* SupabaseManager.swift in Sources */,
 				029D317833F1A4BDFB2C2BFD /* SyncEngine.swift in Sources */,
+				F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */,
+				F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

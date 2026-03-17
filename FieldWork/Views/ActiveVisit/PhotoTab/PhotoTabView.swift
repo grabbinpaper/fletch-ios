@@ -93,8 +93,8 @@ struct PhotoTabView: View {
                     // Surface picker
                     HStack {
                         Text("Tag:")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.caption.bold())
+                            .foregroundStyle(.primary)
 
                         Picker("Surface", selection: $selectedSurfaceId) {
                             Text("General").tag(nil as UUID?)
@@ -103,6 +103,7 @@ struct PhotoTabView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        .tint(.primary)
 
                         Spacer()
                     }
@@ -287,9 +288,27 @@ struct PhotoDetailView: View {
     let surfaces: [CachedSurface]
     let onDelete: () -> Void
     let onMarkup: () -> Void
+    let onSurfaceChanged: ((UUID?) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var showDeleteConfirm = false
+    @State private var selectedSurfaceId: UUID?
+
+    init(
+        photo: CachedPhoto,
+        surfaces: [CachedSurface],
+        onDelete: @escaping () -> Void,
+        onMarkup: @escaping () -> Void,
+        onSurfaceChanged: ((UUID?) -> Void)? = nil
+    ) {
+        self.photo = photo
+        self.surfaces = surfaces
+        self.onDelete = onDelete
+        self.onMarkup = onMarkup
+        self.onSurfaceChanged = onSurfaceChanged
+        _selectedSurfaceId = State(initialValue: photo.surfaceId)
+    }
 
     var body: some View {
         NavigationStack {
@@ -307,24 +326,24 @@ struct PhotoDetailView: View {
 
                 // Info bar
                 VStack(spacing: 8) {
+                    // Surface picker
                     HStack {
-                        // Surface tag
-                        if let surfaceId = photo.surfaceId,
-                           let surface = surfaces.first(where: { $0.surfaceId == surfaceId }) {
-                            Label(surface.displayName, systemImage: "tag")
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(.blue.opacity(0.1))
-                                .foregroundStyle(.blue)
-                                .clipShape(Capsule())
-                        } else {
-                            Label("General", systemImage: "tag")
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(.secondary.opacity(0.1))
-                                .clipShape(Capsule())
+                        Image(systemName: "tag")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Picker("Surface", selection: $selectedSurfaceId) {
+                            Text("General").tag(nil as UUID?)
+                            ForEach(surfaces, id: \.surfaceId) { surface in
+                                Text(surface.displayName).tag(surface.surfaceId as UUID?)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .tint(.primary)
+                        .onChange(of: selectedSurfaceId) { _, newValue in
+                            photo.surfaceId = newValue
+                            try? modelContext.save()
+                            onSurfaceChanged?(newValue)
                         }
 
                         Spacer()

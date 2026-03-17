@@ -56,6 +56,12 @@ struct ScheduleView: View {
                 ProgressView("Loading schedule...")
                 Spacer()
             }
+        } else if let error = viewModel.error {
+            ContentUnavailableView(
+                "Error Loading Schedule",
+                systemImage: "exclamationmark.triangle",
+                description: Text(error)
+            )
         } else if viewModel.bookings.isEmpty {
             ContentUnavailableView(
                 "No Jobs Today",
