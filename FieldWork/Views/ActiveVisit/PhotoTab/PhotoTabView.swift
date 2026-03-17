@@ -8,12 +8,26 @@ struct PhotoTabView: View {
     @State private var showCamera = false
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var selectedSurfaceId: UUID?
-    @State private var surfaceFilter: UUID?  // nil = "All"
+    @State private var photoFilter: PhotoFilter = .all
     @State private var selectedPhotoForDetail: CachedPhoto?
 
+    private enum PhotoFilter: Equatable {
+        case all, site, surface(UUID)
+    }
+
     private var filteredPhotos: [CachedPhoto] {
-        guard let filter = surfaceFilter else { return viewModel.photos }
-        return viewModel.photos.filter { $0.surfaceId == filter }
+        switch photoFilter {
+        case .all:
+            return viewModel.photos
+        case .site:
+            return viewModel.photos.filter { $0.siteConditionKey != nil }
+        case .surface(let id):
+            return viewModel.photos.filter { $0.surfaceId == id }
+        }
+    }
+
+    private var sitePhotoCount: Int {
+        viewModel.photos.filter { $0.siteConditionKey != nil }.count
     }
 
     private var unsyncedCount: Int {
@@ -22,30 +36,37 @@ struct PhotoTabView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Surface filter bar
-            if !viewModel.booking.surfaces.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        FilterChip(label: "All", count: viewModel.photos.count, isSelected: surfaceFilter == nil) {
-                            surfaceFilter = nil
-                        }
+            // Filter bar
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    FilterChip(label: "All", count: viewModel.photos.count, isSelected: photoFilter == .all) {
+                        photoFilter = .all
+                    }
 
-                        ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
-                            let count = viewModel.photos.filter { $0.surfaceId == surface.surfaceId }.count
-                            FilterChip(
-                                label: surface.displayName,
-                                count: count,
-                                isSelected: surfaceFilter == surface.surfaceId
-                            ) {
-                                surfaceFilter = surface.surfaceId
-                            }
+                    FilterChip(
+                        label: "Site",
+                        count: sitePhotoCount,
+                        isSelected: photoFilter == .site,
+                        tint: .orange
+                    ) {
+                        photoFilter = .site
+                    }
+
+                    ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
+                        let count = viewModel.photos.filter { $0.surfaceId == surface.surfaceId }.count
+                        FilterChip(
+                            label: surface.displayName,
+                            count: count,
+                            isSelected: photoFilter == .surface(surface.surfaceId)
+                        ) {
+                            photoFilter = .surface(surface.surfaceId)
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
                 }
-                .background(.bar)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
             }
+            .background(.bar)
 
             // Sync status banner
             if unsyncedCount > 0 {
@@ -65,9 +86,9 @@ struct PhotoTabView: View {
             ScrollView {
                 if filteredPhotos.isEmpty {
                     ContentUnavailableView(
-                        surfaceFilter != nil ? "No Photos for This Surface" : "No Photos",
+                        emptyTitle,
                         systemImage: "camera",
-                        description: Text("Take photos of the job site and surfaces.")
+                        description: Text(emptyDescription)
                     )
                     .padding(.top, 60)
                 } else {
@@ -179,6 +200,21 @@ struct PhotoTabView: View {
         }
     }
 
+    private var emptyTitle: String {
+        switch photoFilter {
+        case .all: "No Photos"
+        case .site: "No Site Photos"
+        case .surface: "No Photos for This Surface"
+        }
+    }
+
+    private var emptyDescription: String {
+        switch photoFilter {
+        case .site: "Use the Site tab to capture site condition photos."
+        default: "Take photos of the job site and surfaces."
+        }
+    }
+
     private func deletePhoto(_ photo: CachedPhoto) {
         // Remove local files
         try? FileManager.default.removeItem(atPath: photo.localFilePath)
@@ -198,6 +234,7 @@ private struct FilterChip: View {
     let label: String
     let count: Int
     let isSelected: Bool
+    var tint: Color = .blue
     let action: () -> Void
 
     var body: some View {
@@ -217,7 +254,7 @@ private struct FilterChip: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(isSelected ? .blue : .secondary.opacity(0.12))
+            .background(isSelected ? tint : .secondary.opacity(0.12))
             .foregroundStyle(isSelected ? .white : .primary)
             .clipShape(Capsule())
         }
@@ -247,15 +284,25 @@ struct PhotoThumbnail: View {
             }
         }
         .overlay(alignment: .topLeading) {
-            if photo.hasAnnotations {
-                Image(systemName: "pencil.tip.crop.circle.fill")
-                    .font(.caption2)
-                    .foregroundStyle(.white)
-                    .padding(4)
-                    .background(.blue)
-                    .clipShape(Circle())
-                    .padding(4)
+            HStack(spacing: 2) {
+                if photo.siteConditionKey != nil {
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.white)
+                        .padding(4)
+                        .background(.orange)
+                        .clipShape(Circle())
+                }
+                if photo.hasAnnotations {
+                    Image(systemName: "pencil.tip.crop.circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.white)
+                        .padding(4)
+                        .background(.blue)
+                        .clipShape(Circle())
+                }
             }
+            .padding(4)
         }
         .overlay(alignment: .bottomTrailing) {
             if !photo.isSynced {
@@ -352,6 +399,28 @@ struct PhotoDetailView: View {
                         Text(photo.capturedAt, style: .time)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                    }
+
+                    // Site tags
+                    if let tagKeys = photo.siteConditionKey, !tagKeys.isEmpty {
+                        let tags = tagKeys.split(separator: ",").compactMap { SiteTags.label(for: String($0)) }
+                        if !tags.isEmpty {
+                            HStack(spacing: 4) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                                ForEach(tags, id: \.self) { tag in
+                                    Text(tag)
+                                        .font(.caption2)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(.orange.opacity(0.15))
+                                        .foregroundStyle(.orange)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                     }
 
                     if let caption = photo.caption, !caption.isEmpty {
