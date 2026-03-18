@@ -13,6 +13,13 @@ final class ActiveVisitViewModel {
     var showPartialSheet = false
     var completionNotes = ""
     var error: String?
+
+    // Completion validation
+    var completionBlockers: [CompletionBlocker] = []
+    var skippedSurfaceInfo: [SkippedSurfaceInfo] = []
+    var requiresSignature = false
+    var isValidating = false
+    var signaturePending = false
     var edgeProfiles: [EdgeProfileOption] = []
     var showAddSurface = false
 
@@ -698,12 +705,7 @@ final class ActiveVisitViewModel {
     var canComplete: Bool {
         let hasMeasurements = !booking.measurements.isEmpty
         let atLeastOneMeasured = booking.measurements.contains(where: \.isMeasured)
-        let requiredChecklistDone = checklistItems
-            .filter { $0.status == "pending" }
-            .isEmpty || checklistItems.isEmpty
-        let signatureOk = !booking.signatureRequired || booking.signatureCaptured
-
-        return hasMeasurements && atLeastOneMeasured && requiredChecklistDone && signatureOk
+        return hasMeasurements && atLeastOneMeasured && completionBlockers.isEmpty && !isValidating
     }
 
     var allSkippedHaveReasons: Bool {
@@ -720,13 +722,41 @@ final class ActiveVisitViewModel {
         }
     }
 
-    /// Called from bottom bar — routes to full completion or partial sheet
+    /// Called from bottom bar — validates server-side, then routes to full completion or partial sheet
     func initiateCompletion() {
-        if isAllMeasured {
-            showCompletionSheet = true
-        } else {
-            showPartialSheet = true
+        Task { @MainActor in
+            await validateCompletion()
+            if isAllMeasured {
+                showCompletionSheet = true
+            } else {
+                showPartialSheet = true
+            }
         }
+    }
+
+    @MainActor
+    func validateCompletion() async {
+        guard let appState, let visitId = booking.visitId else { return }
+
+        isValidating = true
+        error = nil
+
+        do {
+            let response: ValidateVisitCompletionResponse = try await appState.supabaseManager.client
+                .rpc("validate_visit_completion", params: ["p_visit_id": visitId.uuidString])
+                .execute()
+                .value
+
+            completionBlockers = response.blockers
+            skippedSurfaceInfo = response.skippedSurfaces
+            requiresSignature = response.requiresSignature
+        } catch {
+            // If validation RPC isn't available yet, fall back to local-only checks
+            completionBlockers = []
+            requiresSignature = false
+        }
+
+        isValidating = false
     }
 
     @MainActor
@@ -758,13 +788,24 @@ final class ActiveVisitViewModel {
                 "p_outcome": outcome,
                 "p_notes": completionNotes
             ]
-            try await appState.supabaseManager.client
+            let response: CompleteVisitResponse = try await appState.supabaseManager.client
                 .rpc("complete_template_visit", params: params)
                 .execute()
+                .value
+
+            if !response.success {
+                // Server-side validation caught blockers
+                self.error = response.blockers?.first?.message ?? "Cannot complete visit — requirements not met"
+                self.completionBlockers = response.blockers ?? []
+                isCompleting = false
+                return
+            }
+
+            signaturePending = response.signaturePending ?? false
 
             booking.visitStatus = "completed"
             booking.visitCompletedAt = Date()
-            booking.visitOutcome = outcome
+            booking.visitOutcome = response.outcome ?? outcome
             // Mark surfaces as templated based on which measurements are done
             for measurement in booking.measurements where measurement.isMeasured {
                 if let surface = booking.surfaces.first(where: { $0.surfaceId == measurement.surfaceId }) {
@@ -799,4 +840,68 @@ enum VisitTab: String, CaseIterable {
     case photos = "Photos"
     case checklist = "Check"
     case signature = "Sign"
+}
+
+// MARK: - Completion Validation Models
+
+struct CompletionBlocker: Codable, Identifiable {
+    let ruleType: String
+    let targetId: UUID?
+    let targetLabel: String
+    let message: String
+
+    var id: String { "\(ruleType)-\(targetId?.uuidString ?? "nil")" }
+
+    enum CodingKeys: String, CodingKey {
+        case ruleType = "rule_type"
+        case targetId = "target_id"
+        case targetLabel = "target_label"
+        case message
+    }
+}
+
+struct SkippedSurfaceInfo: Codable, Identifiable {
+    let surfaceId: UUID
+    let name: String
+    let skipReason: String
+
+    var id: UUID { surfaceId }
+
+    enum CodingKeys: String, CodingKey {
+        case surfaceId = "surface_id"
+        case name
+        case skipReason = "skip_reason"
+    }
+}
+
+struct ValidateVisitCompletionResponse: Codable {
+    let canComplete: Bool
+    let outcome: String
+    let blockers: [CompletionBlocker]
+    let skippedSurfaces: [SkippedSurfaceInfo]
+    let requiresSignature: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case canComplete = "can_complete"
+        case outcome
+        case blockers
+        case skippedSurfaces = "skipped_surfaces"
+        case requiresSignature = "requires_signature"
+    }
+}
+
+struct CompleteVisitResponse: Codable {
+    let success: Bool
+    let outcome: String?
+    let signaturePending: Bool?
+    let signatureToken: String?
+    let blockers: [CompletionBlocker]?
+
+    enum CodingKeys: String, CodingKey {
+        case success
+        case outcome
+        case signaturePending = "signature_pending"
+        case signatureToken = "signature_token"
+        case blockers
+    }
 }

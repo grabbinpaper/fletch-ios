@@ -44,7 +44,7 @@ struct ActiveVisitView: View {
                 ChecklistTabView(viewModel: viewModel)
                     .tag(VisitTab.checklist)
 
-                if viewModel.booking.signatureRequired {
+                if viewModel.requiresSignature || viewModel.signaturePending || viewModel.booking.signatureCaptured {
                     SignatureTabView(viewModel: viewModel)
                         .tag(VisitTab.signature)
                 }
@@ -183,7 +183,7 @@ struct ActiveVisitView: View {
 
     private var visibleTabs: [VisitTab] {
         var tabs: [VisitTab] = [.measurements, .site, .photos, .checklist]
-        if viewModel.booking.signatureRequired {
+        if viewModel.requiresSignature || viewModel.signaturePending || viewModel.booking.signatureCaptured {
             tabs.append(.signature)
         }
         return tabs
@@ -211,7 +211,16 @@ struct ActiveVisitView: View {
             Button {
                 viewModel.initiateCompletion()
             } label: {
-                if viewModel.isAllMeasured {
+                if viewModel.isValidating {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Checking requirements...")
+                    }
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                } else if viewModel.isAllMeasured {
                     Text("Complete Visit")
                         .font(.headline)
                         .frame(maxWidth: .infinity)

@@ -21,11 +21,46 @@ struct CompletionView: View {
                         }
                     }
 
+                    // Blockers section
+                    if !viewModel.completionBlockers.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Requirements Not Met", systemImage: "exclamationmark.triangle.fill")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(.red)
+
+                            ForEach(viewModel.completionBlockers) { blocker in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Image(systemName: blockerIcon(for: blocker.ruleType))
+                                        .font(.caption)
+                                        .foregroundStyle(.red)
+                                        .frame(width: 16)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(blocker.message)
+                                            .font(.caption)
+                                        if !blocker.targetLabel.isEmpty {
+                                            Text(blocker.targetLabel)
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.red.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .strokeBorder(.red.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+
                     // Measurements summary
                     summarySection(
                         title: "Measurements",
                         icon: "ruler",
-                        status: measurementStatus
+                        status: measurementStatus,
+                        isComplete: viewModel.isAllMeasured
                     ) {
                         ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
                             let measurement = viewModel.booking.measurement(for: surface.surfaceId)
@@ -51,7 +86,8 @@ struct CompletionView: View {
                     summarySection(
                         title: "Photos",
                         icon: "camera",
-                        status: "\(viewModel.photos.count) captured"
+                        status: "\(viewModel.photos.count) captured",
+                        isComplete: !hasBlocker("photo_per_surface") && !hasBlocker("photo_site")
                     ) {
                         EmptyView()
                     }
@@ -62,21 +98,30 @@ struct CompletionView: View {
                         summarySection(
                             title: "Checklist",
                             icon: "checklist",
-                            status: "\(completed)/\(viewModel.checklistItems.count) items"
+                            status: "\(completed)/\(viewModel.checklistItems.count) items",
+                            isComplete: !hasBlocker("checklist_complete")
                         ) {
                             EmptyView()
                         }
                     }
 
-                    // Signature
-                    if viewModel.booking.signatureRequired {
-                        summarySection(
-                            title: "Signature",
-                            icon: "signature",
-                            status: viewModel.booking.signatureCaptured ? "Captured" : "Missing"
-                        ) {
-                            EmptyView()
+                    // Signature info
+                    if viewModel.requiresSignature {
+                        HStack(spacing: 10) {
+                            Image(systemName: "signature")
+                                .font(.title3)
+                                .foregroundStyle(.blue)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Signature link will be sent")
+                                    .font(.subheadline.bold())
+                                Text("The customer will receive a text/email to review and sign after you complete.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+                        .padding()
+                        .background(Color.blue.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
                     // Notes
@@ -92,7 +137,9 @@ struct CompletionView: View {
                     Button {
                         Task {
                             await viewModel.completeVisit(context: modelContext)
-                            dismiss()
+                            if viewModel.error == nil {
+                                dismiss()
+                            }
                         }
                     } label: {
                         if viewModel.isCompleting {
@@ -108,7 +155,7 @@ struct CompletionView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.green)
-                    .disabled(viewModel.isCompleting)
+                    .disabled(viewModel.isCompleting || !viewModel.completionBlockers.isEmpty)
 
                     if let error = viewModel.error {
                         Text(error)
@@ -134,11 +181,26 @@ struct CompletionView: View {
         return "\(measured)/\(total) surfaces"
     }
 
+    private func hasBlocker(_ ruleType: String) -> Bool {
+        viewModel.completionBlockers.contains { $0.ruleType == ruleType }
+    }
+
+    private func blockerIcon(for ruleType: String) -> String {
+        switch ruleType {
+        case "photo_per_surface", "photo_site": return "camera"
+        case "surface_dimensions", "backsplash_dimensions": return "ruler"
+        case "checklist_complete": return "checklist"
+        case "no_blocking_issues": return "exclamationmark.octagon"
+        default: return "xmark.circle"
+        }
+    }
+
     @ViewBuilder
     private func summarySection<Content: View>(
         title: String,
         icon: String,
         status: String,
+        isComplete: Bool = true,
         @ViewBuilder content: () -> Content
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -146,9 +208,14 @@ struct CompletionView: View {
                 Label(title, systemImage: icon)
                     .font(.subheadline.bold())
                 Spacer()
-                Text(status)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 4) {
+                    Image(systemName: isComplete ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(isComplete ? .green : .secondary)
+                        .font(.caption)
+                    Text(status)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             content()
         }

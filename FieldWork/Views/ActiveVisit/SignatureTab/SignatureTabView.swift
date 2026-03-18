@@ -4,121 +4,71 @@ import SwiftData
 struct SignatureTabView: View {
     @Bindable var viewModel: ActiveVisitViewModel
     @Environment(\.modelContext) private var modelContext
-    @State private var signerName = ""
-    @State private var lines: [[CGPoint]] = []
-    @State private var currentLine: [CGPoint] = []
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
+            Spacer()
+
             if viewModel.booking.signatureCaptured {
+                // Already signed (via remote link)
                 ContentUnavailableView(
-                    "Signature Captured",
+                    "Signature Received",
                     systemImage: "checkmark.seal.fill",
-                    description: Text("Signature has been saved.")
+                    description: Text("The customer has signed via the approval link.")
                 )
+            } else if viewModel.signaturePending {
+                // Visit completed, signature link sent
+                VStack(spacing: 16) {
+                    Image(systemName: "paperplane.fill")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.blue)
+
+                    Text("Signature Link Sent")
+                        .font(.title3.bold())
+
+                    Text("The customer will receive a link to review the visit summary and sign. You're all set — no action needed here.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                }
+            } else if viewModel.requiresSignature {
+                // Before completion — signature required but will be async
+                VStack(spacing: 16) {
+                    Image(systemName: "signature")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.blue.opacity(0.7))
+
+                    Text("Signature Required")
+                        .font(.title3.bold())
+
+                    Text("After you complete this visit, the customer will receive a text or email with a link to review and sign. No on-device signature needed.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+
+                    if let name = viewModel.booking.customerName, !name.isEmpty {
+                        HStack(spacing: 8) {
+                            Image(systemName: "person.fill")
+                                .foregroundStyle(.secondary)
+                            Text(name)
+                                .font(.subheadline.bold())
+                        }
+                        .padding(.top, 8)
+                    }
+                }
             } else {
-                Text("Customer Signature")
-                    .font(.headline)
-
-                // Signer name
-                TextField("Signer Name", text: $signerName)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
-
-                // Signature canvas
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(.secondary.opacity(0.3), lineWidth: 1)
-                        )
-
-                    Canvas { context, _ in
-                        for line in lines {
-                            var path = Path()
-                            guard let first = line.first else { continue }
-                            path.move(to: first)
-                            for point in line.dropFirst() {
-                                path.addLine(to: point)
-                            }
-                            context.stroke(path, with: .color(.black), lineWidth: 2)
-                        }
-
-                        // Current line
-                        if !currentLine.isEmpty {
-                            var path = Path()
-                            path.move(to: currentLine[0])
-                            for point in currentLine.dropFirst() {
-                                path.addLine(to: point)
-                            }
-                            context.stroke(path, with: .color(.black), lineWidth: 2)
-                        }
-                    }
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { value in
-                                currentLine.append(value.location)
-                            }
-                            .onEnded { _ in
-                                lines.append(currentLine)
-                                currentLine = []
-                            }
-                    )
-
-                    if lines.isEmpty && currentLine.isEmpty {
-                        Text("Sign here")
-                            .foregroundStyle(.secondary)
-                            .allowsHitTesting(false)
-                    }
-                }
-                .frame(height: 200)
-                .padding(.horizontal)
-
-                HStack {
-                    Button("Clear") {
-                        lines = []
-                        currentLine = []
-                    }
-                    .buttonStyle(.bordered)
-
-                    Spacer()
-
-                    Button("Save Signature") {
-                        saveSignature()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(lines.isEmpty || signerName.isEmpty)
-                }
-                .padding(.horizontal)
+                // No signature required for this customer
+                ContentUnavailableView(
+                    "No Signature Required",
+                    systemImage: "signature",
+                    description: Text("This customer does not require a signature.")
+                )
             }
 
             Spacer()
         }
         .padding(.top)
-    }
-
-    private func saveSignature() {
-        // Render canvas to UIImage
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 600, height: 300))
-        let image = renderer.image { ctx in
-            ctx.cgContext.setFillColor(UIColor.white.cgColor)
-            ctx.cgContext.fill(CGRect(x: 0, y: 0, width: 600, height: 300))
-
-            ctx.cgContext.setStrokeColor(UIColor.black.cgColor)
-            ctx.cgContext.setLineWidth(2)
-            ctx.cgContext.setLineCap(.round)
-
-            for line in lines {
-                guard let first = line.first else { continue }
-                ctx.cgContext.move(to: first)
-                for point in line.dropFirst() {
-                    ctx.cgContext.addLine(to: point)
-                }
-                ctx.cgContext.strokePath()
-            }
-        }
-
-        viewModel.saveSignature(image: image, signerName: signerName, context: modelContext)
     }
 }

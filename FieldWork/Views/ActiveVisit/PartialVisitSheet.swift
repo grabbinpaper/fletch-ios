@@ -19,6 +19,46 @@ struct PartialVisitSheet: View {
                             .foregroundStyle(.secondary)
                     }
 
+                    // Return visit warning
+                    HStack(spacing: 10) {
+                        Image(systemName: "arrow.uturn.backward.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(.orange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Return visit required")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(.orange)
+                            Text("The office will schedule a return visit for skipped surfaces.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding()
+                    .background(Color.orange.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                    // Blockers section
+                    if !viewModel.completionBlockers.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Requirements Not Met", systemImage: "exclamationmark.triangle.fill")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(.red)
+
+                            ForEach(viewModel.completionBlockers) { blocker in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.caption)
+                                        .foregroundStyle(.red)
+                                    Text(blocker.message)
+                                        .font(.caption)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.red.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+
                     // Surface status list
                     ForEach(viewModel.booking.measurements, id: \.measurementId) { measurement in
                         let surface = viewModel.booking.surfaces.first { $0.surfaceId == measurement.surfaceId }
@@ -26,6 +66,20 @@ struct PartialVisitSheet: View {
                             surfaceName: surface?.displayName ?? "Surface",
                             measurement: measurement
                         )
+                    }
+
+                    // Signature note
+                    if viewModel.requiresSignature {
+                        HStack(spacing: 10) {
+                            Image(systemName: "signature")
+                                .foregroundStyle(.blue)
+                            Text("Signature link will be sent to the customer after completion.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding()
+                        .background(Color.blue.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
                     // Notes
@@ -41,7 +95,9 @@ struct PartialVisitSheet: View {
                     Button {
                         Task {
                             await viewModel.completeVisit(context: modelContext)
-                            dismiss()
+                            if viewModel.error == nil {
+                                dismiss()
+                            }
                         }
                     } label: {
                         if viewModel.isCompleting {
@@ -57,7 +113,7 @@ struct PartialVisitSheet: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.orange)
-                    .disabled(viewModel.isCompleting || !viewModel.allSkippedHaveReasons)
+                    .disabled(viewModel.isCompleting || !viewModel.allSkippedHaveReasons || !viewModel.completionBlockers.isEmpty)
 
                     if !viewModel.allSkippedHaveReasons {
                         Text("Please provide a skip reason for all unmeasured surfaces.")
@@ -89,6 +145,10 @@ private struct SurfaceSkipRow: View {
     @Bindable var measurement: CachedMeasurement
 
     private let skipReasons: [(String, String)] = [
+        ("furniture_blocking", "Furniture blocking"),
+        ("appliance_in_way", "Appliance in way"),
+        ("homeowner_denied_access", "Homeowner denied access"),
+        ("area_not_ready", "Area not ready"),
         ("cabinet_not_installed", "Cabinet not installed"),
         ("cabinets_not_level", "Cabinets not level"),
         ("surface_inaccessible", "Surface inaccessible"),
