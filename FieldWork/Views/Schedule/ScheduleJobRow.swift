@@ -53,11 +53,15 @@ struct ScheduleJobRow: View {
                     .lineLimit(1)
             }
 
-            // Surface count
-            HStack(spacing: 4) {
-                Image(systemName: "square.dashed")
-                    .font(.caption2)
-                Text("\(booking.templatedSurfaceCount)/\(booking.surfaceCount) surfaces")
+            // Salesperson + surface count
+            HStack(spacing: 12) {
+                if let salesperson = booking.salespersonName {
+                    Label(salesperson, systemImage: "briefcase.fill")
+                        .font(.caption)
+                }
+
+                Label("\(booking.templatedSurfaceCount)/\(booking.surfaceCount) surfaces",
+                      systemImage: "square.dashed")
                     .font(.caption)
             }
             .foregroundStyle(.secondary)

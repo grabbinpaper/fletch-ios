@@ -34,7 +34,7 @@ final class JobDetailViewModel {
 
     var canReportBlocked: Bool {
         let state = visitState
-        return state == .enRoute || state == .onSite
+        return state == .notStarted || state == .enRoute || state == .onSite
     }
 
     var ctaTitle: String {
@@ -135,8 +135,33 @@ final class JobDetailViewModel {
 
     @MainActor
     func reportBlocked(reason: BlockedReason, notes: String?, context: ModelContext) async {
-        guard let visitId = booking.visitId else { return }
         guard let appState, let staffId = appState.staffId else { return }
+
+        // If no visit exists yet, create one first
+        var visitId: UUID
+        if let existing = booking.visitId {
+            visitId = existing
+        } else {
+            do {
+                let lat = appState.locationManager.latitude
+                let lng = appState.locationManager.longitude
+                var params: [String: String] = [
+                    "p_booking_id": booking.bookingId.uuidString,
+                    "p_worker_id": staffId.uuidString,
+                    "p_lat": lat.map { "\($0)" } ?? "",
+                    "p_lng": lng.map { "\($0)" } ?? ""
+                ]
+                let newVisitId: UUID = try await appState.supabaseManager.client
+                    .rpc("start_template_visit", params: params)
+                    .execute()
+                    .value
+                booking.visitId = newVisitId
+                visitId = newVisitId
+            } catch {
+                self.error = "Failed to create visit: \(error.localizedDescription)"
+                return
+            }
+        }
 
         isReportingBlocked = true
         error = nil

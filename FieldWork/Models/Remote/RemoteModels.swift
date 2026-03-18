@@ -161,6 +161,9 @@ struct ScheduleJob: Codable {
     let specialInstructions: String?
     let totalSqft: Double?
     let numPieces: Int?
+    let salespersonName: String?
+    let salespersonPhone: String?
+    let salespersonEmail: String?
 
     enum CodingKeys: String, CodingKey {
         case jobId = "job_id"
@@ -183,6 +186,9 @@ struct ScheduleJob: Codable {
         case specialInstructions = "special_instructions"
         case totalSqft = "total_sqft"
         case numPieces = "num_pieces"
+        case salespersonName = "salesperson_name"
+        case salespersonPhone = "salesperson_phone"
+        case salespersonEmail = "salesperson_email"
     }
 
     var fullAddress: String {

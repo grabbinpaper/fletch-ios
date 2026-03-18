@@ -59,6 +59,9 @@ final class CachedBooking {
     var siteContactPhone: String?
     var siteAccessNotes: String?
     var specialInstructions: String?
+    var salespersonName: String?
+    var salespersonPhone: String?
+    var salespersonEmail: String?
 
     // Denormalized customer fields
     var customerId: UUID?
@@ -126,6 +129,9 @@ final class CachedBooking {
         self.siteContactPhone = booking.job?.siteContactPhone
         self.siteAccessNotes = booking.job?.siteAccessNotes
         self.specialInstructions = booking.job?.specialInstructions
+        self.salespersonName = booking.job?.salespersonName
+        self.salespersonPhone = booking.job?.salespersonPhone
+        self.salespersonEmail = booking.job?.salespersonEmail
 
         self.customerId = booking.customer?.customerId
         self.customerName = booking.customer?.displayName
@@ -200,6 +206,9 @@ final class CachedBooking {
         self.startingAddress = booking.visit?.startingAddress ?? self.startingAddress
         self.travelMiles = booking.visit?.calculatedMiles ?? self.travelMiles
         self.travelTimeMinutes = booking.visit?.travelTimeMinutes ?? self.travelTimeMinutes
+        self.salespersonName = booking.job?.salespersonName ?? self.salespersonName
+        self.salespersonPhone = booking.job?.salespersonPhone ?? self.salespersonPhone
+        self.salespersonEmail = booking.job?.salespersonEmail ?? self.salespersonEmail
         self.lastSyncedAt = Date()
 
         // Sync measurements from remote
@@ -244,6 +253,9 @@ final class CachedBooking {
 
     var surfaceCount: Int { surfaces.count }
     var templatedSurfaceCount: Int { surfaces.filter(\.isTemplated).count }
+    var roomCount: Int {
+        Set(surfaces.compactMap(\.roomName)).count
+    }
 
     func measurement(for surfaceId: UUID) -> CachedMeasurement? {
         measurements.first { $0.surfaceId == surfaceId }

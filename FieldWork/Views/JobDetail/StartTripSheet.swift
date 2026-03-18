@@ -14,14 +14,43 @@ struct StartTripSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    Text("Where are you starting from?")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
+                    VStack(alignment: .leading, spacing: 6) {
+                        if let customer = booking.customerName {
+                            Text(customer)
+                                .font(.headline)
+                        }
+                        Text(booking.fullAddress)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        if let salesperson = booking.salespersonName {
+                            HStack(spacing: 4) {
+                                Label(salesperson, systemImage: "briefcase.fill")
+                                    .font(.caption)
+                                if let spPhone = booking.salespersonPhone {
+                                    Text("·")
+                                    Text(spPhone)
+                                        .font(.caption)
+                                }
+                            }
+                            .foregroundStyle(.secondary)
+                        }
+                        if let contact = booking.contactName ?? booking.siteContactName {
+                            HStack(spacing: 4) {
+                                Label(contact, systemImage: "person.fill")
+                                    .font(.caption)
+                                if let phone = booking.contactPhone ?? booking.siteContactPhone {
+                                    Text("·")
+                                    Text(phone)
+                                        .font(.caption)
+                                }
+                            }
+                            .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 4)
                 }
 
-                Section("Starting Address") {
+                Section("Starting From") {
                     TextField("Enter address...", text: $startingAddress, axis: .vertical)
                         .lineLimit(2...4)
                         .textContentType(.fullStreetAddress)
@@ -33,7 +62,7 @@ struct StartTripSheet: View {
                     } label: {
                         HStack {
                             Spacer()
-                            Label("Start Trip", systemImage: "car.fill")
+                            Label("Start Visit", systemImage: "car.fill")
                                 .fontWeight(.semibold)
                             Spacer()
                         }

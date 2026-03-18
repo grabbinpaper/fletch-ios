@@ -22,6 +22,9 @@ struct JobDetailView: View {
                 // Warnings
                 warningCards
 
+                // Salesperson card
+                salespersonCard
+
                 // Customer card
                 customerCard
 
@@ -165,14 +168,6 @@ struct JobDetailView: View {
                     .font(.headline)
             }
 
-            if let account = viewModel.booking.accountNumber {
-                Text("Account: \(account)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Divider()
-
             if let phone = viewModel.booking.customerPhone {
                 Button { viewModel.callPhone(phone) } label: {
                     Label(phone, systemImage: "phone.fill")
@@ -185,23 +180,44 @@ struct JobDetailView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-
-            if let contactName = viewModel.booking.contactName {
-                Divider()
-                Text("Site Contact: \(contactName)")
-                    .font(.subheadline)
-                if let phone = viewModel.booking.contactPhone {
-                    Button { viewModel.callPhone(phone) } label: {
-                        Label(phone, systemImage: "phone.fill")
-                            .font(.caption)
-                    }
-                }
-            }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - Salesperson Card
+
+    @ViewBuilder
+    private var salespersonCard: some View {
+        if let salesperson = viewModel.booking.salespersonName {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Salesperson", systemImage: "briefcase.fill")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.secondary)
+
+                Text(salesperson)
+                    .font(.headline)
+
+                if let phone = viewModel.booking.salespersonPhone {
+                    Button { viewModel.callPhone(phone) } label: {
+                        Label(phone, systemImage: "phone.fill")
+                            .font(.subheadline)
+                    }
+                }
+
+                if let email = viewModel.booking.salespersonEmail {
+                    Label(email, systemImage: "envelope.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.regularMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
     }
 
     // MARK: - Site Card
@@ -219,11 +235,11 @@ struct JobDetailView: View {
                 NavigateButton { viewModel.openInMaps() }
             }
 
-            if let contact = viewModel.booking.siteContactName {
+            if let contactName = viewModel.booking.contactName ?? viewModel.booking.siteContactName {
                 Divider()
-                Text("Site Contact: \(contact)")
+                Text("Site Contact: \(contactName)")
                     .font(.subheadline)
-                if let phone = viewModel.booking.siteContactPhone {
+                if let phone = viewModel.booking.contactPhone ?? viewModel.booking.siteContactPhone {
                     Button { viewModel.callPhone(phone) } label: {
                         Label(phone, systemImage: "phone.fill")
                             .font(.caption)
@@ -233,24 +249,16 @@ struct JobDetailView: View {
 
             if let access = viewModel.booking.siteAccessNotes {
                 Divider()
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Access Notes")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                    Text(access)
-                        .font(.caption)
-                }
+                Text(access)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             if let instructions = viewModel.booking.specialInstructions {
                 Divider()
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Special Instructions")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                    Text(instructions)
-                        .font(.caption)
-                }
+                Text(instructions)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
@@ -259,16 +267,31 @@ struct JobDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    // MARK: - Surfaces
+    // MARK: - Scope Summary
 
     private var surfacesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Surfaces (\(viewModel.booking.surfaceCount))", systemImage: "square.dashed")
+            Label("Scope", systemImage: "square.dashed")
                 .font(.subheadline.bold())
                 .foregroundStyle(.secondary)
 
-            ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
-                SurfaceRow(surface: surface)
+            HStack(spacing: 16) {
+                let rooms = viewModel.booking.roomCount
+                let surfaces = viewModel.booking.surfaceCount
+
+                Label(rooms == 1 ? "1 room" : "\(rooms) rooms",
+                      systemImage: "door.left.hand.open")
+                    .font(.subheadline)
+
+                Label(surfaces == 1 ? "1 surface" : "\(surfaces) surfaces",
+                      systemImage: "rectangle.3.group")
+                    .font(.subheadline)
+            }
+
+            if viewModel.booking.templatedSurfaceCount > 0 {
+                Text("\(viewModel.booking.templatedSurfaceCount) of \(viewModel.booking.surfaceCount) templated")
+                    .font(.caption)
+                    .foregroundStyle(.green)
             }
         }
         .padding()
@@ -387,66 +410,3 @@ struct JobDetailView: View {
     }
 }
 
-// MARK: - Surface Row
-
-struct SurfaceRow: View {
-    let surface: CachedSurface
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(surface.displayName)
-                    .font(.subheadline.bold())
-                Spacer()
-                if surface.isTemplated {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                        .font(.caption)
-                }
-            }
-
-            HStack(spacing: 16) {
-                if let material = surface.materialName {
-                    Label(material, systemImage: "cube.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                if let edge = surface.edgeProfileName {
-                    Label(edge, systemImage: "line.diagonal")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            HStack {
-                // Estimated
-                if let l = surface.estimatedLengthInches, let w = surface.estimatedWidthInches {
-                    Text("Est: \(formatInches(l)) x \(formatInches(w))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                // Actual
-                if let l = surface.actualLengthInches, let w = surface.actualWidthInches {
-                    Text("Actual: \(formatInches(l)) x \(formatInches(w))")
-                        .font(.caption.bold())
-                        .foregroundStyle(.green)
-                }
-            }
-
-            if surface.hasBacksplash && !surface.backsplashPieces.isEmpty {
-                Text("\(surface.backsplashPieces.count) backsplash piece(s)")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.vertical, 4)
-    }
-
-    private func formatInches(_ value: Double) -> String {
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return "\(Int(value))\""
-        }
-        return String(format: "%.1f\"", value)
-    }
-}
