@@ -12,6 +12,7 @@
 		13A0BDA236A02410DF984D6D /* SignatureTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740A37AABACDB41BDF099409 /* SignatureTabView.swift */; };
 		24648163557BAD71CBD502F9 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF7F44CD643943EC71BA79F /* AuthManager.swift */; };
 		1A2B3C4D5E6F7A8B9C0D1E2F /* BlockedVisitSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */; };
+		3B4C5D6E7F8A9B0C1D2E3F4A /* StartTripSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5D6E7F8A9B0C1D2E3F4A5B /* StartTripSheet.swift */; };
 		287664ED5EE6FA31FF67E7A6 /* JobDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA104CD18B03FA07DDBC77D8 /* JobDetailViewModel.swift */; };
 		2E29744B87DB6F208C4DC5A4 /* ChecklistTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6E0D5B9AA26F3203B31EA2 /* ChecklistTabView.swift */; };
 		7A1F2E3D4C5B6A8990817263 /* ChecklistToggleRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A6978869706152 /* ChecklistToggleRow.swift */; };
@@ -66,6 +67,7 @@
 		12BFA3CEC304527B30E2A2BA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		208D9278EB6833136A75573E /* ActiveVisitViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveVisitViewModel.swift; sourceTree = "<group>"; };
 		2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedVisitSheet.swift; sourceTree = "<group>"; };
+		4C5D6E7F8A9B0C1D2E3F4A5B /* StartTripSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTripSheet.swift; sourceTree = "<group>"; };
 		257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		3A4B5C6D7E8F9A0B1C2D3E4F /* DraftManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftManager.swift; sourceTree = "<group>"; };
 		298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementTabView.swift; sourceTree = "<group>"; };
@@ -147,6 +149,7 @@
 			children = (
 				2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */,
 				D2F349770D91CC9CC61D25F1 /* JobDetailView.swift */,
+				4C5D6E7F8A9B0C1D2E3F4A5B /* StartTripSheet.swift */,
 			);
 			path = JobDetail;
 			sourceTree = "<group>";
@@ -462,6 +465,7 @@
 			files = (
 				A872D6BE350EF15B3D02B3E2 /* ActiveVisitView.swift in Sources */,
 				1A2B3C4D5E6F7A8B9C0D1E2F /* BlockedVisitSheet.swift in Sources */,
+				3B4C5D6E7F8A9B0C1D2E3F4A /* StartTripSheet.swift in Sources */,
 				526EBEBF52CEB6535F0FE068 /* ActiveVisitViewModel.swift in Sources */,
 				E783D1D0CECCA1285D750ED3 /* AppState.swift in Sources */,
 				24648163557BAD71CBD502F9 /* AuthManager.swift in Sources */,

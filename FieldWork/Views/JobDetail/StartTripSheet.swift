@@ -67,11 +67,12 @@ struct StartTripSheet: View {
 
     private func lastCompletedJobAddress() -> String? {
         let startOfDay = Calendar.current.startOfDay(for: Date())
+        let currentBookingId = booking.bookingId
         var descriptor = FetchDescriptor<CachedBooking>(
             predicate: #Predicate<CachedBooking> {
                 $0.visitStatus == "completed"
                 && $0.scheduledDate >= startOfDay
-                && $0.bookingId != booking.bookingId
+                && $0.bookingId != currentBookingId
             },
             sortBy: [SortDescriptor(\.visitCompletedAt, order: .reverse)]
         )
