@@ -21,41 +21,46 @@ struct SiteConditionTabView: View {
     ]
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // Camera button
-                if !isReadOnly {
-                    Button {
-                        viewModel.isSiteCapture = true
-                        showCamera = true
-                    } label: {
-                        Label("Take Site Photo", systemImage: "camera.fill")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.horizontal)
-                }
-
-                // Photo grid
-                if sitePhotos.isEmpty {
-                    ContentUnavailableView(
-                        "No Site Photos",
-                        systemImage: "photo.on.rectangle.angled",
-                        description: Text("Take photos to document site conditions. You can tag each photo and add notes.")
-                    )
-                    .padding(.top, 40)
-                } else {
-                    LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(sitePhotos, id: \.localId) { photo in
-                            SitePhotoCell(photo: photo)
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Photo grid
+                    if sitePhotos.isEmpty {
+                        ContentUnavailableView(
+                            "No Site Photos",
+                            systemImage: "photo.on.rectangle.angled",
+                            description: Text("Take photos to document site conditions. You can tag each photo and add notes.")
+                        )
+                        .padding(.top, 40)
+                    } else {
+                        LazyVGrid(columns: columns, spacing: 8) {
+                            ForEach(sitePhotos, id: \.localId) { photo in
+                                SitePhotoCell(photo: photo)
+                            }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
+                .padding(.vertical)
+                // Extra bottom padding so content isn't hidden behind the button
+                .padding(.bottom, 70)
             }
-            .padding(.vertical)
+
+            // Floating camera button at bottom for easy thumb access
+            if !isReadOnly {
+                Button {
+                    viewModel.isSiteCapture = true
+                    showCamera = true
+                } label: {
+                    Label("Take Site Photo", systemImage: "camera.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+            }
         }
         .sheet(isPresented: $showCamera) {
             CameraView { image in

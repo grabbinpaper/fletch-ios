@@ -45,7 +45,7 @@ struct AddBacksplashSheet: View {
                     }
                 }
             }
-            .navigationTitle("Add Backsplash")
+            .navigationTitle("Add Splash")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -12,7 +12,7 @@ struct BacksplashSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Backsplash")
+                Text("Splash")
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
                 if !backsplashMeasurements.isEmpty {
@@ -34,7 +34,7 @@ struct BacksplashSection: View {
             }
 
             if backsplashMeasurements.isEmpty {
-                Text("No backsplash pieces")
+                Text("No splash pieces")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
