@@ -6,20 +6,14 @@ struct AddSurfaceSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var surfaceName = ""
-    @State private var roomMode: RoomMode = .none
+    @State private var roomMode: RoomMode = .existing
     @State private var selectedRoom: String?
     @State private var newRoomName = ""
     @State private var isSubmitting = false
 
     private enum RoomMode: String, CaseIterable {
-        case existing = "Existing Room"
+        case existing = "Existing"
         case new = "New Room"
-        case none = "No Room"
-
-        /// Only show "Existing Room" when there are rooms to pick from.
-        static func available(hasRooms: Bool) -> [RoomMode] {
-            hasRooms ? allCases : [.new, .none]
-        }
     }
 
     /// The room name that will be passed to the callback.
@@ -29,7 +23,6 @@ struct AddSurfaceSheet: View {
         case .new:
             let trimmed = newRoomName.trimmingCharacters(in: .whitespaces)
             return trimmed.isEmpty ? nil : trimmed
-        case .none: return nil
         }
     }
 
@@ -41,9 +34,9 @@ struct AddSurfaceSheet: View {
                         .textInputAutocapitalization(.words)
                 }
 
-                Section("Room (Optional)") {
+                Section("Room") {
                     Picker("Room", selection: $roomMode) {
-                        ForEach(RoomMode.available(hasRooms: !rooms.isEmpty), id: \.self) { mode in
+                        ForEach(RoomMode.allCases, id: \.self) { mode in
                             Text(mode.rawValue).tag(mode)
                         }
                     }
@@ -62,8 +55,6 @@ struct AddSurfaceSheet: View {
                     case .new:
                         TextField("Room name (e.g. Bathroom)", text: $newRoomName)
                             .textInputAutocapitalization(.words)
-                    case .none:
-                        EmptyView()
                     }
                 }
             }
@@ -84,8 +75,8 @@ struct AddSurfaceSheet: View {
                 }
             }
             .onAppear {
-                // Default to existing-room picker when rooms are available
-                roomMode = rooms.isEmpty ? .none : .existing
+                // Default to new-room if no existing rooms to pick from
+                if rooms.isEmpty { roomMode = .new }
             }
         }
     }

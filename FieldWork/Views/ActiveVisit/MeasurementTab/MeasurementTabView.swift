@@ -265,9 +265,9 @@ struct SurfaceMeasurementCard: View {
             if !isReadOnly, let onCamera {
                 Button { onCamera() } label: {
                     Image(systemName: "camera.fill")
-                        .font(.subheadline)
+                        .font(.title3)
                         .foregroundStyle(.blue)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 44, height: 44)
                         .background(.blue.opacity(0.1))
                         .clipShape(Circle())
                 }
