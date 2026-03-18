@@ -27,30 +27,93 @@ struct ChecklistTabView: View {
                         }
 
                         ForEach(items, id: \.itemId) { item in
-                            ChecklistItemRow(
-                                item: item,
-                                isReadOnly: viewModel.booking.visitStatus == "completed",
-                                onStatusChange: { status in
-                                    viewModel.updateChecklistItem(
-                                        item,
-                                        status: status,
-                                        context: modelContext
-                                    )
-                                },
-                                onNotesChange: { notes in
-                                    viewModel.updateChecklistItem(
-                                        item,
-                                        status: item.status,
-                                        notes: notes,
-                                        context: modelContext
-                                    )
-                                }
-                            )
+                            checklistRow(for: item)
+                            Divider()
+                                .padding(.leading)
                         }
                     }
                 }
                 .padding(.vertical)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func checklistRow(for item: CachedChecklistItem) -> some View {
+        let isReadOnly = viewModel.booking.visitStatus == "completed"
+
+        switch item.fieldType {
+        case "toggle", "checkbox":
+            ChecklistToggleRow(
+                item: item,
+                isReadOnly: isReadOnly,
+                onUpdate: { status, responseValue in
+                    viewModel.updateChecklistItem(
+                        item,
+                        status: status,
+                        responseValue: responseValue,
+                        context: modelContext
+                    )
+                }
+            )
+
+        case "single_select":
+            ChecklistPickerRow(
+                item: item,
+                isReadOnly: isReadOnly,
+                onUpdate: { status, responseValue in
+                    viewModel.updateChecklistItem(
+                        item,
+                        status: status,
+                        responseValue: responseValue,
+                        context: modelContext
+                    )
+                }
+            )
+
+        case "text":
+            ChecklistTextRow(
+                item: item,
+                isReadOnly: isReadOnly,
+                onUpdate: { status, responseValue in
+                    viewModel.updateChecklistItem(
+                        item,
+                        status: status,
+                        responseValue: responseValue,
+                        context: modelContext
+                    )
+                }
+            )
+
+        default: // "pass_fail" and any unknown types
+            ChecklistPassFailRow(
+                item: item,
+                isReadOnly: isReadOnly,
+                onStatusChange: { status in
+                    viewModel.updateChecklistItem(
+                        item,
+                        status: status,
+                        context: modelContext
+                    )
+                },
+                onNotesChange: { notes in
+                    viewModel.updateChecklistItem(
+                        item,
+                        status: item.status,
+                        notes: notes,
+                        context: modelContext
+                    )
+                },
+                photoChip: item.requiresPhoto ? AnyView(
+                    ChecklistPhotoChip(
+                        photoCount: item.photoCount,
+                        isRequired: item.requiresPhoto,
+                        onTap: {
+                            viewModel.selectedTab = .photos
+                        }
+                    )
+                ) : nil
+            )
         }
     }
 
@@ -61,11 +124,14 @@ struct ChecklistTabView: View {
     }
 }
 
-struct ChecklistItemRow: View {
+// MARK: - Pass/Fail Row (original behavior, refactored)
+
+struct ChecklistPassFailRow: View {
     let item: CachedChecklistItem
     let isReadOnly: Bool
     let onStatusChange: (String) -> Void
     let onNotesChange: (String) -> Void
+    let photoChip: AnyView?
 
     @State private var showNotes = false
     @State private var notesText = ""
@@ -73,7 +139,6 @@ struct ChecklistItemRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                // Status icon
                 statusIcon
                     .frame(width: 24)
 
@@ -83,6 +148,10 @@ struct ChecklistItemRow: View {
                     .foregroundStyle(item.status == "skipped" ? .secondary : .primary)
 
                 Spacer()
+
+                if let photoChip {
+                    photoChip
+                }
 
                 if !isReadOnly {
                     Menu {
@@ -155,6 +224,47 @@ struct ChecklistItemRow: View {
         default:
             Image(systemName: "circle")
                 .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - Text Input Row
+
+struct ChecklistTextRow: View {
+    let item: CachedChecklistItem
+    let isReadOnly: Bool
+    let onUpdate: (String, String?) -> Void
+
+    @State private var text = ""
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(item.label)
+                .font(.subheadline)
+
+            if isReadOnly {
+                Text(item.responseValue ?? "No response")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                TextField("Enter response...", text: $text, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+                    .lineLimit(2...4)
+                    .focused($isFocused)
+                    .onChange(of: isFocused) { _, focused in
+                        if !focused && text != (item.responseValue ?? "") {
+                            let status = text.isEmpty ? "pending" : "passed"
+                            onUpdate(status, text.isEmpty ? nil : text)
+                        }
+                    }
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+        .onAppear {
+            text = item.responseValue ?? ""
         }
     }
 }

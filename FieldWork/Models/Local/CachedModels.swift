@@ -86,6 +86,7 @@ final class CachedBooking {
     var lastSyncedAt: Date
 
     @Relationship(deleteRule: .cascade) var surfaces: [CachedSurface]
+    @Relationship(deleteRule: .cascade) var measurements: [CachedMeasurement]
 
     init(from booking: ScheduleBooking) {
         self.bookingId = booking.bookingId
@@ -141,6 +142,13 @@ final class CachedBooking {
 
         self.lastSyncedAt = Date()
         self.surfaces = booking.surfaces.map { CachedSurface(from: $0) }
+
+        if let visitId = booking.visit?.visitId,
+           let remoteMeasurements = booking.visit?.measurements {
+            self.measurements = remoteMeasurements.map { CachedMeasurement(from: $0, visitId: visitId) }
+        } else {
+            self.measurements = []
+        }
     }
 
     func update(from booking: ScheduleBooking) {
@@ -158,6 +166,19 @@ final class CachedBooking {
         self.visitCompletedAt = booking.visit?.completedAt.flatMap { parseDatetime($0) }
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
         self.lastSyncedAt = Date()
+
+        // Sync measurements from remote
+        if let visitId = booking.visit?.visitId,
+           let remoteMeasurements = booking.visit?.measurements {
+            let existingById = Dictionary(uniqueKeysWithValues: measurements.map { ($0.measurementId, $0) })
+            for remote in remoteMeasurements {
+                if let existing = existingById[remote.measurementId] {
+                    existing.update(from: remote)
+                } else {
+                    measurements.append(CachedMeasurement(from: remote, visitId: visitId))
+                }
+            }
+        }
     }
 
     var fullAddress: String {
@@ -169,6 +190,10 @@ final class CachedBooking {
 
     var surfaceCount: Int { surfaces.count }
     var templatedSurfaceCount: Int { surfaces.filter(\.isTemplated).count }
+
+    func measurement(for surfaceId: UUID) -> CachedMeasurement? {
+        measurements.first { $0.surfaceId == surfaceId }
+    }
 }
 
 @Model
@@ -211,6 +236,27 @@ final class CachedSurface {
         self.materialName = surface.material?.displayName
         self.edgeProfileName = surface.edgeProfile?.name
         self.backsplashPieces = surface.backsplashPieces.map { CachedBacksplash(from: $0) }
+    }
+
+    /// Creates a surface record for a field-added surface
+    init(fieldAdded surfaceId: UUID, name: String, roomName: String?, displayOrder: Int) {
+        self.surfaceId = surfaceId
+        self.name = name
+        self.roomName = roomName
+        self.roomQualifier = nil
+        self.displayOrder = displayOrder
+        self.estimatedSqft = nil
+        self.estimatedLengthInches = nil
+        self.estimatedWidthInches = nil
+        self.actualSqft = nil
+        self.actualLengthInches = nil
+        self.actualWidthInches = nil
+        self.templateNotes = nil
+        self.isTemplated = false
+        self.hasBacksplash = false
+        self.materialName = nil
+        self.edgeProfileName = nil
+        self.backsplashPieces = []
     }
 
     var displayName: String {
@@ -270,6 +316,10 @@ final class CachedChecklistItem {
     var section: String?
     var status: String
     var notes: String?
+    var fieldType: String
+    var responseValue: String?
+    var requiresPhoto: Bool
+    var photoCount: Int
 
     init(from item: ChecklistItemResponse) {
         self.itemId = item.visitChecklistItemId
@@ -279,6 +329,10 @@ final class CachedChecklistItem {
         self.section = item.section
         self.status = item.status
         self.notes = item.notes
+        self.fieldType = item.fieldType ?? "pass_fail"
+        self.responseValue = item.responseValue
+        self.requiresPhoto = item.requiresPhoto ?? false
+        self.photoCount = item.photoCount ?? 0
     }
 }
 
@@ -298,6 +352,7 @@ final class CachedPhoto {
     var hasAnnotations: Bool
     var annotationData: Data?
     var siteConditionKey: String?
+    var category: String
 
     init(
         localFilePath: String,
@@ -310,7 +365,8 @@ final class CachedPhoto {
         longitude: Double? = nil,
         hasAnnotations: Bool = false,
         annotationData: Data? = nil,
-        siteConditionKey: String? = nil
+        siteConditionKey: String? = nil,
+        category: String = "general"
     ) {
         self.localId = UUID()
         self.localFilePath = localFilePath
@@ -325,6 +381,7 @@ final class CachedPhoto {
         self.isSynced = false
         self.hasAnnotations = hasAnnotations
         self.annotationData = annotationData
+        self.category = category
         self.siteConditionKey = siteConditionKey
     }
 }

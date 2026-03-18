@@ -353,6 +353,7 @@ struct ScheduleVisit: Codable {
     let fieldNotes: String?
     let signatureRequired: Bool?
     let signatureCaptured: Bool?
+    let measurements: [ScheduleVisitMeasurement]?
 
     enum CodingKeys: String, CodingKey {
         case visitId = "visit_id"
@@ -364,6 +365,55 @@ struct ScheduleVisit: Codable {
         case fieldNotes = "field_notes"
         case signatureRequired = "signature_required"
         case signatureCaptured = "signature_captured"
+        case measurements
+    }
+}
+
+struct ScheduleVisitMeasurement: Codable, Identifiable {
+    var id: UUID { measurementId }
+
+    let measurementId: UUID
+    let surfaceId: UUID
+    let quotedLengthIn: Double?
+    let quotedWidthIn: Double?
+    let quotedSqft: Double?
+    let quotedEdgeProfileId: UUID?
+    let actualLengthIn: Double?
+    let actualWidthIn: Double?
+    let actualSqft: Double?
+    let edgeProfileId: UUID?
+    let edgeChanged: Bool?
+    let overhangDepthIn: Double?
+    let backsplashIncluded: Bool?
+    let backsplashHeightIn: Double?
+    let seamLocationsJson: String?
+    let finishedEnds: String?
+    let templateNotes: String?
+    let status: String
+    let skipReason: String?
+    let isFieldAdded: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case measurementId = "measurement_id"
+        case surfaceId = "surface_id"
+        case quotedLengthIn = "quoted_length_in"
+        case quotedWidthIn = "quoted_width_in"
+        case quotedSqft = "quoted_sqft"
+        case quotedEdgeProfileId = "quoted_edge_profile_id"
+        case actualLengthIn = "actual_length_in"
+        case actualWidthIn = "actual_width_in"
+        case actualSqft = "actual_sqft"
+        case edgeProfileId = "edge_profile_id"
+        case edgeChanged = "edge_changed"
+        case overhangDepthIn = "overhang_depth_in"
+        case backsplashIncluded = "backsplash_included"
+        case backsplashHeightIn = "backsplash_height_in"
+        case seamLocationsJson = "seam_locations_json"
+        case finishedEnds = "finished_ends"
+        case templateNotes = "template_notes"
+        case status
+        case skipReason = "skip_reason"
+        case isFieldAdded = "is_field_added"
     }
 }
 
@@ -381,6 +431,10 @@ struct ChecklistItemResponse: Codable, Identifiable {
     let status: String
     let notes: String?
     let checkedAt: String?
+    let fieldType: String?
+    let responseValue: String?
+    let requiresPhoto: Bool?
+    let photoCount: Int?
 
     enum CodingKeys: String, CodingKey {
         case visitChecklistItemId = "visit_checklist_item_id"
@@ -390,5 +444,9 @@ struct ChecklistItemResponse: Codable, Identifiable {
         case displayOrder = "display_order"
         case section, status, notes
         case checkedAt = "checked_at"
+        case fieldType = "field_type"
+        case responseValue = "response_value"
+        case requiresPhoto = "requires_photo"
+        case photoCount = "photo_count"
     }
 }

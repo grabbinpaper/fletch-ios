@@ -114,6 +114,8 @@ actor SyncEngine {
         switch operation.operationType {
         case "update_surface_measurements":
             try await syncSurfaceMeasurements(operation)
+        case "update_visit_measurement":
+            try await syncVisitMeasurement(operation)
         case "upload_photo":
             try await syncPhotoUpload(operation)
         case "update_checklist_item":
@@ -122,6 +124,10 @@ actor SyncEngine {
             try await syncSignatureUpload(operation)
         case "rpc":
             try await syncRPCCall(operation)
+        case "insert_cutout":
+            try await syncCutoutInsert(operation)
+        case "delete_cutout":
+            try await syncCutoutDelete(operation)
         default:
             print("Unknown operation type: \(operation.operationType)")
         }
@@ -146,6 +152,46 @@ actor SyncEngine {
                 template_notes: payload.templateNotes
             ))
             .eq("surface_id", value: payload.surfaceId.uuidString)
+            .execute()
+    }
+
+    private func syncVisitMeasurement(_ operation: SyncOperation) async throws {
+        let payload = try JSONDecoder().decode(VisitMeasurementPayload.self, from: operation.payload)
+
+        struct MeasurementUpdate: Encodable {
+            let actual_length_in: Double?
+            let actual_width_in: Double?
+            let actual_sqft: Double?
+            let edge_profile_id: String?
+            let edge_changed: Bool
+            let overhang_depth_in: Double?
+            let backsplash_included: Bool?
+            let backsplash_height_in: Double?
+            let seam_locations_json: String?
+            let finished_ends: String
+            let template_notes: String?
+            let status: String
+            let skip_reason: String?
+        }
+
+        try await supabase.client
+            .from("visit_surface_measurement")
+            .update(MeasurementUpdate(
+                actual_length_in: payload.actualLengthIn,
+                actual_width_in: payload.actualWidthIn,
+                actual_sqft: payload.actualSqft,
+                edge_profile_id: payload.edgeProfileId?.uuidString,
+                edge_changed: payload.edgeChanged,
+                overhang_depth_in: payload.overhangDepthIn,
+                backsplash_included: payload.backsplashIncluded,
+                backsplash_height_in: payload.backsplashHeightIn,
+                seam_locations_json: payload.seamLocationsJson,
+                finished_ends: payload.finishedEnds,
+                template_notes: payload.templateNotes,
+                status: payload.status,
+                skip_reason: payload.skipReason
+            ))
+            .eq("measurement_id", value: payload.measurementId.uuidString)
             .execute()
     }
 
@@ -229,6 +275,7 @@ actor SyncEngine {
                 let thumbnail_path: String?
                 let has_annotations: Bool
                 let site_condition_key: String?
+                let category: String
             }
 
             try await supabase.client
@@ -247,7 +294,8 @@ actor SyncEngine {
                     surface_id: payload.surfaceId?.uuidString,
                     thumbnail_path: uploadedThumbPath,
                     has_annotations: payload.hasAnnotations,
-                    site_condition_key: payload.siteConditionKey
+                    site_condition_key: payload.siteConditionKey,
+                    category: payload.category
                 ))
                 .execute()
         }
@@ -273,6 +321,8 @@ actor SyncEngine {
             let notes: String?
             let checked_at: String?
             let checked_by: String?
+            let response_value: String?
+            let photo_count: Int?
         }
 
         try await supabase.client
@@ -281,7 +331,9 @@ actor SyncEngine {
                 status: payload.status,
                 notes: payload.notes,
                 checked_at: payload.checkedAt?.ISO8601Format(),
-                checked_by: payload.checkedBy?.uuidString
+                checked_by: payload.checkedBy?.uuidString,
+                response_value: payload.responseValue,
+                photo_count: payload.photoCount
             ))
             .eq("visit_checklist_item_id", value: payload.itemId.uuidString)
             .execute()
@@ -353,6 +405,57 @@ actor SyncEngine {
             .rpc(payload.functionName, params: payload.params)
             .execute()
     }
+
+    private func syncCutoutInsert(_ operation: SyncOperation) async throws {
+        let payload = try JSONDecoder().decode(CutoutInsertPayload.self, from: operation.payload)
+
+        struct CutoutInsert: Encodable {
+            let cutout_id: String
+            let visit_id: String
+            let measurement_id: String
+            let cutout_type: String
+            let source: String
+            let make: String?
+            let model: String?
+            let sink_install_type: String?
+            let faucet_holes: Int?
+            let bring_to_shop: Bool
+            let cooktop_onsite: Bool?
+            let count: Int
+            let location_note: String?
+            let changed_from_quote: Bool
+        }
+
+        try await supabase.client
+            .from("visit_cutout")
+            .insert(CutoutInsert(
+                cutout_id: payload.cutoutId.uuidString,
+                visit_id: payload.visitId.uuidString,
+                measurement_id: payload.measurementId.uuidString,
+                cutout_type: payload.cutoutType,
+                source: payload.source,
+                make: payload.make,
+                model: payload.modelName,
+                sink_install_type: payload.sinkInstallType,
+                faucet_holes: payload.faucetHoles,
+                bring_to_shop: payload.bringToShop,
+                cooktop_onsite: payload.cooktopOnsite,
+                count: payload.count,
+                location_note: payload.locationNote,
+                changed_from_quote: payload.changedFromQuote
+            ))
+            .execute()
+    }
+
+    private func syncCutoutDelete(_ operation: SyncOperation) async throws {
+        let payload = try JSONDecoder().decode(CutoutDeletePayload.self, from: operation.payload)
+
+        try await supabase.client
+            .from("visit_cutout")
+            .delete()
+            .eq("cutout_id", value: payload.cutoutId.uuidString)
+            .execute()
+    }
 }
 
 enum SyncError: LocalizedError {
@@ -394,6 +497,7 @@ struct PhotoUploadPayload: Codable {
     let thumbnailStoragePath: String?
     let hasAnnotations: Bool
     let siteConditionKey: String?
+    let category: String
 }
 
 struct ChecklistItemPayload: Codable {
@@ -402,6 +506,8 @@ struct ChecklistItemPayload: Codable {
     let notes: String?
     let checkedAt: Date?
     let checkedBy: UUID?
+    let responseValue: String?
+    let photoCount: Int?
 }
 
 struct SignatureUploadPayload: Codable {
@@ -416,4 +522,42 @@ struct SignatureUploadPayload: Codable {
 struct RPCPayload: Codable {
     let functionName: String
     let params: [String: String]
+}
+
+struct VisitMeasurementPayload: Codable {
+    let measurementId: UUID
+    let actualLengthIn: Double?
+    let actualWidthIn: Double?
+    let actualSqft: Double?
+    let edgeProfileId: UUID?
+    let edgeChanged: Bool
+    let overhangDepthIn: Double?
+    let backsplashIncluded: Bool?
+    let backsplashHeightIn: Double?
+    let seamLocationsJson: String?
+    let finishedEnds: String
+    let templateNotes: String?
+    let status: String
+    let skipReason: String?
+}
+
+struct CutoutInsertPayload: Codable {
+    let cutoutId: UUID
+    let visitId: UUID
+    let measurementId: UUID
+    let cutoutType: String
+    let source: String
+    let make: String?
+    let modelName: String?
+    let sinkInstallType: String?
+    let faucetHoles: Int?
+    let bringToShop: Bool
+    let cooktopOnsite: Bool?
+    let count: Int
+    let locationNote: String?
+    let changedFromQuote: Bool
+}
+
+struct CutoutDeletePayload: Codable {
+    let cutoutId: UUID
 }

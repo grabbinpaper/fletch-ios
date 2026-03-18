@@ -10,8 +10,14 @@ final class ActiveVisitViewModel {
     var photos: [CachedPhoto] = []
     var isCompleting = false
     var showCompletionSheet = false
+    var showPartialSheet = false
     var completionNotes = ""
     var error: String?
+    var edgeProfiles: [EdgeProfileOption] = []
+    var showAddSurface = false
+
+    /// Auto-save draft manager
+    let draftManager = DraftManager()
 
     private var appState: AppState?
 
@@ -23,49 +29,280 @@ final class ActiveVisitViewModel {
         self.appState = appState
     }
 
-    // MARK: - Measurements
+    // MARK: - Draft Auto-Save
 
-    var measurementProgress: Double {
-        let surfaces = booking.surfaces
-        guard !surfaces.isEmpty else { return 0 }
-        let measured = surfaces.filter { $0.actualLengthInches != nil && $0.actualWidthInches != nil }.count
-        return Double(measured) / Double(surfaces.count)
+    /// Notify the draft manager that visit state changed
+    func markDraftDirty(context: ModelContext) {
+        guard let visitId = booking.visitId else { return }
+        draftManager.markDirty(
+            visitId: visitId,
+            booking: booking,
+            checklistItems: checklistItems,
+            completionNotes: completionNotes,
+            appState: appState,
+            context: context
+        )
     }
 
-    func updateMeasurement(
-        surface: CachedSurface,
-        length: Double?,
-        width: Double?,
-        notes: String?,
-        context: ModelContext
-    ) {
-        surface.actualLengthInches = length
-        surface.actualWidthInches = width
-        surface.templateNotes = notes
+    /// Force immediate draft save (e.g. on app background)
+    func saveDraftNow(context: ModelContext) {
+        guard let visitId = booking.visitId else { return }
+        draftManager.saveNow(
+            visitId: visitId,
+            booking: booking,
+            checklistItems: checklistItems,
+            completionNotes: completionNotes,
+            appState: appState,
+            context: context
+        )
+    }
 
-        if let l = length, let w = width {
-            surface.actualSqft = (l * w) / 144.0  // Convert sq inches to sq ft
+    // MARK: - Measurements
+
+    /// Debounce tasks keyed by measurement ID — cancel + restart on each input
+    private var debounceTasks: [UUID: Task<Void, Never>] = [:]
+
+    var measurementProgress: Double {
+        let ms = booking.measurements
+        guard !ms.isEmpty else { return 0 }
+        let measured = ms.filter(\.isMeasured).count
+        return Double(measured) / Double(ms.count)
+    }
+
+    var measuredCount: Int { booking.measurements.filter(\.isMeasured).count }
+    var totalMeasurementCount: Int { booking.measurements.count }
+
+    var availableRooms: [RoomInfo] {
+        var seen = Set<String>()
+        var rooms: [RoomInfo] = []
+        for surface in booking.surfaces {
+            if let name = surface.roomName, !name.isEmpty, !seen.contains(name) {
+                seen.insert(name)
+                rooms.append(RoomInfo(id: UUID(), name: name))
+            }
+        }
+        return rooms
+    }
+
+    func saveMeasurement(_ measurement: CachedMeasurement, context: ModelContext) {
+        // Compute derived fields
+        if let l = measurement.actualLengthIn, let w = measurement.actualWidthIn {
+            measurement.actualSqft = (l * w) / 144.0
         } else {
-            surface.actualSqft = nil
+            measurement.actualSqft = nil
         }
 
+        if measurement.isMeasured {
+            measurement.status = "measured"
+        }
+
+        // Local save immediately (crash safety)
         try? context.save()
 
-        // Queue sync
+        // Debounced remote sync (2s)
+        scheduleMeasurementSync(measurement: measurement, context: context)
+
+        // Auto-save draft
+        markDraftDirty(context: context)
+    }
+
+    func loadEdgeProfiles() {
+        guard edgeProfiles.isEmpty, let appState else { return }
+        Task {
+            do {
+                struct EP: Codable {
+                    let edgeProfileId: UUID
+                    let name: String
+                    let code: String?
+                    enum CodingKeys: String, CodingKey {
+                        case edgeProfileId = "edge_profile_id"
+                        case name, code
+                    }
+                }
+                let rows: [EP] = try await appState.supabaseManager.client
+                    .from("edge_profile")
+                    .select("edge_profile_id, name, code")
+                    .order("name")
+                    .execute()
+                    .value
+                await MainActor.run {
+                    self.edgeProfiles = rows.map {
+                        EdgeProfileOption(id: $0.edgeProfileId, name: $0.name, code: $0.code)
+                    }
+                }
+            } catch {
+                print("Failed to load edge profiles: \(error)")
+            }
+        }
+    }
+
+    @MainActor
+    func addFieldSurface(name: String, roomName: String?, context: ModelContext) async {
+        guard let appState, let visitId = booking.visitId, let jobId = booking.jobId,
+              let orgId = appState.organizationId else {
+            error = "Unable to add surface"
+            return
+        }
+
+        var params: [String: String] = [
+            "p_visit_id": visitId.uuidString,
+            "p_job_id": jobId.uuidString,
+            "p_org_id": orgId.uuidString,
+            "p_name": name
+        ]
+        if let roomName, !roomName.isEmpty {
+            params["p_room_name"] = roomName
+        }
+
+        do {
+            let response = try await appState.supabaseManager.client
+                .rpc("add_field_surface", params: params)
+                .execute()
+
+            struct AddResult: Codable {
+                let surface_id: UUID
+                let measurement_id: UUID
+            }
+            let result = try JSONDecoder().decode(AddResult.self, from: response.data)
+
+            let displayOrder = (booking.surfaces.map(\.displayOrder).max() ?? 0) + 1
+            let newSurface = CachedSurface(
+                fieldAdded: result.surface_id,
+                name: name,
+                roomName: roomName,
+                displayOrder: displayOrder
+            )
+            let newMeasurement = CachedMeasurement(
+                fieldAdded: result.measurement_id,
+                visitId: visitId,
+                surfaceId: result.surface_id
+            )
+
+            context.insert(newSurface)
+            context.insert(newMeasurement)
+            booking.surfaces.append(newSurface)
+            booking.measurements.append(newMeasurement)
+            try? context.save()
+        } catch {
+            self.error = "Failed to add surface: \(error.localizedDescription)"
+        }
+    }
+
+    // MARK: - Cutouts
+
+    func addCutout(data: CutoutFormData, measurement: CachedMeasurement, context: ModelContext) {
+        let cutout = CachedCutout(
+            visitId: measurement.visitId,
+            measurementId: measurement.measurementId,
+            cutoutType: data.cutoutType,
+            source: "field",
+            make: data.make,
+            modelName: data.modelName,
+            sinkInstallType: data.sinkInstallType,
+            faucetHoles: data.faucetHoles,
+            bringToShop: data.bringToShop,
+            cooktopOnsite: data.cooktopOnsite,
+            count: data.count,
+            locationNote: data.locationNote
+        )
+
+        context.insert(cutout)
+        measurement.cutouts.append(cutout)
+        try? context.save()
+
+        // Auto-save draft
+        markDraftDirty(context: context)
+
         guard let appState else { return }
-        let payload = SurfaceMeasurementPayload(
-            surfaceId: surface.surfaceId,
-            actualLengthInches: length,
-            actualWidthInches: width,
-            actualSqft: surface.actualSqft,
-            templateNotes: notes
+        let payload = CutoutInsertPayload(
+            cutoutId: cutout.cutoutId,
+            visitId: cutout.visitId,
+            measurementId: cutout.measurementId,
+            cutoutType: cutout.cutoutType,
+            source: cutout.source,
+            make: cutout.make,
+            modelName: cutout.modelName,
+            sinkInstallType: cutout.sinkInstallType,
+            faucetHoles: cutout.faucetHoles,
+            bringToShop: cutout.bringToShop,
+            cooktopOnsite: cutout.cooktopOnsite,
+            count: cutout.count,
+            locationNote: cutout.locationNote,
+            changedFromQuote: cutout.changedFromQuote
+        )
+        if let encoded = try? JSONEncoder().encode(payload) {
+            Task {
+                await appState.syncEngine.queueOperation(
+                    type: "insert_cutout",
+                    entityType: "visit_cutout",
+                    entityId: cutout.cutoutId.uuidString,
+                    payload: encoded,
+                    in: context
+                )
+            }
+        }
+    }
+
+    func removeCutout(_ cutout: CachedCutout, context: ModelContext) {
+        let cutoutId = cutout.cutoutId
+
+        if let measurement = cutout.measurement {
+            measurement.cutouts.removeAll { $0.cutoutId == cutoutId }
+        }
+
+        context.delete(cutout)
+        try? context.save()
+
+        guard let appState else { return }
+        let payload = CutoutDeletePayload(cutoutId: cutoutId)
+        if let encoded = try? JSONEncoder().encode(payload) {
+            Task {
+                await appState.syncEngine.queueOperation(
+                    type: "delete_cutout",
+                    entityType: "visit_cutout",
+                    entityId: cutoutId.uuidString,
+                    payload: encoded,
+                    in: context
+                )
+            }
+        }
+    }
+
+    private func scheduleMeasurementSync(measurement: CachedMeasurement, context: ModelContext) {
+        let id = measurement.measurementId
+        debounceTasks[id]?.cancel()
+        debounceTasks[id] = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            await self?.syncMeasurement(measurement: measurement, context: context)
+        }
+    }
+
+    @MainActor
+    private func syncMeasurement(measurement: CachedMeasurement, context: ModelContext) {
+        guard let appState else { return }
+        let payload = VisitMeasurementPayload(
+            measurementId: measurement.measurementId,
+            actualLengthIn: measurement.actualLengthIn,
+            actualWidthIn: measurement.actualWidthIn,
+            actualSqft: measurement.actualSqft,
+            edgeProfileId: measurement.edgeProfileId,
+            edgeChanged: measurement.edgeChanged,
+            overhangDepthIn: measurement.overhangDepthIn,
+            backsplashIncluded: measurement.backsplashIncluded,
+            backsplashHeightIn: measurement.backsplashHeightIn,
+            seamLocationsJson: measurement.seamLocationsJson,
+            finishedEnds: measurement.finishedEnds,
+            templateNotes: measurement.templateNotes,
+            status: measurement.status,
+            skipReason: measurement.skipReason
         )
         if let data = try? JSONEncoder().encode(payload) {
             Task {
                 await appState.syncEngine.queueOperation(
-                    type: "update_surface_measurements",
-                    entityType: "surface",
-                    entityId: surface.surfaceId.uuidString,
+                    type: "update_visit_measurement",
+                    entityType: "visit_surface_measurement",
+                    entityId: measurement.measurementId.uuidString,
                     payload: data,
                     in: context
                 )
@@ -79,6 +316,7 @@ final class ActiveVisitViewModel {
     var pendingImage: UIImage?
     var pendingSurfaceId: UUID?
     var pendingCaption: String?
+    var pendingCategory: String = "general"
     var showMarkup = false
 
     /// Site photo tagging flow
@@ -93,12 +331,14 @@ final class ActiveVisitViewModel {
         image: UIImage,
         surfaceId: UUID? = nil,
         caption: String? = nil,
+        category: String = "general",
         context: ModelContext
     ) {
         // Store pending image and show markup sheet
         pendingImage = image
         pendingSurfaceId = surfaceId
         pendingCaption = caption
+        pendingCategory = category
         showMarkup = true
     }
 
@@ -108,6 +348,7 @@ final class ActiveVisitViewModel {
         surfaceId: UUID? = nil,
         caption: String? = nil,
         siteConditionKey: String? = nil,
+        category: String = "general",
         context: ModelContext
     ) {
         guard let appState, let jobId = booking.jobId else { return }
@@ -143,7 +384,8 @@ final class ActiveVisitViewModel {
             longitude: appState.locationManager.longitude,
             hasAnnotations: hasAnnotations,
             annotationData: annotationData,
-            siteConditionKey: siteConditionKey
+            siteConditionKey: siteConditionKey,
+            category: category
         )
         context.insert(photo)
         photos.append(photo)
@@ -171,7 +413,8 @@ final class ActiveVisitViewModel {
             thumbnailLocalPath: thumbPath,
             thumbnailStoragePath: thumbStoragePath,
             hasAnnotations: hasAnnotations,
-            siteConditionKey: siteConditionKey
+            siteConditionKey: siteConditionKey,
+            category: category
         )
         if let data = try? JSONEncoder().encode(payload) {
             Task {
@@ -208,6 +451,7 @@ final class ActiveVisitViewModel {
             annotationData: pendingTagAnnotationData,
             caption: caption,
             siteConditionKey: tags,
+            category: "site",
             context: context
         )
 
@@ -294,19 +538,26 @@ final class ActiveVisitViewModel {
         _ item: CachedChecklistItem,
         status: String,
         notes: String? = nil,
+        responseValue: String? = nil,
         context: ModelContext
     ) {
         item.status = status
-        item.notes = notes
+        if let notes { item.notes = notes }
+        if let responseValue { item.responseValue = responseValue }
         try? context.save()
+
+        // Auto-save draft
+        markDraftDirty(context: context)
 
         guard let appState else { return }
         let payload = ChecklistItemPayload(
             itemId: item.itemId,
             status: status,
-            notes: notes,
+            notes: item.notes,
             checkedAt: Date(),
-            checkedBy: appState.staffId
+            checkedBy: appState.staffId,
+            responseValue: item.responseValue,
+            photoCount: item.photoCount
         )
         if let data = try? JSONEncoder().encode(payload) {
             Task {
@@ -360,16 +611,50 @@ final class ActiveVisitViewModel {
 
     // MARK: - Completion
 
+    var isAllMeasured: Bool {
+        !booking.measurements.isEmpty && booking.measurements.allSatisfy(\.isMeasured)
+    }
+
+    var isPartial: Bool {
+        !booking.measurements.isEmpty && !isAllMeasured && booking.measurements.contains(where: \.isMeasured)
+    }
+
+    var skippedCount: Int {
+        booking.measurements.filter { !$0.isMeasured }.count
+    }
+
     var canComplete: Bool {
-        let allMeasured = booking.surfaces.allSatisfy {
-            $0.actualLengthInches != nil && $0.actualWidthInches != nil
-        }
+        let hasMeasurements = !booking.measurements.isEmpty
+        let atLeastOneMeasured = booking.measurements.contains(where: \.isMeasured)
         let requiredChecklistDone = checklistItems
             .filter { $0.status == "pending" }
             .isEmpty || checklistItems.isEmpty
         let signatureOk = !booking.signatureRequired || booking.signatureCaptured
 
-        return allMeasured && requiredChecklistDone && signatureOk
+        return hasMeasurements && atLeastOneMeasured && requiredChecklistDone && signatureOk
+    }
+
+    var allSkippedHaveReasons: Bool {
+        booking.measurements
+            .filter { !$0.isMeasured }
+            .allSatisfy { $0.skipReason != nil && !$0.skipReason!.isEmpty }
+    }
+
+    func determineOutcome() -> String {
+        if isAllMeasured {
+            return "accomplished"
+        } else {
+            return "partial_surfaces"
+        }
+    }
+
+    /// Called from bottom bar — routes to full completion or partial sheet
+    func initiateCompletion() {
+        if isAllMeasured {
+            showCompletionSheet = true
+        } else {
+            showPartialSheet = true
+        }
     }
 
     @MainActor
@@ -378,6 +663,16 @@ final class ActiveVisitViewModel {
 
         isCompleting = true
         error = nil
+
+        let outcome = determineOutcome()
+
+        // Save skip reasons for skipped measurements before completing
+        for measurement in booking.measurements where !measurement.isMeasured {
+            if measurement.status != "skipped" {
+                measurement.status = "skipped"
+            }
+            scheduleMeasurementSync(measurement: measurement, context: context)
+        }
 
         do {
             let lat = appState.locationManager.latitude
@@ -388,7 +683,7 @@ final class ActiveVisitViewModel {
                 "p_worker_id": staffId.uuidString,
                 "p_lat": lat.map { "\($0)" } ?? "",
                 "p_lng": lng.map { "\($0)" } ?? "",
-                "p_outcome": "accomplished",
+                "p_outcome": outcome,
                 "p_notes": completionNotes
             ]
             try await appState.supabaseManager.client
@@ -397,9 +692,16 @@ final class ActiveVisitViewModel {
 
             booking.visitStatus = "completed"
             booking.visitCompletedAt = Date()
-            booking.visitOutcome = "accomplished"
-            for surface in booking.surfaces {
-                surface.isTemplated = true
+            booking.visitOutcome = outcome
+            // Mark surfaces as templated based on which measurements are done
+            for measurement in booking.measurements where measurement.isMeasured {
+                if let surface = booking.surfaces.first(where: { $0.surfaceId == measurement.surfaceId }) {
+                    surface.actualLengthInches = measurement.actualLengthIn
+                    surface.actualWidthInches = measurement.actualWidthIn
+                    surface.actualSqft = measurement.actualSqft
+                    surface.templateNotes = measurement.templateNotes
+                    surface.isTemplated = true
+                }
             }
             try? context.save()
         } catch {

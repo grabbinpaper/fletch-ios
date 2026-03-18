@@ -10,50 +10,110 @@ struct PhotoTabView: View {
     @State private var selectedSurfaceId: UUID?
     @State private var photoFilter: PhotoFilter = .all
     @State private var selectedPhotoForDetail: CachedPhoto?
+    @State private var captureCategory: String = "general"
 
-    private enum PhotoFilter: Equatable {
-        case all, site, surface(UUID)
+    private enum PhotoFilter: Equatable, Hashable {
+        case all, site, damage, hazard, surface(UUID)
     }
+
+    // MARK: - Filtered / grouped photos
 
     private var filteredPhotos: [CachedPhoto] {
         switch photoFilter {
         case .all:
             return viewModel.photos
         case .site:
-            return viewModel.photos.filter { $0.siteConditionKey != nil }
+            return viewModel.photos.filter { $0.category == "site" || $0.siteConditionKey != nil }
+        case .damage:
+            return viewModel.photos.filter { $0.category == "damage" }
+        case .hazard:
+            return viewModel.photos.filter { $0.category == "hazard" }
         case .surface(let id):
             return viewModel.photos.filter { $0.surfaceId == id }
         }
     }
 
-    private var sitePhotoCount: Int {
-        viewModel.photos.filter { $0.siteConditionKey != nil }.count
+    private func photoCount(for filter: PhotoFilter) -> Int {
+        switch filter {
+        case .all: return viewModel.photos.count
+        case .site: return viewModel.photos.filter { $0.category == "site" || $0.siteConditionKey != nil }.count
+        case .damage: return viewModel.photos.filter { $0.category == "damage" }.count
+        case .hazard: return viewModel.photos.filter { $0.category == "hazard" }.count
+        case .surface(let id): return viewModel.photos.filter { $0.surfaceId == id }.count
+        }
     }
 
     private var unsyncedCount: Int {
         viewModel.photos.filter { !$0.isSynced }.count
     }
 
+    /// Group photos by category for the "all" view
+    private var groupedPhotos: [(key: String, title: String, icon: String, tint: Color, photos: [CachedPhoto])] {
+        let categories: [(key: String, title: String, icon: String, tint: Color)] = [
+            ("damage", "Damage", "exclamationmark.triangle.fill", .red),
+            ("hazard", "Hazard", "bolt.trianglebadge.exclamationmark.fill", .orange),
+            ("site", "Site Conditions", "mappin.circle.fill", .orange),
+            ("surface", "Surface", "square.stack.3d.up", .blue),
+            ("general", "General", "photo", .secondary),
+        ]
+
+        return categories.compactMap { cat in
+            let photos: [CachedPhoto]
+            switch cat.key {
+            case "site":
+                photos = viewModel.photos.filter { $0.category == "site" || ($0.siteConditionKey != nil && $0.category == "general") }
+            case "surface":
+                photos = viewModel.photos.filter { $0.surfaceId != nil && $0.category != "site" && $0.category != "damage" && $0.category != "hazard" && $0.siteConditionKey == nil }
+            case "general":
+                photos = viewModel.photos.filter { $0.category == "general" && $0.surfaceId == nil && $0.siteConditionKey == nil }
+            default:
+                photos = viewModel.photos.filter { $0.category == cat.key }
+            }
+            guard !photos.isEmpty else { return nil }
+            return (key: cat.key, title: cat.title, icon: cat.icon, tint: cat.tint, photos: photos)
+        }
+    }
+
+    // MARK: - Body
+
     var body: some View {
         VStack(spacing: 0) {
             // Filter bar
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    FilterChip(label: "All", count: viewModel.photos.count, isSelected: photoFilter == .all) {
+                    FilterChip(label: "All", count: photoCount(for: .all), isSelected: photoFilter == .all) {
                         photoFilter = .all
                     }
 
                     FilterChip(
                         label: "Site",
-                        count: sitePhotoCount,
+                        count: photoCount(for: .site),
                         isSelected: photoFilter == .site,
                         tint: .orange
                     ) {
                         photoFilter = .site
                     }
 
+                    FilterChip(
+                        label: "Damage",
+                        count: photoCount(for: .damage),
+                        isSelected: photoFilter == .damage,
+                        tint: .red
+                    ) {
+                        photoFilter = .damage
+                    }
+
+                    FilterChip(
+                        label: "Hazard",
+                        count: photoCount(for: .hazard),
+                        isSelected: photoFilter == .hazard,
+                        tint: .yellow
+                    ) {
+                        photoFilter = .hazard
+                    }
+
                     ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
-                        let count = viewModel.photos.filter { $0.surfaceId == surface.surfaceId }.count
+                        let count = photoCount(for: .surface(surface.surfaceId))
                         FilterChip(
                             label: surface.displayName,
                             count: count,
@@ -82,7 +142,7 @@ struct PhotoTabView: View {
                 .background(.orange.opacity(0.1))
             }
 
-            // Photo grid
+            // Photo content
             ScrollView {
                 if filteredPhotos.isEmpty {
                     ContentUnavailableView(
@@ -91,91 +151,57 @@ struct PhotoTabView: View {
                         description: Text(emptyDescription)
                     )
                     .padding(.top, 60)
-                } else {
-                    LazyVGrid(columns: [
-                        GridItem(.flexible(), spacing: 3),
-                        GridItem(.flexible(), spacing: 3),
-                        GridItem(.flexible(), spacing: 3)
-                    ], spacing: 3) {
-                        ForEach(filteredPhotos, id: \.localId) { photo in
-                            PhotoThumbnail(photo: photo)
-                                .onTapGesture {
-                                    selectedPhotoForDetail = photo
-                                }
+                } else if photoFilter == .all && groupedPhotos.count > 1 {
+                    // Grouped view when showing "All"
+                    LazyVStack(spacing: 0) {
+                        ForEach(groupedPhotos, id: \.key) { group in
+                            PhotoGroupHeader(
+                                title: group.title,
+                                icon: group.icon,
+                                count: group.photos.count,
+                                tint: group.tint,
+                                onAdd: viewModel.booking.visitStatus != "completed" ? {
+                                    captureCategory = group.key == "surface" ? "general" : group.key
+                                    showCamera = true
+                                } : nil
+                            )
+
+                            photoGrid(for: group.photos)
                         }
                     }
-                    .padding(3)
+                } else {
+                    // Flat grid for filtered views
+                    photoGrid(for: filteredPhotos)
+                        .padding(.top, 4)
                 }
             }
 
             // Capture controls
             if viewModel.booking.visitStatus != "completed" {
-                VStack(spacing: 8) {
-                    // Surface picker
-                    HStack {
-                        Text("Tag:")
-                            .font(.caption.bold())
-                            .foregroundStyle(.primary)
-
-                        Picker("Surface", selection: $selectedSurfaceId) {
-                            Text("General").tag(nil as UUID?)
-                            ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
-                                Text(surface.displayName).tag(surface.surfaceId as UUID?)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .tint(.primary)
-
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-
-                    HStack(spacing: 16) {
-                        // Camera button
-                        Button {
-                            showCamera = true
-                        } label: {
-                            Label("Camera", systemImage: "camera.fill")
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                        }
-                        .buttonStyle(.borderedProminent)
-
-                        // Photo library (multi-select)
-                        PhotosPicker(
-                            selection: $selectedPhotos,
-                            maxSelectionCount: 10,
-                            matching: .images
-                        ) {
-                            Label("Library", systemImage: "photo.on.rectangle")
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    .padding(.horizontal)
-                }
-                .padding(.vertical, 8)
-                .background(.bar)
+                captureBar
             }
         }
         .sheet(isPresented: $showCamera) {
             CameraView { image in
+                let category = determineCaptureCategory()
                 viewModel.capturePhoto(
                     image: image,
                     surfaceId: selectedSurfaceId,
+                    category: category,
                     context: modelContext
                 )
             }
         }
         .onChange(of: selectedPhotos) { _, newItems in
             Task {
+                let category = determineCaptureCategory()
                 for item in newItems {
                     if let data = try? await item.loadTransferable(type: Data.self),
                        let image = UIImage(data: data) {
                         viewModel.capturePhoto(
                             image: image,
                             surfaceId: selectedSurfaceId,
+                            category: category,
                             context: modelContext
                         )
                     }
@@ -193,6 +219,7 @@ struct PhotoTabView: View {
                         selectedPhotoForDetail = nil
                         viewModel.pendingImage = image
                         viewModel.pendingSurfaceId = photo.surfaceId
+                        viewModel.pendingCategory = photo.category
                         viewModel.showMarkup = true
                     }
                 }
@@ -200,10 +227,105 @@ struct PhotoTabView: View {
         }
     }
 
+    // MARK: - Subviews
+
+    @ViewBuilder
+    private func photoGrid(for photos: [CachedPhoto]) -> some View {
+        LazyVGrid(columns: [
+            GridItem(.flexible(), spacing: 3),
+            GridItem(.flexible(), spacing: 3),
+            GridItem(.flexible(), spacing: 3)
+        ], spacing: 3) {
+            ForEach(photos, id: \.localId) { photo in
+                PhotoThumbnail(photo: photo)
+                    .onTapGesture {
+                        selectedPhotoForDetail = photo
+                    }
+            }
+        }
+        .padding(.horizontal, 3)
+    }
+
+    private var captureBar: some View {
+        VStack(spacing: 8) {
+            // Category + surface picker row
+            HStack {
+                // Category picker
+                Picker("Category", selection: $captureCategory) {
+                    Text("General").tag("general")
+                    Text("Damage").tag("damage")
+                    Text("Hazard").tag("hazard")
+                }
+                .pickerStyle(.menu)
+                .tint(.primary)
+
+                Divider()
+                    .frame(height: 20)
+
+                // Surface picker
+                HStack(spacing: 4) {
+                    Text("Tag:")
+                        .font(.caption.bold())
+                    Picker("Surface", selection: $selectedSurfaceId) {
+                        Text("None").tag(nil as UUID?)
+                        ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
+                            Text(surface.displayName).tag(surface.surfaceId as UUID?)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.primary)
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal)
+
+            HStack(spacing: 16) {
+                Button {
+                    showCamera = true
+                } label: {
+                    Label("Camera", systemImage: "camera.fill")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                }
+                .buttonStyle(.borderedProminent)
+
+                PhotosPicker(
+                    selection: $selectedPhotos,
+                    maxSelectionCount: 10,
+                    matching: .images
+                ) {
+                    Label("Library", systemImage: "photo.on.rectangle")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 8)
+        .background(.bar)
+    }
+
+    // MARK: - Helpers
+
+    private func determineCaptureCategory() -> String {
+        // If a filter is active, use it as the category hint
+        switch photoFilter {
+        case .damage: return "damage"
+        case .hazard: return "hazard"
+        case .site: return "site"
+        case .surface: return selectedSurfaceId != nil ? "general" : "general"
+        case .all: return captureCategory
+        }
+    }
+
     private var emptyTitle: String {
         switch photoFilter {
         case .all: "No Photos"
         case .site: "No Site Photos"
+        case .damage: "No Damage Photos"
+        case .hazard: "No Hazard Photos"
         case .surface: "No Photos for This Surface"
         }
     }
@@ -211,12 +333,13 @@ struct PhotoTabView: View {
     private var emptyDescription: String {
         switch photoFilter {
         case .site: "Use the Site tab to capture site condition photos."
+        case .damage: "Capture photos of any pre-existing damage."
+        case .hazard: "Capture photos of any safety hazards."
         default: "Take photos of the job site and surfaces."
         }
     }
 
     private func deletePhoto(_ photo: CachedPhoto) {
-        // Remove local files
         try? FileManager.default.removeItem(atPath: photo.localFilePath)
         if let thumbPath = photo.thumbnailPath {
             try? FileManager.default.removeItem(atPath: thumbPath)
@@ -285,21 +408,15 @@ struct PhotoThumbnail: View {
         }
         .overlay(alignment: .topLeading) {
             HStack(spacing: 2) {
-                if photo.siteConditionKey != nil {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.white)
-                        .padding(4)
-                        .background(.orange)
-                        .clipShape(Circle())
+                if photo.category == "damage" {
+                    categoryBadge(icon: "exclamationmark.triangle.fill", color: .red)
+                } else if photo.category == "hazard" {
+                    categoryBadge(icon: "bolt.trianglebadge.exclamationmark.fill", color: .orange)
+                } else if photo.siteConditionKey != nil || photo.category == "site" {
+                    categoryBadge(icon: "mappin.circle.fill", color: .orange)
                 }
                 if photo.hasAnnotations {
-                    Image(systemName: "pencil.tip.crop.circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.white)
-                        .padding(4)
-                        .background(.blue)
-                        .clipShape(Circle())
+                    categoryBadge(icon: "pencil.tip.crop.circle.fill", color: .blue)
                 }
             }
             .padding(4)
@@ -317,8 +434,17 @@ struct PhotoThumbnail: View {
         .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 
+    @ViewBuilder
+    private func categoryBadge(icon: String, color: Color) -> some View {
+        Image(systemName: icon)
+            .font(.caption2)
+            .foregroundStyle(.white)
+            .padding(4)
+            .background(color)
+            .clipShape(Circle())
+    }
+
     private func loadImage() -> UIImage? {
-        // Prefer thumbnail for grid performance
         if let thumbPath = photo.thumbnailPath {
             if let thumb = UIImage(contentsOfFile: thumbPath) {
                 return thumb
@@ -373,8 +499,11 @@ struct PhotoDetailView: View {
 
                 // Info bar
                 VStack(spacing: 8) {
-                    // Surface picker
+                    // Category + Surface row
                     HStack {
+                        // Category badge
+                        categoryLabel
+
                         Image(systemName: "tag")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -395,7 +524,6 @@ struct PhotoDetailView: View {
 
                         Spacer()
 
-                        // Timestamp
                         Text(photo.capturedAt, style: .time)
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -482,6 +610,26 @@ struct PhotoDetailView: View {
             } message: {
                 Text("This photo hasn't been uploaded yet. Deleting it cannot be undone.")
             }
+        }
+    }
+
+    @ViewBuilder
+    private var categoryLabel: some View {
+        switch photo.category {
+        case "damage":
+            Label("Damage", systemImage: "exclamationmark.triangle.fill")
+                .font(.caption2.bold())
+                .foregroundStyle(.red)
+        case "hazard":
+            Label("Hazard", systemImage: "bolt.trianglebadge.exclamationmark.fill")
+                .font(.caption2.bold())
+                .foregroundStyle(.orange)
+        case "site":
+            Label("Site", systemImage: "mappin.circle.fill")
+                .font(.caption2.bold())
+                .foregroundStyle(.orange)
+        default:
+            EmptyView()
         }
     }
 }

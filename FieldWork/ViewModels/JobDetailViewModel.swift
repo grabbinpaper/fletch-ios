@@ -7,6 +7,8 @@ final class JobDetailViewModel {
     var booking: CachedBooking
     var isStartingVisit = false
     var isArrivingAtSite = false
+    var isReportingBlocked = false
+    var didReportBlocked = false
     var error: String?
 
     private var appState: AppState?
@@ -25,8 +27,14 @@ final class JobDetailViewModel {
         case "en_route": return .enRoute
         case "on_site": return .onSite
         case "completed": return .completed
+        case "blocked": return .blocked
         default: return .notStarted
         }
+    }
+
+    var canReportBlocked: Bool {
+        let state = visitState
+        return state == .enRoute || state == .onSite
     }
 
     var ctaTitle: String {
@@ -35,6 +43,7 @@ final class JobDetailViewModel {
         case .enRoute: return "Arrived on Site"
         case .onSite: return "Continue Visit"
         case .completed: return "View Summary"
+        case .blocked: return "Visit Blocked"
         }
     }
 
@@ -113,6 +122,64 @@ final class JobDetailViewModel {
         isArrivingAtSite = false
     }
 
+    @MainActor
+    func reportBlocked(reason: BlockedReason, notes: String?, context: ModelContext) async {
+        guard let visitId = booking.visitId else { return }
+        guard let appState, let staffId = appState.staffId else { return }
+
+        isReportingBlocked = true
+        error = nil
+
+        let lat = appState.locationManager.latitude
+        let lng = appState.locationManager.longitude
+        let params: [String: String] = [
+            "p_visit_id": visitId.uuidString,
+            "p_worker_id": staffId.uuidString,
+            "p_reason_code": reason.rawValue,
+            "p_notes": notes ?? "",
+            "p_lat": lat.map { "\($0)" } ?? "",
+            "p_lng": lng.map { "\($0)" } ?? ""
+        ]
+
+        do {
+            try await appState.supabaseManager.client
+                .rpc("report_blocked_visit", params: params)
+                .execute()
+
+            booking.visitStatus = "blocked"
+            booking.visitOutcome = "could_not_start"
+            booking.status = "scheduled"
+            try? context.save()
+
+            didReportBlocked = true
+        } catch {
+            // Queue for offline sync
+            if !appState.networkMonitor.isConnected {
+                let payload = RPCPayload(functionName: "report_blocked_visit", params: params)
+                if let data = try? JSONEncoder().encode(payload) {
+                    await appState.syncEngine.queueOperation(
+                        type: "rpc",
+                        entityType: "visit",
+                        entityId: visitId.uuidString,
+                        payload: data,
+                        in: context
+                    )
+                }
+
+                booking.visitStatus = "blocked"
+                booking.visitOutcome = "could_not_start"
+                booking.status = "scheduled"
+                try? context.save()
+
+                didReportBlocked = true
+            } else {
+                self.error = "Failed to report blocked visit: \(error.localizedDescription)"
+            }
+        }
+
+        isReportingBlocked = false
+    }
+
     func openInMaps() {
         guard let lat = booking.siteLatitude, let lng = booking.siteLongitude else { return }
         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lng)
@@ -137,4 +204,5 @@ enum VisitState {
     case enRoute
     case onSite
     case completed
+    case blocked
 }

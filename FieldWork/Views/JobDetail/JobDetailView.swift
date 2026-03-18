@@ -6,6 +6,7 @@ struct JobDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: JobDetailViewModel
     @State private var showActiveVisit = false
+    @State private var showBlockedSheet = false
 
     init(booking: CachedBooking) {
         _viewModel = State(initialValue: JobDetailViewModel(booking: booking))
@@ -43,6 +44,14 @@ struct JobDetailView: View {
         .fullScreenCover(isPresented: $showActiveVisit) {
             NavigationStack {
                 ActiveVisitView(booking: viewModel.booking)
+            }
+        }
+        .sheet(isPresented: $showBlockedSheet) {
+            BlockedVisitSheet { reason, notes in
+                Task {
+                    await viewModel.reportBlocked(reason: reason, notes: notes, context: modelContext)
+                    showBlockedSheet = false
+                }
             }
         }
         .alert("Error", isPresented: .init(
@@ -259,22 +268,50 @@ struct JobDetailView: View {
     // MARK: - CTA
 
     private var ctaButton: some View {
-        Button {
-            handleCTA()
-        } label: {
-            HStack {
-                if viewModel.isStartingVisit || viewModel.isArrivingAtSite {
-                    ProgressView()
-                        .tint(.white)
+        VStack(spacing: 12) {
+            if viewModel.visitState != .blocked {
+                Button {
+                    handleCTA()
+                } label: {
+                    HStack {
+                        if viewModel.isStartingVisit || viewModel.isArrivingAtSite {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                        Text(viewModel.ctaTitle)
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
                 }
-                Text(viewModel.ctaTitle)
-                    .font(.headline)
+                .buttonStyle(.borderedProminent)
+                .disabled(viewModel.isStartingVisit || viewModel.isArrivingAtSite)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
+
+            if viewModel.canReportBlocked {
+                Button {
+                    showBlockedSheet = true
+                } label: {
+                    Text("Can't complete this visit")
+                        .font(.subheadline)
+                        .foregroundStyle(.red)
+                }
+            }
+
+            if viewModel.visitState == .blocked {
+                HStack {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.red)
+                    Text("This visit was reported as blocked")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.red.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
         }
-        .buttonStyle(.borderedProminent)
-        .disabled(viewModel.isStartingVisit || viewModel.isArrivingAtSite)
     }
 
     private func handleCTA() {
@@ -287,6 +324,8 @@ struct JobDetailView: View {
             showActiveVisit = true
         case .completed:
             showActiveVisit = true
+        case .blocked:
+            break
         }
     }
 }

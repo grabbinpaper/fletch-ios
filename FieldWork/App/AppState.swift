@@ -22,6 +22,8 @@ final class AppState {
             CachedBooking.self,
             CachedSurface.self,
             CachedBacksplash.self,
+            CachedMeasurement.self,
+            CachedCutout.self,
             CachedVisit.self,
             CachedChecklistItem.self,
             CachedPhoto.self,

@@ -79,6 +79,7 @@ struct ScheduleJobRow: View {
         case "en_route": return "En Route"
         case "on_site": return "On Site"
         case "completed": return "Done"
+        case "blocked": return "Blocked"
         default: return status.capitalized
         }
     }
@@ -88,6 +89,7 @@ struct ScheduleJobRow: View {
         case "en_route": return .blue
         case "on_site": return .orange
         case "completed": return .green
+        case "blocked": return .red
         default: return .gray
         }
     }

@@ -28,16 +28,20 @@ struct CompletionView: View {
                         status: measurementStatus
                     ) {
                         ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
+                            let measurement = viewModel.booking.measurement(for: surface.surfaceId)
                             HStack {
                                 Text(surface.displayName)
                                     .font(.caption)
                                 Spacer()
-                                if let l = surface.actualLengthInches, let w = surface.actualWidthInches {
+                                if let l = measurement?.actualLengthIn, let w = measurement?.actualWidthIn {
                                     Text("\(formatInches(l)) x \(formatInches(w))")
                                         .font(.caption.bold())
                                 }
-                                Image(systemName: surface.actualLengthInches != nil ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(surface.actualLengthInches != nil ? .green : .secondary)
+                                if measurement?.hasDimensionChange == true {
+                                    StatusBadge(text: "Changed", color: .orange)
+                                }
+                                Image(systemName: measurement?.isMeasured == true ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(measurement?.isMeasured == true ? .green : .secondary)
                                     .font(.caption)
                             }
                         }
@@ -104,7 +108,7 @@ struct CompletionView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.green)
-                    .disabled(viewModel.isCompleting || !viewModel.canComplete)
+                    .disabled(viewModel.isCompleting)
 
                     if let error = viewModel.error {
                         Text(error)
@@ -125,10 +129,8 @@ struct CompletionView: View {
     }
 
     private var measurementStatus: String {
-        let total = viewModel.booking.surfaces.count
-        let measured = viewModel.booking.surfaces.filter {
-            $0.actualLengthInches != nil && $0.actualWidthInches != nil
-        }.count
+        let total = viewModel.totalMeasurementCount
+        let measured = viewModel.measuredCount
         return "\(measured)/\(total) surfaces"
     }
 

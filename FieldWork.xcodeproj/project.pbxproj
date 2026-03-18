@@ -8,10 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		029D317833F1A4BDFB2C2BFD /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */; };
+		4A5B6C7D8E9F0A1B2C3D4E5F /* DraftManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9A0B1C2D3E4F /* DraftManager.swift */; };
 		13A0BDA236A02410DF984D6D /* SignatureTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740A37AABACDB41BDF099409 /* SignatureTabView.swift */; };
 		24648163557BAD71CBD502F9 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF7F44CD643943EC71BA79F /* AuthManager.swift */; };
+		1A2B3C4D5E6F7A8B9C0D1E2F /* BlockedVisitSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */; };
 		287664ED5EE6FA31FF67E7A6 /* JobDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA104CD18B03FA07DDBC77D8 /* JobDetailViewModel.swift */; };
 		2E29744B87DB6F208C4DC5A4 /* ChecklistTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6E0D5B9AA26F3203B31EA2 /* ChecklistTabView.swift */; };
+		7A1F2E3D4C5B6A8990817263 /* ChecklistToggleRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A6978869706152 /* ChecklistToggleRow.swift */; };
+		8B2E3F4D5C6A7B9901827364 /* ChecklistPickerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D3C4B5A69788697061F243 /* ChecklistPickerRow.swift */; };
+		9C3F4E5D6A7B8C0012938475 /* ChecklistPhotoChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C4B5A697886970615243F3 /* ChecklistPhotoChip.swift */; };
 		3EF708983434DB95DB27E35F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8212D4383FA0F45F12F2D8CA /* SettingsView.swift */; };
 		4B46C871721BAB70FE7D6CAB /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B025D8DE3FCEB7A92FB035C5 /* Color+Theme.swift */; };
 		4E39643D5C43964BE71E5859 /* FieldWorkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8B8C7E0C6F31FD3EBDAABC /* FieldWorkApp.swift */; };
@@ -20,14 +25,25 @@
 		5544954FA9E02160BB163569 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB23038FEC23AD1153D01E93 /* SharedComponents.swift */; };
 		5FFFC382F4B050354B0AD656 /* ScheduleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67534B67BA973A83BD5C1EFE /* ScheduleViewModel.swift */; };
 		6F9B8816F92E996B155BCEA6 /* MeasurementTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */; };
+		CCEC7301B1D390E150941B69 /* AddSurfaceSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6647E376ECA6C0AC0876F533 /* AddSurfaceSheet.swift */; };
+		32BA26396407495DD5BE9792 /* EdgeProfilePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56DEE4DB6718CBA7C2A09F10 /* EdgeProfilePicker.swift */; };
+		091C0F284ACCF74C712BEDA7 /* FinishedEndsPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C5FBE109E8E8D62CF93FE1 /* FinishedEndsPicker.swift */; };
+		B5D89D34342C690D08CE07B4 /* SeamLocationEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0CFB62A3E4012E3997251D /* SeamLocationEditor.swift */; };
 		87188F997B4458025F430685 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F464765E79993386ACE039 /* NetworkMonitor.swift */; };
 		A452A9259F703B23B14E28B2 /* JobDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F349770D91CC9CC61D25F1 /* JobDetailView.swift */; };
 		A872D6BE350EF15B3D02B3E2 /* ActiveVisitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BA5DFC86C8A0A6E3ABC068 /* ActiveVisitView.swift */; };
 		AAC7F1F46DEAD091E49FD8DD /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525D048B1A8E1E03AE1D8FB /* Date+Extensions.swift */; };
 		AC26F6265EDEB751A67F5A2C /* CompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */; };
+		E3B1A49A27071FD8B1671044 /* PartialVisitSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74A7C5527FA849A9F255DCA6 /* PartialVisitSheet.swift */; };
 		ADE924DA8514BC1B59D5E216 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 816733177A0C7F55E99F876D /* Supabase */; };
 		BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */; };
 		C0085DDD0CCB71E6AC0B1829 /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409EFBC2A787F66C203B3575 /* ImageProcessor.swift */; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* CachedMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */; };
+		B29AA5D529E55A988A5C0AB9 /* CachedCutout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AB34E713574A66CD0460B2 /* CachedCutout.swift */; };
+		B68CBB526058162859CF419D /* CutoutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D628E1796B69EAA30AADAE39 /* CutoutSection.swift */; };
+		43959281C71DF236702BEB96 /* AddCutoutSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E929AB9353424B9FC23287E7 /* AddCutoutSheet.swift */; };
+		D9E50359B1CDC1F48D5ECC3F /* SinkCutoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C795873F92F250D5B50A3E2E /* SinkCutoutForm.swift */; };
+		3949AB717D8DC8EEE4667DE6 /* CooktopCutoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C41BFB7A8AA0EAA5BAEFC0 /* CooktopCutoutForm.swift */; };
 		C5E196C8DA9030C9DD039053 /* CachedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610CB6823B8F76751FEE61CB /* CachedModels.swift */; };
 		D42B1A34C42A84C7503F392F /* ScheduleJobRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D095DABC0D652B9DD333FBB /* ScheduleJobRow.swift */; };
 		D53707B73B6EFDD0A1698314 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7255C6712031C2B57777E9B /* ScheduleView.swift */; };
@@ -35,6 +51,7 @@
 		D8EFCE5EA67D0CA6AA8C7DF3 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48B3A86DCE6DA03B6A7313F /* LoginView.swift */; };
 		DFD6751720E8BC77D2CBFCB5 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06F9D94DB4C7A89413C8969 /* LocationManager.swift */; };
 		E6CE5DF4EFFC55090B2D9618 /* PhotoTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */; };
+		6D7E8F9A0B1C2D3E4F506172 /* PhotoGroupHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6D7E8F9A0B1C2D3E4F5061 /* PhotoGroupHeader.swift */; };
 		E783D1D0CECCA1285D750ED3 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BFA3CEC304527B30E2A2BA /* AppState.swift */; };
 		F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */; };
 		F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */; };
@@ -44,12 +61,25 @@
 		10D120AF9A23C5A57C4576B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		12BFA3CEC304527B30E2A2BA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		208D9278EB6833136A75573E /* ActiveVisitViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveVisitViewModel.swift; sourceTree = "<group>"; };
+		2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedVisitSheet.swift; sourceTree = "<group>"; };
 		257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
+		3A4B5C6D7E8F9A0B1C2D3E4F /* DraftManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftManager.swift; sourceTree = "<group>"; };
 		298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementTabView.swift; sourceTree = "<group>"; };
+		6647E376ECA6C0AC0876F533 /* AddSurfaceSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSurfaceSheet.swift; sourceTree = "<group>"; };
+		56DEE4DB6718CBA7C2A09F10 /* EdgeProfilePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeProfilePicker.swift; sourceTree = "<group>"; };
+		E0C5FBE109E8E8D62CF93FE1 /* FinishedEndsPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishedEndsPicker.swift; sourceTree = "<group>"; };
+		DC0CFB62A3E4012E3997251D /* SeamLocationEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamLocationEditor.swift; sourceTree = "<group>"; };
+		D628E1796B69EAA30AADAE39 /* CutoutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutSection.swift; sourceTree = "<group>"; };
+		E929AB9353424B9FC23287E7 /* AddCutoutSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCutoutSheet.swift; sourceTree = "<group>"; };
+		C795873F92F250D5B50A3E2E /* SinkCutoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinkCutoutForm.swift; sourceTree = "<group>"; };
+		39C41BFB7A8AA0EAA5BAEFC0 /* CooktopCutoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CooktopCutoutForm.swift; sourceTree = "<group>"; };
 		37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionView.swift; sourceTree = "<group>"; };
+		74A7C5527FA849A9F255DCA6 /* PartialVisitSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialVisitSheet.swift; sourceTree = "<group>"; };
 		3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMarkupView.swift; sourceTree = "<group>"; };
 		409EFBC2A787F66C203B3575 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
 		5D095DABC0D652B9DD333FBB /* ScheduleJobRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleJobRow.swift; sourceTree = "<group>"; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedMeasurement.swift; sourceTree = "<group>"; };
+		A9AB34E713574A66CD0460B2 /* CachedCutout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedCutout.swift; sourceTree = "<group>"; };
 		610CB6823B8F76751FEE61CB /* CachedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedModels.swift; sourceTree = "<group>"; };
 		67534B67BA973A83BD5C1EFE /* ScheduleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewModel.swift; sourceTree = "<group>"; };
 		6AF7F44CD643943EC71BA79F /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
@@ -58,6 +88,9 @@
 		8212D4383FA0F45F12F2D8CA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		87BA5DFC86C8A0A6E3ABC068 /* ActiveVisitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveVisitView.swift; sourceTree = "<group>"; };
 		8A6E0D5B9AA26F3203B31EA2 /* ChecklistTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistTabView.swift; sourceTree = "<group>"; };
+		F1E2D3C4B5A6978869706152 /* ChecklistToggleRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistToggleRow.swift; sourceTree = "<group>"; };
+		E2D3C4B5A69788697061F243 /* ChecklistPickerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistPickerRow.swift; sourceTree = "<group>"; };
+		D3C4B5A697886970615243F3 /* ChecklistPhotoChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistPhotoChip.swift; sourceTree = "<group>"; };
 		8A8B8C7E0C6F31FD3EBDAABC /* FieldWorkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldWorkApp.swift; sourceTree = "<group>"; };
 		94A8D7FEB3D39DBFBBDF6920 /* FieldWork.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldWork.entitlements; sourceTree = "<group>"; };
 		A57DF2495ECF3358EE2C42D3 /* FieldWork.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FieldWork.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,6 +102,7 @@
 		C4F464765E79993386ACE039 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		C525D048B1A8E1E03AE1D8FB /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoTabView.swift; sourceTree = "<group>"; };
+		5C6D7E8F9A0B1C2D3E4F5061 /* PhotoGroupHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroupHeader.swift; sourceTree = "<group>"; };
 		D2F349770D91CC9CC61D25F1 /* JobDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobDetailView.swift; sourceTree = "<group>"; };
 		F06F9D94DB4C7A89413C8969 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		FA96418329537BF140D5DA9D /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
@@ -92,6 +126,8 @@
 		0211C08ED8B656931CDEAD64 /* Local */ = {
 			isa = PBXGroup;
 			children = (
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */,
+				A9AB34E713574A66CD0460B2 /* CachedCutout.swift */,
 				610CB6823B8F76751FEE61CB /* CachedModels.swift */,
 			);
 			path = Local;
@@ -100,6 +136,7 @@
 		136D6CDE5388E532640A9346 /* JobDetail */ = {
 			isa = PBXGroup;
 			children = (
+				2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */,
 				D2F349770D91CC9CC61D25F1 /* JobDetailView.swift */,
 			);
 			path = JobDetail;
@@ -128,6 +165,7 @@
 			children = (
 				87BA5DFC86C8A0A6E3ABC068 /* ActiveVisitView.swift */,
 				37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */,
+				74A7C5527FA849A9F255DCA6 /* PartialVisitSheet.swift */,
 				9E7D14468757E0F94067B396 /* ChecklistTab */,
 				C3F335D6F3BB44A35B9825E4 /* MeasurementTab */,
 				7C87382E755F746C94B4A2AB /* PhotoTab */,
@@ -210,6 +248,7 @@
 		7C87382E755F746C94B4A2AB /* PhotoTab */ = {
 			isa = PBXGroup;
 			children = (
+				5C6D7E8F9A0B1C2D3E4F5061 /* PhotoGroupHeader.swift */,
 				3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */,
 				CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */,
 			);
@@ -220,6 +259,9 @@
 			isa = PBXGroup;
 			children = (
 				8A6E0D5B9AA26F3203B31EA2 /* ChecklistTabView.swift */,
+				F1E2D3C4B5A6978869706152 /* ChecklistToggleRow.swift */,
+				E2D3C4B5A69788697061F243 /* ChecklistPickerRow.swift */,
+				D3C4B5A697886970615243F3 /* ChecklistPhotoChip.swift */,
 			);
 			path = ChecklistTab;
 			sourceTree = "<group>";
@@ -257,6 +299,7 @@
 		AF0F956D0A84636C05B516BD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				3A4B5C6D7E8F9A0B1C2D3E4F /* DraftManager.swift */,
 				409EFBC2A787F66C203B3575 /* ImageProcessor.swift */,
 				D14CC94B66B869E13D4CEA21 /* Auth */,
 				9F1225F5CCE4C73571C43B15 /* Location */,
@@ -290,6 +333,14 @@
 			isa = PBXGroup;
 			children = (
 				298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */,
+				6647E376ECA6C0AC0876F533 /* AddSurfaceSheet.swift */,
+				56DEE4DB6718CBA7C2A09F10 /* EdgeProfilePicker.swift */,
+				E0C5FBE109E8E8D62CF93FE1 /* FinishedEndsPicker.swift */,
+				DC0CFB62A3E4012E3997251D /* SeamLocationEditor.swift */,
+				D628E1796B69EAA30AADAE39 /* CutoutSection.swift */,
+				E929AB9353424B9FC23287E7 /* AddCutoutSheet.swift */,
+				C795873F92F250D5B50A3E2E /* SinkCutoutForm.swift */,
+				39C41BFB7A8AA0EAA5BAEFC0 /* CooktopCutoutForm.swift */,
 			);
 			path = MeasurementTab;
 			sourceTree = "<group>";
@@ -398,13 +449,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				A872D6BE350EF15B3D02B3E2 /* ActiveVisitView.swift in Sources */,
+				1A2B3C4D5E6F7A8B9C0D1E2F /* BlockedVisitSheet.swift in Sources */,
 				526EBEBF52CEB6535F0FE068 /* ActiveVisitViewModel.swift in Sources */,
 				E783D1D0CECCA1285D750ED3 /* AppState.swift in Sources */,
 				24648163557BAD71CBD502F9 /* AuthManager.swift in Sources */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* CachedMeasurement.swift in Sources */,
+				B29AA5D529E55A988A5C0AB9 /* CachedCutout.swift in Sources */,
 				C5E196C8DA9030C9DD039053 /* CachedModels.swift in Sources */,
 				2E29744B87DB6F208C4DC5A4 /* ChecklistTabView.swift in Sources */,
+				7A1F2E3D4C5B6A8990817263 /* ChecklistToggleRow.swift in Sources */,
+				8B2E3F4D5C6A7B9901827364 /* ChecklistPickerRow.swift in Sources */,
+				9C3F4E5D6A7B8C0012938475 /* ChecklistPhotoChip.swift in Sources */,
 				4B46C871721BAB70FE7D6CAB /* Color+Theme.swift in Sources */,
 				AC26F6265EDEB751A67F5A2C /* CompletionView.swift in Sources */,
+				E3B1A49A27071FD8B1671044 /* PartialVisitSheet.swift in Sources */,
 				AAC7F1F46DEAD091E49FD8DD /* Date+Extensions.swift in Sources */,
 				4E39643D5C43964BE71E5859 /* FieldWorkApp.swift in Sources */,
 				C0085DDD0CCB71E6AC0B1829 /* ImageProcessor.swift in Sources */,
@@ -413,8 +471,17 @@
 				DFD6751720E8BC77D2CBFCB5 /* LocationManager.swift in Sources */,
 				D8EFCE5EA67D0CA6AA8C7DF3 /* LoginView.swift in Sources */,
 				6F9B8816F92E996B155BCEA6 /* MeasurementTabView.swift in Sources */,
+				CCEC7301B1D390E150941B69 /* AddSurfaceSheet.swift in Sources */,
+				32BA26396407495DD5BE9792 /* EdgeProfilePicker.swift in Sources */,
+				091C0F284ACCF74C712BEDA7 /* FinishedEndsPicker.swift in Sources */,
+				B5D89D34342C690D08CE07B4 /* SeamLocationEditor.swift in Sources */,
+				B68CBB526058162859CF419D /* CutoutSection.swift in Sources */,
+				43959281C71DF236702BEB96 /* AddCutoutSheet.swift in Sources */,
+				D9E50359B1CDC1F48D5ECC3F /* SinkCutoutForm.swift in Sources */,
+				3949AB717D8DC8EEE4667DE6 /* CooktopCutoutForm.swift in Sources */,
 				87188F997B4458025F430685 /* NetworkMonitor.swift in Sources */,
 				BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */,
+				6D7E8F9A0B1C2D3E4F506172 /* PhotoGroupHeader.swift in Sources */,
 				E6CE5DF4EFFC55090B2D9618 /* PhotoTabView.swift in Sources */,
 				538B9725B724C3BA6FBE9B11 /* RemoteModels.swift in Sources */,
 				D42B1A34C42A84C7503F392F /* ScheduleJobRow.swift in Sources */,
@@ -424,6 +491,7 @@
 				5544954FA9E02160BB163569 /* SharedComponents.swift in Sources */,
 				13A0BDA236A02410DF984D6D /* SignatureTabView.swift in Sources */,
 				D581C4D28793B15791631074 /* SupabaseManager.swift in Sources */,
+				4A5B6C7D8E9F0A1B2C3D4E5F /* DraftManager.swift in Sources */,
 				029D317833F1A4BDFB2C2BFD /* SyncEngine.swift in Sources */,
 				F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */,
 				F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */,
