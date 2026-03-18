@@ -353,6 +353,9 @@ struct ScheduleVisit: Codable {
     let fieldNotes: String?
     let signatureRequired: Bool?
     let signatureCaptured: Bool?
+    let startingAddress: String?
+    let calculatedMiles: Double?
+    let travelTimeMinutes: Int?
     let measurements: [ScheduleVisitMeasurement]?
 
     enum CodingKeys: String, CodingKey {
@@ -365,6 +368,9 @@ struct ScheduleVisit: Codable {
         case fieldNotes = "field_notes"
         case signatureRequired = "signature_required"
         case signatureCaptured = "signature_captured"
+        case startingAddress = "starting_address"
+        case calculatedMiles = "calculated_miles"
+        case travelTimeMinutes = "travel_time_minutes"
         case measurements
     }
 }

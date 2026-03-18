@@ -146,7 +146,7 @@ struct SurfaceMeasurementCard: View {
     @State private var notesText = ""
 
     // UI state
-    @State private var isExpanded = true
+    @State private var isExpanded = false
     @State private var showEdgeSheet = false
 
     var body: some View {

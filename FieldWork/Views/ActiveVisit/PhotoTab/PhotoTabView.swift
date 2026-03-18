@@ -10,24 +10,24 @@ struct PhotoTabView: View {
     @State private var selectedSurfaceId: UUID?
     @State private var photoFilter: PhotoFilter = .all
     @State private var selectedPhotoForDetail: CachedPhoto?
-    @State private var captureCategory: String = "general"
 
     private enum PhotoFilter: Equatable, Hashable {
-        case all, site, damage, hazard, surface(UUID)
+        case all, site, surface(UUID)
     }
 
     // MARK: - Filtered / grouped photos
+
+    /// Site photos: no surface association
+    private var sitePhotos: [CachedPhoto] {
+        viewModel.photos.filter { $0.surfaceId == nil }
+    }
 
     private var filteredPhotos: [CachedPhoto] {
         switch photoFilter {
         case .all:
             return viewModel.photos
         case .site:
-            return viewModel.photos.filter { $0.category == "site" || $0.siteConditionKey != nil }
-        case .damage:
-            return viewModel.photos.filter { $0.category == "damage" }
-        case .hazard:
-            return viewModel.photos.filter { $0.category == "hazard" }
+            return sitePhotos
         case .surface(let id):
             return viewModel.photos.filter { $0.surfaceId == id }
         }
@@ -36,9 +36,7 @@ struct PhotoTabView: View {
     private func photoCount(for filter: PhotoFilter) -> Int {
         switch filter {
         case .all: return viewModel.photos.count
-        case .site: return viewModel.photos.filter { $0.category == "site" || $0.siteConditionKey != nil }.count
-        case .damage: return viewModel.photos.filter { $0.category == "damage" }.count
-        case .hazard: return viewModel.photos.filter { $0.category == "hazard" }.count
+        case .site: return sitePhotos.count
         case .surface(let id): return viewModel.photos.filter { $0.surfaceId == id }.count
         }
     }
@@ -47,31 +45,23 @@ struct PhotoTabView: View {
         viewModel.photos.filter { !$0.isSynced }.count
     }
 
-    /// Group photos by category for the "all" view
+    /// Group photos for the "all" view: site photos first, then per-surface
     private var groupedPhotos: [(key: String, title: String, icon: String, tint: Color, photos: [CachedPhoto])] {
-        let categories: [(key: String, title: String, icon: String, tint: Color)] = [
-            ("damage", "Damage", "exclamationmark.triangle.fill", .red),
-            ("hazard", "Hazard", "bolt.trianglebadge.exclamationmark.fill", .orange),
-            ("site", "Site Conditions", "mappin.circle.fill", .orange),
-            ("surface", "Surface", "square.stack.3d.up", .blue),
-            ("general", "General", "photo", .secondary),
-        ]
+        var groups: [(key: String, title: String, icon: String, tint: Color, photos: [CachedPhoto])] = []
 
-        return categories.compactMap { cat in
-            let photos: [CachedPhoto]
-            switch cat.key {
-            case "site":
-                photos = viewModel.photos.filter { $0.category == "site" || ($0.siteConditionKey != nil && $0.category == "general") }
-            case "surface":
-                photos = viewModel.photos.filter { $0.surfaceId != nil && $0.category != "site" && $0.category != "damage" && $0.category != "hazard" && $0.siteConditionKey == nil }
-            case "general":
-                photos = viewModel.photos.filter { $0.category == "general" && $0.surfaceId == nil && $0.siteConditionKey == nil }
-            default:
-                photos = viewModel.photos.filter { $0.category == cat.key }
-            }
-            guard !photos.isEmpty else { return nil }
-            return (key: cat.key, title: cat.title, icon: cat.icon, tint: cat.tint, photos: photos)
+        let site = sitePhotos
+        if !site.isEmpty {
+            groups.append((key: "site", title: "Site", icon: "mappin.circle.fill", tint: .orange, photos: site))
         }
+
+        for surface in viewModel.booking.surfaces {
+            let surfacePhotos = viewModel.photos.filter { $0.surfaceId == surface.surfaceId }
+            if !surfacePhotos.isEmpty {
+                groups.append((key: surface.surfaceId.uuidString, title: surface.displayName, icon: "square.stack.3d.up", tint: .blue, photos: surfacePhotos))
+            }
+        }
+
+        return groups
     }
 
     // MARK: - Body
@@ -92,24 +82,6 @@ struct PhotoTabView: View {
                         tint: .orange
                     ) {
                         photoFilter = .site
-                    }
-
-                    FilterChip(
-                        label: "Damage",
-                        count: photoCount(for: .damage),
-                        isSelected: photoFilter == .damage,
-                        tint: .red
-                    ) {
-                        photoFilter = .damage
-                    }
-
-                    FilterChip(
-                        label: "Hazard",
-                        count: photoCount(for: .hazard),
-                        isSelected: photoFilter == .hazard,
-                        tint: .yellow
-                    ) {
-                        photoFilter = .hazard
                     }
 
                     ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
@@ -159,11 +131,7 @@ struct PhotoTabView: View {
                                 title: group.title,
                                 icon: group.icon,
                                 count: group.photos.count,
-                                tint: group.tint,
-                                onAdd: viewModel.booking.visitStatus != "completed" ? {
-                                    captureCategory = group.key == "surface" ? "general" : group.key
-                                    showCamera = true
-                                } : nil
+                                tint: group.tint
                             )
 
                             photoGrid(for: group.photos)
@@ -248,33 +216,20 @@ struct PhotoTabView: View {
 
     private var captureBar: some View {
         VStack(spacing: 8) {
-            // Category + surface picker row
-            HStack {
-                // Category picker
-                Picker("Category", selection: $captureCategory) {
-                    Text("General").tag("general")
-                    Text("Damage").tag("damage")
-                    Text("Hazard").tag("hazard")
+            // Surface picker — site photo if no surface selected
+            HStack(spacing: 8) {
+                Image(systemName: selectedSurfaceId == nil ? "mappin.circle.fill" : "square.stack.3d.up")
+                    .foregroundStyle(selectedSurfaceId == nil ? .orange : .blue)
+                    .font(.subheadline)
+
+                Picker("Surface", selection: $selectedSurfaceId) {
+                    Text("Site Photo").tag(nil as UUID?)
+                    ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
+                        Text(surface.displayName).tag(surface.surfaceId as UUID?)
+                    }
                 }
                 .pickerStyle(.menu)
                 .tint(.primary)
-
-                Divider()
-                    .frame(height: 20)
-
-                // Surface picker
-                HStack(spacing: 4) {
-                    Text("Tag:")
-                        .font(.caption.bold())
-                    Picker("Surface", selection: $selectedSurfaceId) {
-                        Text("None").tag(nil as UUID?)
-                        ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
-                            Text(surface.displayName).tag(surface.surfaceId as UUID?)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(.primary)
-                }
 
                 Spacer()
             }
@@ -310,31 +265,20 @@ struct PhotoTabView: View {
     // MARK: - Helpers
 
     private func determineCaptureCategory() -> String {
-        // If a filter is active, use it as the category hint
-        switch photoFilter {
-        case .damage: return "damage"
-        case .hazard: return "hazard"
-        case .site: return "site"
-        case .surface: return selectedSurfaceId != nil ? "general" : "general"
-        case .all: return captureCategory
-        }
+        selectedSurfaceId == nil ? "site" : "general"
     }
 
     private var emptyTitle: String {
         switch photoFilter {
         case .all: "No Photos"
         case .site: "No Site Photos"
-        case .damage: "No Damage Photos"
-        case .hazard: "No Hazard Photos"
         case .surface: "No Photos for This Surface"
         }
     }
 
     private var emptyDescription: String {
         switch photoFilter {
-        case .site: "Use the Site tab to capture site condition photos."
-        case .damage: "Capture photos of any pre-existing damage."
-        case .hazard: "Capture photos of any safety hazards."
+        case .site: "Take photos to document the job site."
         default: "Take photos of the job site and surfaces."
         }
     }
@@ -408,11 +352,7 @@ struct PhotoThumbnail: View {
         }
         .overlay(alignment: .topLeading) {
             HStack(spacing: 2) {
-                if photo.category == "damage" {
-                    categoryBadge(icon: "exclamationmark.triangle.fill", color: .red)
-                } else if photo.category == "hazard" {
-                    categoryBadge(icon: "bolt.trianglebadge.exclamationmark.fill", color: .orange)
-                } else if photo.siteConditionKey != nil || photo.category == "site" {
+                if photo.surfaceId == nil {
                     categoryBadge(icon: "mappin.circle.fill", color: .orange)
                 }
                 if photo.hasAnnotations {
@@ -499,17 +439,13 @@ struct PhotoDetailView: View {
 
                 // Info bar
                 VStack(spacing: 8) {
-                    // Category + Surface row
                     HStack {
-                        // Category badge
-                        categoryLabel
-
-                        Image(systemName: "tag")
+                        Image(systemName: selectedSurfaceId == nil ? "mappin.circle.fill" : "square.stack.3d.up")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(selectedSurfaceId == nil ? .orange : .blue)
 
                         Picker("Surface", selection: $selectedSurfaceId) {
-                            Text("General").tag(nil as UUID?)
+                            Text("Site").tag(nil as UUID?)
                             ForEach(surfaces, id: \.surfaceId) { surface in
                                 Text(surface.displayName).tag(surface.surfaceId as UUID?)
                             }
@@ -613,25 +549,6 @@ struct PhotoDetailView: View {
         }
     }
 
-    @ViewBuilder
-    private var categoryLabel: some View {
-        switch photo.category {
-        case "damage":
-            Label("Damage", systemImage: "exclamationmark.triangle.fill")
-                .font(.caption2.bold())
-                .foregroundStyle(.red)
-        case "hazard":
-            Label("Hazard", systemImage: "bolt.trianglebadge.exclamationmark.fill")
-                .font(.caption2.bold())
-                .foregroundStyle(.orange)
-        case "site":
-            Label("Site", systemImage: "mappin.circle.fill")
-                .font(.caption2.bold())
-                .foregroundStyle(.orange)
-        default:
-            EmptyView()
-        }
-    }
 }
 
 // MARK: - Camera View

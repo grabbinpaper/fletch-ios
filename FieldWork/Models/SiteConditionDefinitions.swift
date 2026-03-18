@@ -16,6 +16,9 @@ enum SiteTags {
         .init(id: "long_carry", label: "Long carry", section: "Access & Delivery"),
         .init(id: "parking", label: "Parking", section: "Access & Delivery"),
         .init(id: "door_clearance", label: "Door clearance", section: "Access & Delivery"),
+        .init(id: "hill_elevation", label: "Hill/Elevation", section: "Access & Delivery"),
+        .init(id: "rugged_terrain", label: "Rugged terrain", section: "Access & Delivery"),
+        .init(id: "fence_gate", label: "Fence/Gate", section: "Access & Delivery"),
 
         // Site Status
         .init(id: "site_type", label: "Site type", section: "Site Status"),

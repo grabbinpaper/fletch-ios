@@ -48,7 +48,7 @@ final class JobDetailViewModel {
     }
 
     @MainActor
-    func startVisit(context: ModelContext) async {
+    func startVisit(startingAddress: String?, context: ModelContext) async {
         guard let appState, let staffId = appState.staffId else { return }
 
         isStartingVisit = true
@@ -58,19 +58,27 @@ final class JobDetailViewModel {
             let lat = appState.locationManager.latitude
             let lng = appState.locationManager.longitude
 
+            var params: [String: String] = [
+                "p_booking_id": booking.bookingId.uuidString,
+                "p_worker_id": staffId.uuidString,
+                "p_lat": lat.map { "\($0)" } ?? "",
+                "p_lng": lng.map { "\($0)" } ?? ""
+            ]
+            if let startingAddress, !startingAddress.isEmpty {
+                params["p_starting_address"] = startingAddress
+            }
+
             let visitId: UUID = try await appState.supabaseManager.client
-                .rpc("start_template_visit", params: [
-                    "p_booking_id": booking.bookingId.uuidString,
-                    "p_worker_id": staffId.uuidString,
-                    "p_lat": lat.map { "\($0)" } ?? "",
-                    "p_lng": lng.map { "\($0)" } ?? ""
-                ])
+                .rpc("start_template_visit", params: params)
                 .execute()
                 .value
 
             booking.visitId = visitId
             booking.visitStatus = "en_route"
             booking.visitDepartedAt = Date()
+            booking.visitDepartureLat = lat
+            booking.visitDepartureLng = lng
+            booking.startingAddress = startingAddress
             booking.status = "in_progress"
             try? context.save()
 
@@ -104,16 +112,19 @@ final class JobDetailViewModel {
             let lat = appState.locationManager.latitude
             let lng = appState.locationManager.longitude
 
-            try await appState.supabaseManager.client
+            let result: ArrivalResponse = try await appState.supabaseManager.client
                 .rpc("arrive_at_site", params: [
                     "p_visit_id": visitId.uuidString,
                     "p_lat": lat.map { "\($0)" } ?? "",
                     "p_lng": lng.map { "\($0)" } ?? ""
                 ])
                 .execute()
+                .value
 
             booking.visitStatus = "on_site"
             booking.visitArrivedAt = Date()
+            booking.travelMiles = result.calculatedMiles
+            booking.travelTimeMinutes = result.travelTimeMinutes
             try? context.save()
         } catch {
             self.error = "Failed to record arrival: \(error.localizedDescription)"
@@ -205,4 +216,14 @@ enum VisitState {
     case onSite
     case completed
     case blocked
+}
+
+struct ArrivalResponse: Codable {
+    let calculatedMiles: Double?
+    let travelTimeMinutes: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case calculatedMiles = "calculated_miles"
+        case travelTimeMinutes = "travel_time_minutes"
+    }
 }

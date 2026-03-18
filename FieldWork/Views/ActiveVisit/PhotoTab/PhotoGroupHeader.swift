@@ -6,7 +6,7 @@ struct PhotoGroupHeader: View {
     let icon: String
     let count: Int
     let tint: Color
-    let onAdd: (() -> Void)?
+    var onAdd: (() -> Void)? = nil
 
     var body: some View {
         HStack {

@@ -83,6 +83,13 @@ final class CachedBooking {
     var signatureRequired: Bool
     var signatureCaptured: Bool
 
+    // Travel tracking
+    var visitDepartureLat: Double?
+    var visitDepartureLng: Double?
+    var startingAddress: String?
+    var travelMiles: Double?
+    var travelTimeMinutes: Int?
+
     var lastSyncedAt: Date
 
     @Relationship(deleteRule: .cascade) var surfaces: [CachedSurface]
@@ -140,6 +147,10 @@ final class CachedBooking {
         self.signatureRequired = booking.visit?.signatureRequired ?? false
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
 
+        self.startingAddress = booking.visit?.startingAddress
+        self.travelMiles = booking.visit?.calculatedMiles
+        self.travelTimeMinutes = booking.visit?.travelTimeMinutes
+
         self.lastSyncedAt = Date()
         self.surfaces = booking.surfaces.map { CachedSurface(from: $0) }
 
@@ -186,6 +197,9 @@ final class CachedBooking {
         self.visitArrivedAt = booking.visit?.arrivedAt.flatMap { parseDatetime($0) }
         self.visitCompletedAt = booking.visit?.completedAt.flatMap { parseDatetime($0) }
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
+        self.startingAddress = booking.visit?.startingAddress ?? self.startingAddress
+        self.travelMiles = booking.visit?.calculatedMiles ?? self.travelMiles
+        self.travelTimeMinutes = booking.visit?.travelTimeMinutes ?? self.travelTimeMinutes
         self.lastSyncedAt = Date()
 
         // Sync measurements from remote

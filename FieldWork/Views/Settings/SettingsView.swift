@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showSignOutConfirm = false
+    @AppStorage("defaultStartAddress") private var defaultStartAddress = ""
     @State private var pendingOps = 0
     @State private var failedOps = 0
 
@@ -20,6 +21,18 @@ struct SettingsView: View {
                     }
                     if let crewId = appState.crewId {
                         LabeledContent("Crew", value: crewId.uuidString.prefix(8) + "...")
+                    }
+                }
+
+                // Travel
+                Section("Default Start Location") {
+                    TextField("Home or shop address", text: $defaultStartAddress, axis: .vertical)
+                        .lineLimit(2...4)
+                        .textContentType(.fullStreetAddress)
+                    if !defaultStartAddress.isEmpty {
+                        Text("Pre-filled when starting the first visit of the day.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
 

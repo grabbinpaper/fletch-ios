@@ -7,6 +7,7 @@ struct JobDetailView: View {
     @State private var viewModel: JobDetailViewModel
     @State private var showActiveVisit = false
     @State private var showBlockedSheet = false
+    @State private var showStartTripSheet = false
 
     init(booking: CachedBooking) {
         _viewModel = State(initialValue: JobDetailViewModel(booking: booking))
@@ -30,6 +31,9 @@ struct JobDetailView: View {
                 // Surfaces
                 surfacesSection
 
+                // Travel summary
+                travelCard
+
                 // CTA
                 ctaButton
             }
@@ -44,6 +48,14 @@ struct JobDetailView: View {
         .fullScreenCover(isPresented: $showActiveVisit) {
             NavigationStack {
                 ActiveVisitView(booking: viewModel.booking)
+            }
+        }
+        .sheet(isPresented: $showStartTripSheet) {
+            StartTripSheet(booking: viewModel.booking) { address in
+                showStartTripSheet = false
+                Task {
+                    await viewModel.startVisit(startingAddress: address, context: modelContext)
+                }
             }
         }
         .sheet(isPresented: $showBlockedSheet) {
@@ -265,6 +277,48 @@ struct JobDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    // MARK: - Travel Card
+
+    @ViewBuilder
+    private var travelCard: some View {
+        let state = viewModel.visitState
+        if state == .enRoute || state == .onSite || state == .completed,
+           let address = viewModel.booking.startingAddress, !address.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Travel", systemImage: "car.fill")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 4) {
+                    Image(systemName: "location.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(address)
+                        .font(.subheadline)
+                }
+
+                if let miles = viewModel.booking.travelMiles,
+                   let minutes = viewModel.booking.travelTimeMinutes {
+                    Divider()
+                    HStack(spacing: 16) {
+                        Label(String(format: "%.1f mi", miles), systemImage: "road.lanes")
+                            .font(.subheadline)
+                        Label("\(minutes) min", systemImage: "clock")
+                            .font(.subheadline)
+                    }
+                } else if state == .enRoute {
+                    Text("Distance calculated on arrival")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.regularMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
     // MARK: - CTA
 
     private var ctaButton: some View {
@@ -292,10 +346,13 @@ struct JobDetailView: View {
                 Button {
                     showBlockedSheet = true
                 } label: {
-                    Text("Can't complete this visit")
-                        .font(.subheadline)
-                        .foregroundStyle(.red)
+                    Label("Can't complete this visit", systemImage: "xmark.circle.fill")
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
                 }
+                .buttonStyle(.bordered)
+                .tint(.red)
             }
 
             if viewModel.visitState == .blocked {
@@ -317,7 +374,7 @@ struct JobDetailView: View {
     private func handleCTA() {
         switch viewModel.visitState {
         case .notStarted:
-            Task { await viewModel.startVisit(context: modelContext) }
+            showStartTripSheet = true
         case .enRoute:
             Task { await viewModel.arriveAtSite(context: modelContext) }
         case .onSite:
