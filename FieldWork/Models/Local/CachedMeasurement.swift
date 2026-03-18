@@ -38,7 +38,7 @@ final class CachedMeasurement {
     var isFieldAdded: Bool
 
     // Finished edges (comma-separated: "front,right" etc.)
-    var finishedEdges: String
+    var finishedEdges: String = ""
 
     @Relationship var booking: CachedBooking?
     @Relationship(deleteRule: .cascade) var cutouts: [CachedCutout]
