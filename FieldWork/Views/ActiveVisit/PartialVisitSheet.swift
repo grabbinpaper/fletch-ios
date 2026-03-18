@@ -145,15 +145,9 @@ private struct SurfaceSkipRow: View {
     @Bindable var measurement: CachedMeasurement
 
     private let skipReasons: [(String, String)] = [
-        ("furniture_blocking", "Furniture blocking"),
-        ("appliance_in_way", "Appliance in way"),
-        ("homeowner_denied_access", "Homeowner denied access"),
-        ("area_not_ready", "Area not ready"),
+        ("denied_access", "Denied access"),
         ("cabinet_not_installed", "Cabinet not installed"),
         ("cabinets_not_level", "Cabinets not level"),
-        ("surface_inaccessible", "Surface inaccessible"),
-        ("customer_asked_stop", "Customer asked to stop"),
-        ("ran_out_of_time", "Ran out of time"),
         ("equipment_issue", "Equipment issue"),
         ("other", "Other"),
     ]

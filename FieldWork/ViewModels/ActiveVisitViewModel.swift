@@ -99,7 +99,7 @@ final class ActiveVisitViewModel {
             measurement.actualSqft = nil
         }
 
-        if measurement.isMeasured {
+        if measurement.status != "skipped" && measurement.isMeasured {
             measurement.status = "measured"
         }
 
@@ -699,7 +699,7 @@ final class ActiveVisitViewModel {
     }
 
     var skippedCount: Int {
-        booking.measurements.filter { !$0.isMeasured }.count
+        booking.measurements.filter { $0.status == "skipped" }.count
     }
 
     var canComplete: Bool {

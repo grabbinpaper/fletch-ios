@@ -148,6 +148,7 @@ struct SurfaceMeasurementCard: View {
     // UI state
     @State private var isExpanded = false
     @State private var showEdgeSheet = false
+    @State private var showSkipPicker = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -218,9 +219,26 @@ struct SurfaceMeasurementCard: View {
                 onSave()
             }
         }
+        .confirmationDialog("Skip Surface", isPresented: $showSkipPicker, titleVisibility: .visible) {
+            ForEach(Self.skipReasons, id: \.0) { value, label in
+                Button(label) {
+                    measurement?.status = "skipped"
+                    measurement?.skipReason = value
+                    withAnimation { isExpanded = false }
+                    onSave()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Why can't this surface be measured?")
+        }
     }
 
     // MARK: - Header
+
+    private var isSkipped: Bool {
+        measurement?.status == "skipped"
+    }
 
     private var cardHeader: some View {
         HStack {
@@ -241,13 +259,29 @@ struct SurfaceMeasurementCard: View {
                                 .foregroundStyle(.secondary)
                         }
 
+                        // Skipped reason
+                        if isSkipped, let reason = measurement?.skipReason {
+                            HStack(spacing: 4) {
+                                Image(systemName: "nosign")
+                                    .font(.caption2)
+                                    .foregroundStyle(.red)
+                                Text(skipReasonLabel(for: reason))
+                                    .font(.caption)
+                                    .foregroundStyle(.red)
+                            }
+                        }
+
                         // Collapsed summary
-                        if !isExpanded {
+                        if !isExpanded && !isSkipped {
                             collapsedSummary
                         }
                     }
 
-                    if measurement?.isMeasured == true {
+                    if isSkipped {
+                        Label("Skipped", systemImage: "nosign")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    } else if measurement?.isMeasured == true {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.green)
                             .font(.caption)
@@ -262,16 +296,44 @@ struct SurfaceMeasurementCard: View {
             }
             .tint(.primary)
 
-            if !isReadOnly, let onCamera {
-                Button { onCamera() } label: {
-                    Image(systemName: "camera.fill")
-                        .font(.title3)
-                        .foregroundStyle(.blue)
-                        .frame(width: 44, height: 44)
-                        .background(.blue.opacity(0.1))
-                        .clipShape(Circle())
+            if !isReadOnly {
+                if isSkipped {
+                    // Undo skip
+                    Button {
+                        measurement?.status = "pending"
+                        measurement?.skipReason = nil
+                        onSave()
+                    } label: {
+                        Text("Undo")
+                            .font(.caption.bold())
+                            .foregroundStyle(.orange)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.orange.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+                } else if measurement?.isMeasured == false {
+                    // Skip button — only shown for unmeasured surfaces
+                    Button { showSkipPicker = true } label: {
+                        Image(systemName: "nosign")
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
+                            .frame(width: 36, height: 36)
+                            .background(.red.opacity(0.1))
+                            .clipShape(Circle())
+                    }
                 }
-                .padding(.trailing, 8)
+
+                if let onCamera {
+                    Button { onCamera() } label: {
+                        Image(systemName: "camera.fill")
+                            .font(.title3)
+                            .foregroundStyle(.blue)
+                            .frame(width: 44, height: 44)
+                            .background(.blue.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                }
             }
 
             Button { withAnimation { isExpanded.toggle() } } label: {
@@ -518,5 +580,17 @@ struct SurfaceMeasurementCard: View {
         measurement?.actualLengthIn = newLength
         measurement?.actualWidthIn = newWidth
         onSave()
+    }
+
+    private static let skipReasons: [(String, String)] = [
+        ("denied_access", "Denied access"),
+        ("cabinet_not_installed", "Cabinet not installed"),
+        ("cabinets_not_level", "Cabinets not level"),
+        ("equipment_issue", "Equipment issue"),
+        ("other", "Other"),
+    ]
+
+    private func skipReasonLabel(for value: String) -> String {
+        Self.skipReasons.first { $0.0 == value }?.1 ?? value
     }
 }
