@@ -128,6 +128,10 @@ actor SyncEngine {
             try await syncCutoutInsert(operation)
         case "delete_cutout":
             try await syncCutoutDelete(operation)
+        case "insert_backsplash_measurement":
+            try await syncBacksplashInsert(operation)
+        case "delete_backsplash_measurement":
+            try await syncBacksplashDelete(operation)
         default:
             print("Unknown operation type: \(operation.operationType)")
         }
@@ -169,6 +173,7 @@ actor SyncEngine {
             let backsplash_height_in: Double?
             let seam_locations_json: String?
             let finished_ends: String
+            let finished_edges: String
             let template_notes: String?
             let status: String
             let skip_reason: String?
@@ -187,6 +192,7 @@ actor SyncEngine {
                 backsplash_height_in: payload.backsplashHeightIn,
                 seam_locations_json: payload.seamLocationsJson,
                 finished_ends: payload.finishedEnds,
+                finished_edges: payload.finishedEdges,
                 template_notes: payload.templateNotes,
                 status: payload.status,
                 skip_reason: payload.skipReason
@@ -456,6 +462,53 @@ actor SyncEngine {
             .eq("cutout_id", value: payload.cutoutId.uuidString)
             .execute()
     }
+
+    private func syncBacksplashInsert(_ operation: SyncOperation) async throws {
+        let payload = try JSONDecoder().decode(BacksplashInsertPayload.self, from: operation.payload)
+
+        struct BacksplashInsert: Encodable {
+            let backsplash_measurement_id: String
+            let visit_id: String
+            let measurement_id: String
+            let surface_backsplash_id: String?
+            let location: String
+            let quoted_height_in: Double?
+            let quoted_length_in: Double?
+            let actual_height_in: Double?
+            let actual_length_in: Double?
+            let finished_ends: Int
+            let source: String
+            let notes: String?
+        }
+
+        try await supabase.client
+            .from("visit_backsplash_measurement")
+            .insert(BacksplashInsert(
+                backsplash_measurement_id: payload.backsplashMeasurementId.uuidString,
+                visit_id: payload.visitId.uuidString,
+                measurement_id: payload.measurementId.uuidString,
+                surface_backsplash_id: payload.surfaceBacksplashId?.uuidString,
+                location: payload.location,
+                quoted_height_in: payload.quotedHeightIn,
+                quoted_length_in: payload.quotedLengthIn,
+                actual_height_in: payload.actualHeightIn,
+                actual_length_in: payload.actualLengthIn,
+                finished_ends: payload.finishedEnds,
+                source: payload.source,
+                notes: payload.notes
+            ))
+            .execute()
+    }
+
+    private func syncBacksplashDelete(_ operation: SyncOperation) async throws {
+        let payload = try JSONDecoder().decode(BacksplashDeletePayload.self, from: operation.payload)
+
+        try await supabase.client
+            .from("visit_backsplash_measurement")
+            .delete()
+            .eq("backsplash_measurement_id", value: payload.backsplashMeasurementId.uuidString)
+            .execute()
+    }
 }
 
 enum SyncError: LocalizedError {
@@ -536,6 +589,7 @@ struct VisitMeasurementPayload: Codable {
     let backsplashHeightIn: Double?
     let seamLocationsJson: String?
     let finishedEnds: String
+    let finishedEdges: String
     let templateNotes: String?
     let status: String
     let skipReason: String?
@@ -560,4 +614,23 @@ struct CutoutInsertPayload: Codable {
 
 struct CutoutDeletePayload: Codable {
     let cutoutId: UUID
+}
+
+struct BacksplashInsertPayload: Codable {
+    let backsplashMeasurementId: UUID
+    let visitId: UUID
+    let measurementId: UUID
+    let surfaceBacksplashId: UUID?
+    let location: String
+    let quotedHeightIn: Double?
+    let quotedLengthIn: Double?
+    let actualHeightIn: Double?
+    let actualLengthIn: Double?
+    let finishedEnds: Int
+    let source: String
+    let notes: String?
+}
+
+struct BacksplashDeletePayload: Codable {
+    let backsplashMeasurementId: UUID
 }

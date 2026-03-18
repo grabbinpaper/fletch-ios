@@ -388,10 +388,12 @@ struct ScheduleVisitMeasurement: Codable, Identifiable {
     let backsplashHeightIn: Double?
     let seamLocationsJson: String?
     let finishedEnds: String?
+    let finishedEdges: String?
     let templateNotes: String?
     let status: String
     let skipReason: String?
     let isFieldAdded: Bool?
+    let backsplashMeasurements: [ScheduleBacksplashMeasurement]?
 
     enum CodingKeys: String, CodingKey {
         case measurementId = "measurement_id"
@@ -410,10 +412,39 @@ struct ScheduleVisitMeasurement: Codable, Identifiable {
         case backsplashHeightIn = "backsplash_height_in"
         case seamLocationsJson = "seam_locations_json"
         case finishedEnds = "finished_ends"
+        case finishedEdges = "finished_edges"
         case templateNotes = "template_notes"
         case status
         case skipReason = "skip_reason"
         case isFieldAdded = "is_field_added"
+        case backsplashMeasurements = "backsplash_measurements"
+    }
+}
+
+struct ScheduleBacksplashMeasurement: Codable, Identifiable {
+    var id: UUID { backsplashMeasurementId }
+
+    let backsplashMeasurementId: UUID
+    let surfaceBacksplashId: UUID?
+    let location: String
+    let quotedHeightIn: Double?
+    let quotedLengthIn: Double?
+    let actualHeightIn: Double?
+    let actualLengthIn: Double?
+    let finishedEnds: Int
+    let source: String
+    let notes: String?
+
+    enum CodingKeys: String, CodingKey {
+        case backsplashMeasurementId = "backsplash_measurement_id"
+        case surfaceBacksplashId = "surface_backsplash_id"
+        case location
+        case quotedHeightIn = "quoted_height_in"
+        case quotedLengthIn = "quoted_length_in"
+        case actualHeightIn = "actual_height_in"
+        case actualLengthIn = "actual_length_in"
+        case finishedEnds = "finished_ends"
+        case source, notes
     }
 }
 

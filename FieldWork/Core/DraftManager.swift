@@ -131,9 +131,21 @@ final class DraftManager {
                 backsplashHeightIn: m.backsplashHeightIn,
                 seamLocationsJson: m.seamLocationsJson,
                 finishedEnds: m.finishedEnds,
+                finishedEdges: m.finishedEdges,
                 templateNotes: m.templateNotes,
                 status: m.status,
-                skipReason: m.skipReason
+                skipReason: m.skipReason,
+                backsplashMeasurements: m.backsplashMeasurements.map { bm in
+                    DraftBacksplashMeasurement(
+                        backsplashMeasurementId: bm.backsplashMeasurementId,
+                        location: bm.location,
+                        actualHeightIn: bm.actualHeightIn,
+                        actualLengthIn: bm.actualLengthIn,
+                        finishedEnds: bm.finishedEnds,
+                        source: bm.source,
+                        notes: bm.notes
+                    )
+                }
             )
         }
 
@@ -177,9 +189,21 @@ struct DraftMeasurement: Codable {
     let backsplashHeightIn: Double?
     let seamLocationsJson: String?
     let finishedEnds: String
+    let finishedEdges: String
     let templateNotes: String?
     let status: String
     let skipReason: String?
+    let backsplashMeasurements: [DraftBacksplashMeasurement]
+}
+
+struct DraftBacksplashMeasurement: Codable {
+    let backsplashMeasurementId: UUID
+    let location: String
+    let actualHeightIn: Double?
+    let actualLengthIn: Double?
+    let finishedEnds: Int
+    let source: String
+    let notes: String?
 }
 
 struct DraftChecklistItem: Codable {

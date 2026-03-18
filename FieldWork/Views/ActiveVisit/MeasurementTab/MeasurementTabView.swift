@@ -29,6 +29,19 @@ struct MeasurementTabView: View {
                         onRemoveCutout: { cutout in
                             viewModel.removeCutout(cutout, context: modelContext)
                         },
+                        onSaveBacksplash: {
+                            if let m = measurement {
+                                viewModel.saveMeasurement(m, context: modelContext)
+                            }
+                        },
+                        onAddBacksplash: { data in
+                            if let m = measurement {
+                                viewModel.addBacksplash(data: data, measurement: m, context: modelContext)
+                            }
+                        },
+                        onRemoveBacksplash: { bm in
+                            viewModel.removeBacksplash(bm, context: modelContext)
+                        },
                         onCamera: onCameraForSurface != nil ? {
                             onCameraForSurface?(surface.surfaceId)
                         } : nil
@@ -111,6 +124,9 @@ struct SurfaceMeasurementCard: View {
     let onSave: () -> Void
     let onAddCutout: (CutoutFormData) -> Void
     let onRemoveCutout: (CachedCutout) -> Void
+    let onSaveBacksplash: () -> Void
+    let onAddBacksplash: (BacksplashFormData) -> Void
+    let onRemoveBacksplash: (CachedBacksplashMeasurement) -> Void
     var onCamera: (() -> Void)?
 
     // Dimensions
@@ -120,15 +136,11 @@ struct SurfaceMeasurementCard: View {
     // Overhang
     @State private var overhangText = ""
 
-    // Backsplash
-    @State private var backsplashOn = false
-    @State private var backsplashHeightText = ""
-
     // Seams
     @State private var seamLocations: [String] = []
 
-    // Finished ends
-    @State private var finishedEnds = "none"
+    // Finished edges
+    @State private var finishedEdges = ""
 
     // Notes
     @State private var notesText = ""
@@ -164,18 +176,27 @@ struct SurfaceMeasurementCard: View {
                     Divider()
 
                     overhangSection
-                    backsplashSection
+
+                    Divider()
+
+                    finishedEdgesSection
+
+                    Divider()
+
+                    // Backsplash per-piece measurements
+                    if let measurement {
+                        BacksplashSection(
+                            backsplashMeasurements: measurement.backsplashMeasurements,
+                            isReadOnly: isReadOnly,
+                            onSave: { _ in onSaveBacksplash() },
+                            onAdd: onAddBacksplash,
+                            onRemove: onRemoveBacksplash
+                        )
+                    }
 
                     Divider()
 
                     seamSection
-                    finishedEndsSection
-
-                    // Quoted backsplash pieces from surface
-                    if surface.hasBacksplash && !surface.backsplashPieces.isEmpty {
-                        Divider()
-                        quotedBacksplashPieces
-                    }
 
                     Divider()
 
@@ -416,45 +437,17 @@ struct SurfaceMeasurementCard: View {
         }
     }
 
-    // MARK: - Backsplash
+    // MARK: - Finished Edges
 
-    private var backsplashSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle("Backsplash Included", isOn: $backsplashOn)
-                .font(.caption.bold())
-                .disabled(isReadOnly)
-                .onChange(of: backsplashOn) {
-                    guard backsplashOn != (measurement?.backsplashIncluded ?? false) else { return }
-                    measurement?.backsplashIncluded = backsplashOn
-                    if !backsplashOn {
-                        measurement?.backsplashHeightIn = nil
-                        backsplashHeightText = ""
-                    }
-                    onSave()
-                }
-
-            if backsplashOn {
-                HStack(spacing: 4) {
-                    Text("Height:")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("4", text: $backsplashHeightText)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(maxWidth: 60)
-                        .disabled(isReadOnly)
-                        .onChange(of: backsplashHeightText) {
-                            backsplashHeightText = filterNumeric(backsplashHeightText)
-                            let newValue = Double(backsplashHeightText)
-                            guard newValue != measurement?.backsplashHeightIn else { return }
-                            measurement?.backsplashHeightIn = newValue
-                            onSave()
-                        }
-                    Text("in")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
+    private var finishedEdgesSection: some View {
+        FinishedEdgesView(
+            finishedEdges: $finishedEdges,
+            isReadOnly: isReadOnly
+        )
+        .onChange(of: finishedEdges) {
+            guard finishedEdges != measurement?.finishedEdges else { return }
+            measurement?.finishedEdges = finishedEdges
+            onSave()
         }
     }
 
@@ -470,39 +463,6 @@ struct SurfaceMeasurementCard: View {
             guard encoded != measurement?.seamLocationsJson else { return }
             measurement?.seamLocationsJson = encoded
             onSave()
-        }
-    }
-
-    // MARK: - Finished Ends
-
-    private var finishedEndsSection: some View {
-        FinishedEndsPicker(
-            selection: $finishedEnds,
-            isReadOnly: isReadOnly
-        )
-        .onChange(of: finishedEnds) {
-            guard finishedEnds != measurement?.finishedEnds else { return }
-            measurement?.finishedEnds = finishedEnds
-            onSave()
-        }
-    }
-
-    // MARK: - Quoted Backsplash Pieces
-
-    private var quotedBacksplashPieces: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Backsplash Pieces (Quoted)")
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
-            ForEach(surface.backsplashPieces, id: \.surfaceBacksplashId) { piece in
-                HStack {
-                    Text("\(formatInchesDisplay(piece.heightInches))H \u{00D7} \(formatInchesDisplay(piece.lengthInches))L")
-                        .font(.caption)
-                    Text("\(piece.finishedEnds) finished end(s)")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
         }
     }
 
@@ -546,10 +506,8 @@ struct SurfaceMeasurementCard: View {
         lengthText = (measurement?.actualLengthIn ?? surface.actualLengthInches).map { formatValue($0) } ?? ""
         widthText = (measurement?.actualWidthIn ?? surface.actualWidthInches).map { formatValue($0) } ?? ""
         overhangText = measurement?.overhangDepthIn.map { formatValue($0) } ?? ""
-        backsplashOn = measurement?.backsplashIncluded ?? false
-        backsplashHeightText = measurement?.backsplashHeightIn.map { formatValue($0) } ?? ""
         seamLocations = parseSeamLocations(measurement?.seamLocationsJson)
-        finishedEnds = measurement?.finishedEnds ?? "none"
+        finishedEdges = measurement?.finishedEdges ?? ""
         notesText = measurement?.templateNotes ?? surface.templateNotes ?? ""
     }
 

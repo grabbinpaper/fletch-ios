@@ -37,8 +37,12 @@ final class CachedMeasurement {
     var skipReason: String?
     var isFieldAdded: Bool
 
+    // Finished edges (comma-separated: "front,right" etc.)
+    var finishedEdges: String
+
     @Relationship var booking: CachedBooking?
     @Relationship(deleteRule: .cascade) var cutouts: [CachedCutout]
+    @Relationship(deleteRule: .cascade) var backsplashMeasurements: [CachedBacksplashMeasurement]
 
     init(from remote: ScheduleVisitMeasurement, visitId: UUID) {
         self.measurementId = remote.measurementId
@@ -58,11 +62,13 @@ final class CachedMeasurement {
         self.backsplashHeightIn = remote.backsplashHeightIn
         self.seamLocationsJson = remote.seamLocationsJson
         self.finishedEnds = remote.finishedEnds ?? "none"
+        self.finishedEdges = remote.finishedEdges ?? ""
         self.templateNotes = remote.templateNotes
         self.status = remote.status
         self.skipReason = remote.skipReason
         self.isFieldAdded = remote.isFieldAdded ?? false
         self.cutouts = []
+        self.backsplashMeasurements = []
     }
 
     /// Creates a measurement for a field-added surface
@@ -84,11 +90,13 @@ final class CachedMeasurement {
         self.backsplashHeightIn = nil
         self.seamLocationsJson = nil
         self.finishedEnds = "none"
+        self.finishedEdges = ""
         self.templateNotes = nil
         self.status = "pending"
         self.skipReason = nil
         self.isFieldAdded = true
         self.cutouts = []
+        self.backsplashMeasurements = []
     }
 
     func update(from remote: ScheduleVisitMeasurement) {
@@ -106,6 +114,7 @@ final class CachedMeasurement {
         self.backsplashHeightIn = remote.backsplashHeightIn
         self.seamLocationsJson = remote.seamLocationsJson
         self.finishedEnds = remote.finishedEnds ?? "none"
+        self.finishedEdges = remote.finishedEdges ?? ""
         self.templateNotes = remote.templateNotes
         self.status = remote.status
         self.skipReason = remote.skipReason

@@ -145,7 +145,28 @@ final class CachedBooking {
 
         if let visitId = booking.visit?.visitId,
            let remoteMeasurements = booking.visit?.measurements {
-            self.measurements = remoteMeasurements.map { CachedMeasurement(from: $0, visitId: visitId) }
+            self.measurements = remoteMeasurements.map { rm in
+                let m = CachedMeasurement(from: rm, visitId: visitId)
+                if let remoteBMs = rm.backsplashMeasurements {
+                    m.backsplashMeasurements = remoteBMs.map {
+                        CachedBacksplashMeasurement(
+                            backsplashMeasurementId: $0.backsplashMeasurementId,
+                            visitId: visitId,
+                            measurementId: rm.measurementId,
+                            surfaceBacksplashId: $0.surfaceBacksplashId,
+                            location: $0.location,
+                            quotedHeightIn: $0.quotedHeightIn,
+                            quotedLengthIn: $0.quotedLengthIn,
+                            actualHeightIn: $0.actualHeightIn,
+                            actualLengthIn: $0.actualLengthIn,
+                            finishedEnds: $0.finishedEnds,
+                            source: $0.source,
+                            notes: $0.notes
+                        )
+                    }
+                }
+                return m
+            }
         } else {
             self.measurements = []
         }
@@ -175,7 +196,26 @@ final class CachedBooking {
                 if let existing = existingById[remote.measurementId] {
                     existing.update(from: remote)
                 } else {
-                    measurements.append(CachedMeasurement(from: remote, visitId: visitId))
+                    let m = CachedMeasurement(from: remote, visitId: visitId)
+                    if let remoteBMs = remote.backsplashMeasurements {
+                        m.backsplashMeasurements = remoteBMs.map {
+                            CachedBacksplashMeasurement(
+                                backsplashMeasurementId: $0.backsplashMeasurementId,
+                                visitId: visitId,
+                                measurementId: remote.measurementId,
+                                surfaceBacksplashId: $0.surfaceBacksplashId,
+                                location: $0.location,
+                                quotedHeightIn: $0.quotedHeightIn,
+                                quotedLengthIn: $0.quotedLengthIn,
+                                actualHeightIn: $0.actualHeightIn,
+                                actualLengthIn: $0.actualLengthIn,
+                                finishedEnds: $0.finishedEnds,
+                                source: $0.source,
+                                notes: $0.notes
+                            )
+                        }
+                    }
+                    measurements.append(m)
                 }
             }
         }
@@ -316,10 +356,10 @@ final class CachedChecklistItem {
     var section: String?
     var status: String
     var notes: String?
-    var fieldType: String
+    var fieldType: String = "pass_fail"
     var responseValue: String?
-    var requiresPhoto: Bool
-    var photoCount: Int
+    var requiresPhoto: Bool = false
+    var photoCount: Int = 0
 
     init(from item: ChecklistItemResponse) {
         self.itemId = item.visitChecklistItemId
@@ -352,7 +392,7 @@ final class CachedPhoto {
     var hasAnnotations: Bool
     var annotationData: Data?
     var siteConditionKey: String?
-    var category: String
+    var category: String = "general"
 
     init(
         localFilePath: String,

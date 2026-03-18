@@ -243,6 +243,77 @@ final class ActiveVisitViewModel {
         }
     }
 
+    // MARK: - Backsplash Measurements
+
+    func addBacksplash(data: BacksplashFormData, measurement: CachedMeasurement, context: ModelContext) {
+        let bm = CachedBacksplashMeasurement(
+            visitId: measurement.visitId,
+            measurementId: measurement.measurementId,
+            location: data.location,
+            actualHeightIn: data.heightIn,
+            actualLengthIn: data.lengthIn,
+            source: "field"
+        )
+
+        context.insert(bm)
+        measurement.backsplashMeasurements.append(bm)
+        try? context.save()
+
+        markDraftDirty(context: context)
+
+        guard let appState else { return }
+        let payload = BacksplashInsertPayload(
+            backsplashMeasurementId: bm.backsplashMeasurementId,
+            visitId: bm.visitId,
+            measurementId: bm.measurementId,
+            surfaceBacksplashId: nil,
+            location: bm.location,
+            quotedHeightIn: nil,
+            quotedLengthIn: nil,
+            actualHeightIn: bm.actualHeightIn,
+            actualLengthIn: bm.actualLengthIn,
+            finishedEnds: bm.finishedEnds,
+            source: bm.source,
+            notes: bm.notes
+        )
+        if let encoded = try? JSONEncoder().encode(payload) {
+            Task {
+                await appState.syncEngine.queueOperation(
+                    type: "insert_backsplash_measurement",
+                    entityType: "visit_backsplash_measurement",
+                    entityId: bm.backsplashMeasurementId.uuidString,
+                    payload: encoded,
+                    in: context
+                )
+            }
+        }
+    }
+
+    func removeBacksplash(_ bm: CachedBacksplashMeasurement, context: ModelContext) {
+        let bmId = bm.backsplashMeasurementId
+
+        if let measurement = bm.measurement {
+            measurement.backsplashMeasurements.removeAll { $0.backsplashMeasurementId == bmId }
+        }
+
+        context.delete(bm)
+        try? context.save()
+
+        guard let appState else { return }
+        let payload = BacksplashDeletePayload(backsplashMeasurementId: bmId)
+        if let encoded = try? JSONEncoder().encode(payload) {
+            Task {
+                await appState.syncEngine.queueOperation(
+                    type: "delete_backsplash_measurement",
+                    entityType: "visit_backsplash_measurement",
+                    entityId: bmId.uuidString,
+                    payload: encoded,
+                    in: context
+                )
+            }
+        }
+    }
+
     func removeCutout(_ cutout: CachedCutout, context: ModelContext) {
         let cutoutId = cutout.cutoutId
 
@@ -293,6 +364,7 @@ final class ActiveVisitViewModel {
             backsplashHeightIn: measurement.backsplashHeightIn,
             seamLocationsJson: measurement.seamLocationsJson,
             finishedEnds: measurement.finishedEnds,
+            finishedEdges: measurement.finishedEdges,
             templateNotes: measurement.templateNotes,
             status: measurement.status,
             skipReason: measurement.skipReason
