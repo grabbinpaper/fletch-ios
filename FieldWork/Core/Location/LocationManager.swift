@@ -11,6 +11,14 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     var latitude: Double? { currentLocation?.coordinate.latitude }
     var longitude: Double? { currentLocation?.coordinate.longitude }
 
+    var isAuthorized: Bool {
+        authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways
+    }
+
+    var isDenied: Bool {
+        authorizationStatus == .denied || authorizationStatus == .restricted
+    }
+
     override init() {
         super.init()
         manager.delegate = self

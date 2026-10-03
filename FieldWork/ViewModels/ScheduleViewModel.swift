@@ -76,13 +76,14 @@ final class ScheduleViewModel {
     }
 
     func loadFromCache(context: ModelContext) {
-        let today = Calendar.current.startOfDay(for: Date())
-        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        // TODO: restore date filter after screenshots
+        // let today = Calendar.current.startOfDay(for: Date())
+        // let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
 
         let descriptor = FetchDescriptor<CachedBooking>(
-            predicate: #Predicate<CachedBooking> {
-                $0.scheduledDate >= today && $0.scheduledDate < tomorrow
-            },
+            // predicate: #Predicate<CachedBooking> {
+            //     $0.scheduledDate >= today && $0.scheduledDate < tomorrow
+            // },
             sortBy: [SortDescriptor(\.startDatetime)]
         )
 

@@ -60,7 +60,9 @@ struct ActiveVisitView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Close") { dismiss() }
+                Button("Schedule") {
+                    appState.selectedTab = .schedule
+                }
             }
 
             ToolbarItem(placement: .topBarTrailing) {

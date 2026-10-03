@@ -5,7 +5,6 @@ struct ScheduleView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ScheduleViewModel()
-    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
@@ -24,22 +23,11 @@ struct ScheduleView: View {
                         .foregroundStyle(.secondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 12) {
-                        SyncStatusIndicator(syncEngine: appState.syncEngine)
-
-                        Button {
-                            showSettings = true
-                        } label: {
-                            Image(systemName: "gear")
-                        }
-                    }
+                    SyncStatusIndicator(syncEngine: appState.syncEngine)
                 }
             }
             .refreshable {
                 await viewModel.loadSchedule(context: modelContext)
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsView()
             }
             .task {
                 viewModel.configure(appState: appState)

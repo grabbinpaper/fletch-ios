@@ -21,6 +21,12 @@ struct ScheduleJobRow: View {
                     )
                 }
 
+                // Visit type
+                StatusBadge(
+                    text: booking.isInstallVisit ? "Install" : "Template",
+                    color: booking.isInstallVisit ? .purple : .blue
+                )
+
                 // Visit status
                 if let visitStatus = booking.visitStatus {
                     StatusBadge(
@@ -56,11 +62,15 @@ struct ScheduleJobRow: View {
             // Salesperson + surface count
             HStack(spacing: 12) {
                 if let salesperson = booking.salespersonName {
-                    Label(salesperson, systemImage: "briefcase.fill")
-                        .font(.caption)
+                    HStack(spacing: 3) {
+                        Text("Sales:")
+                            .font(.caption)
+                        Text(salesperson)
+                            .font(.caption)
+                    }
                 }
 
-                Label("\(booking.templatedSurfaceCount)/\(booking.surfaceCount) surfaces",
+                Label("\(booking.surfaceCount) surfaces",
                       systemImage: "square.dashed")
                     .font(.caption)
             }

@@ -27,7 +27,14 @@ func parsePlainDate(_ string: String) -> Date? {
 }
 
 @Model
-final class CachedBooking {
+final class CachedBooking: Hashable {
+    static func == (lhs: CachedBooking, rhs: CachedBooking) -> Bool {
+        lhs.bookingId == rhs.bookingId
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(bookingId)
+    }
     @Attribute(.unique) var bookingId: UUID
     var scheduledDate: Date
     var startDatetime: Date
@@ -244,6 +251,100 @@ final class CachedBooking {
         }
     }
 
+    // TODO: remove after screenshots
+    /// Creates a demo booking with inline surfaces for local testing
+    static func demo(
+        jobNumber: String,
+        customerName: String,
+        serviceName: String,
+        serviceCode: String? = nil,
+        priority: String = "standard",
+        constructionType: String? = nil,
+        startTime: Date,
+        address: String,
+        city: String, state: String, zip: String,
+        salesperson: String? = nil,
+        salespersonPhone: String? = nil,
+        contactName: String? = nil,
+        contactPhone: String? = nil,
+        tearoutRequired: Bool = false,
+        plumbingDisconnect: Bool = false,
+        specialInstructions: String? = nil,
+        siteAccessNotes: String? = nil,
+        surfaces: [(room: String, qualifier: String?, name: String, sqft: Double, lengthIn: Double, widthIn: Double)] = []
+    ) -> CachedBooking {
+        let b = CachedBooking()
+        b.bookingId = UUID()
+        b.scheduledDate = Calendar.current.startOfDay(for: startTime)
+        b.startDatetime = startTime
+        b.endDatetime = startTime.addingTimeInterval(2 * 3600)
+        b.status = "confirmed"
+        b.priority = priority
+        b.serviceName = serviceName
+        b.serviceCode = serviceCode
+        b.serviceId = UUID()
+        b.jobId = UUID()
+        b.jobNumber = jobNumber
+        b.jobStatus = "in_progress"
+        b.jobPriority = priority
+        b.constructionType = constructionType
+        b.tearoutRequired = tearoutRequired
+        b.plumbingDisconnect = plumbingDisconnect
+        b.specialInstructions = specialInstructions
+        b.siteAddressLine1 = address
+        b.siteCity = city
+        b.siteState = state
+        b.siteZip = zip
+        b.siteAccessNotes = siteAccessNotes
+        b.salespersonName = salesperson
+        b.salespersonPhone = salespersonPhone
+        b.customerName = customerName
+        b.customerPhone = "(555) 000-0000"
+        b.contactName = contactName
+        b.contactPhone = contactPhone
+        b.signatureRequired = false
+        b.signatureCaptured = false
+        b.lastSyncedAt = Date()
+        b.surfaces = surfaces.enumerated().map { idx, s in
+            let surf = CachedSurface(
+                fieldAdded: UUID(),
+                name: s.name,
+                roomName: s.room,
+                displayOrder: idx
+            )
+            surf.roomQualifier = s.qualifier
+            surf.estimatedSqft = s.sqft
+            surf.estimatedLengthInches = s.lengthIn
+            surf.estimatedWidthInches = s.widthIn
+            return surf
+        }
+        b.measurements = []
+        return b
+    }
+
+    /// Bare init for demo seeding
+    init() {
+        self.bookingId = UUID()
+        self.scheduledDate = Date()
+        self.startDatetime = Date()
+        self.endDatetime = Date()
+        self.status = "confirmed"
+        self.priority = "standard"
+        self.serviceName = ""
+        self.serviceId = UUID()
+        self.tearoutRequired = false
+        self.plumbingDisconnect = false
+        self.signatureRequired = false
+        self.signatureCaptured = false
+        self.lastSyncedAt = Date()
+        self.surfaces = []
+        self.measurements = []
+    }
+
+    var isInstallVisit: Bool {
+        serviceCode?.lowercased() == "install" || serviceName.lowercased().contains("install")
+    }
+
     var fullAddress: String {
         [siteAddressLine1, siteCity, siteState, siteZip]
             .compactMap { $0 }
@@ -399,6 +500,17 @@ final class CachedChecklistItem {
         self.responseValue = item.responseValue
         self.requiresPhoto = item.requiresPhoto ?? false
         self.photoCount = item.photoCount ?? 0
+    }
+
+    /// Demo/seed init
+    init(itemId: UUID, visitChecklistId: UUID, label: String, displayOrder: Int, section: String?, fieldType: String = "pass_fail") {
+        self.itemId = itemId
+        self.visitChecklistId = visitChecklistId
+        self.label = label
+        self.displayOrder = displayOrder
+        self.section = section
+        self.status = "pending"
+        self.fieldType = fieldType
     }
 }
 

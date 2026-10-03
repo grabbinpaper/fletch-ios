@@ -88,6 +88,18 @@ struct LoginView: View {
                         .foregroundStyle(.red)
                         .multilineTextAlignment(.center)
                 }
+
+                // TODO: remove after screenshots
+                Divider()
+                Button {
+                    appState.demoSignIn()
+                } label: {
+                    Text("Demo Login (skip auth)")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                }
+                .buttonStyle(.bordered)
+                .tint(.green)
             }
             .padding(.horizontal)
             .padding(.bottom, 40)
