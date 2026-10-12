@@ -127,18 +127,20 @@ final class AppState {
             let syncEngine = self.syncEngine
             Task { await syncEngine.processPendingOperations() }
         } catch {
-            // The password was right, but we couldn't find who this is in Fletch. Say so
-            // (this used to leave the tech on the login screen with no message) and drop the
-            // half-finished sign-in so the next launch doesn't silently retry it.
+            // The password was right, but we couldn't load who this is in Fletch. Say so
+            // (this used to leave the tech on the login screen with no message).
             NSLog("[FieldWork] Failed to load user context: %@", "\(error)")
             let who = email ?? "this login"
+            self.isAuthenticated = false
             if let postgrest = error as? PostgrestError, postgrest.code == "PGRST116" {
+                // Not linked to a tech: drop the sign-in so the next launch doesn't silently retry it.
                 signInError = "Signed in, but \(who) isn't linked to a field tech in Fletch yet. Ask the office to link it."
+                await authManager.signOut()
             } else {
+                // Usually no signal. Keep the saved session so the next launch with signal works
+                // without retyping the password (which a tech can't do offline anyway).
                 signInError = "Signed in, but couldn't load your Fletch profile: \(error.localizedDescription)"
             }
-            self.isAuthenticated = false
-            await authManager.signOut()
         }
     }
 }
