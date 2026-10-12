@@ -82,7 +82,7 @@ struct LoginView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                if let error {
+                if let error = error ?? appState.signInError {
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(.red)
@@ -103,7 +103,7 @@ struct LoginView: View {
                 isSigningIn = true
                 do {
                     let authId = try await appState.authManager.signInWithApple(credential: credential)
-                    await appState.signIn(authProviderId: authId)
+                    await appState.signIn(authProviderId: authId, email: nil)
                 } catch {
                     self.error = error.localizedDescription
                 }
@@ -124,7 +124,7 @@ struct LoginView: View {
         do {
             let authId = try await appState.authManager.signInWithEmail(email: email, password: password)
             NSLog("[FieldWork] Auth succeeded, authId: %@", authId)
-            await appState.signIn(authProviderId: authId)
+            await appState.signIn(authProviderId: authId, email: email)
         } catch {
             NSLog("[FieldWork] Sign-in error: %@", "\(error)")
             self.error = error.localizedDescription

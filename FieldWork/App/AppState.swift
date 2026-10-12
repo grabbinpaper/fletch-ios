@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Supabase
 
 @Observable
 final class AppState {
@@ -9,6 +10,8 @@ final class AppState {
     var organizationId: UUID?
     var crewId: UUID?
     var staffName: String = ""
+    /// Why the last sign-in didn't get past the login screen (shown there).
+    var signInError: String?
 
     let modelContainer: ModelContainer
     let authManager: AuthManager
@@ -43,6 +46,13 @@ final class AppState {
             networkMonitor: networkMonitor
         )
         self.locationManager = LocationManager()
+
+        // Work done offline (measurements, photos, checklist answers…) waits in the sync
+        // queue. Send it as soon as the phone is back online, without the tech doing anything.
+        let syncEngine = self.syncEngine
+        networkMonitor.onReconnect = {
+            Task { await syncEngine.processPendingOperations() }
+        }
     }
 
     func checkExistingSession() async {
@@ -52,11 +62,11 @@ final class AppState {
             return
         }
 
-        await loadUserContext(authProviderId: session.user.id.uuidString)
+        await loadUserContext(authProviderId: session.user.id.uuidString, email: session.user.email)
     }
 
-    func signIn(authProviderId: String) async {
-        await loadUserContext(authProviderId: authProviderId)
+    func signIn(authProviderId: String, email: String?) async {
+        await loadUserContext(authProviderId: authProviderId, email: email)
     }
 
     func signOut() async {
@@ -68,8 +78,9 @@ final class AppState {
         isAuthenticated = false
     }
 
-    private func loadUserContext(authProviderId: String) async {
+    private func loadUserContext(authProviderId: String, email: String?) async {
         let normalizedId = authProviderId.lowercased()
+        signInError = nil
         do {
             NSLog("[FieldWork] Loading user context for auth ID: %@", normalizedId)
 
@@ -111,9 +122,23 @@ final class AppState {
             self.crewId = crewMembers.first?.crewId
             self.isAuthenticated = true
             NSLog("[FieldWork] Auth complete. crewId: %@", crewId?.uuidString ?? "nil")
+
+            // Anything still queued from last time (e.g. the app was closed while offline).
+            let syncEngine = self.syncEngine
+            Task { await syncEngine.processPendingOperations() }
         } catch {
+            // The password was right, but we couldn't find who this is in Fletch. Say so
+            // (this used to leave the tech on the login screen with no message) and drop the
+            // half-finished sign-in so the next launch doesn't silently retry it.
             NSLog("[FieldWork] Failed to load user context: %@", "\(error)")
+            let who = email ?? "this login"
+            if let postgrest = error as? PostgrestError, postgrest.code == "PGRST116" {
+                signInError = "Signed in, but \(who) isn't linked to a field tech in Fletch yet. Ask the office to link it."
+            } else {
+                signInError = "Signed in, but couldn't load your Fletch profile: \(error.localizedDescription)"
+            }
             self.isAuthenticated = false
+            await authManager.signOut()
         }
     }
 }

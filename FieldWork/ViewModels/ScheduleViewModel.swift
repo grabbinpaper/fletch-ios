@@ -69,6 +69,11 @@ final class ScheduleViewModel {
             self.error = "Not signed in"
         }
 
+        // Visits are booked to crews; a tech who isn't on one would just see "No Jobs Today".
+        if staffId != nil && appState.crewId == nil && error == nil {
+            self.error = "You're not on a crew in Fletch, so no visits can show here. Ask the office to add you to a crew."
+        }
+
         // Always read from local cache
         loadFromCache(context: context)
         NSLog("[FieldWork] loadFromCache returned %d bookings", bookings.count)

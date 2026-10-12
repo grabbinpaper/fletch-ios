@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import Supabase
 
 actor SyncEngine {
     private let supabase: SupabaseManager
@@ -212,13 +213,7 @@ actor SyncEngine {
         let fileData = try Data(contentsOf: fileURL)
 
         // Upload compressed photo to storage
-        try await supabase.client.storage
-            .from("job-attachments")
-            .upload(
-                path: payload.storagePath,
-                file: fileData,
-                options: .init(contentType: payload.mimeType)
-            )
+        try await uploadFile(bucket: "job-attachments", path: payload.storagePath, data: fileData, contentType: payload.mimeType)
 
         // Upload thumbnail if available
         var uploadedThumbPath: String?
@@ -226,13 +221,7 @@ actor SyncEngine {
            let thumbStorage = payload.thumbnailStoragePath,
            FileManager.default.fileExists(atPath: thumbLocal) {
             let thumbData = try Data(contentsOf: URL(fileURLWithPath: thumbLocal))
-            try await supabase.client.storage
-                .from("job-attachments")
-                .upload(
-                    path: thumbStorage,
-                    file: thumbData,
-                    options: .init(contentType: "image/jpeg")
-                )
+            try await uploadFile(bucket: "job-attachments", path: thumbStorage, data: thumbData, contentType: "image/jpeg")
             uploadedThumbPath = thumbStorage
         }
 
@@ -356,13 +345,7 @@ actor SyncEngine {
         let fileData = try Data(contentsOf: fileURL)
 
         // Upload to visit-media bucket
-        try await supabase.client.storage
-            .from("visit-media")
-            .upload(
-                path: payload.storagePath,
-                file: fileData,
-                options: .init(contentType: "image/png")
-            )
+        try await uploadFile(bucket: "visit-media", path: payload.storagePath, data: fileData, contentType: "image/png")
 
         // Create visit_media record
         struct SignatureMediaInsert: Encodable {
@@ -402,6 +385,19 @@ actor SyncEngine {
             ))
             .eq("visit_id", value: payload.visitId.uuidString)
             .execute()
+    }
+
+    /// Uploads a file to storage. If it's already there, this is a retry of an earlier attempt
+    /// whose upload worked but whose database step didn't (e.g. the signal dropped in between),
+    /// so carry on with the database step instead of failing the same way on every retry.
+    private func uploadFile(bucket: String, path: String, data: Data, contentType: String) async throws {
+        do {
+            try await supabase.client.storage
+                .from(bucket)
+                .upload(path: path, file: data, options: .init(contentType: contentType))
+        } catch let error as StorageError where error.statusCode == "409" {
+            NSLog("[FieldWork] %@/%@ already uploaded, continuing", bucket, path)
+        }
     }
 
     private func syncRPCCall(_ operation: SyncOperation) async throws {
