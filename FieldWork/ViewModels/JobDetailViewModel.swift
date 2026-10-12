@@ -58,20 +58,7 @@ final class JobDetailViewModel {
             let lat = appState.locationManager.latitude
             let lng = appState.locationManager.longitude
 
-            var params: [String: String] = [
-                "p_booking_id": booking.bookingId.uuidString,
-                "p_worker_id": staffId.uuidString,
-                "p_lat": lat.map { "\($0)" } ?? "",
-                "p_lng": lng.map { "\($0)" } ?? ""
-            ]
-            if let startingAddress, !startingAddress.isEmpty {
-                params["p_starting_address"] = startingAddress
-            }
-
-            let visitId: UUID = try await appState.supabaseManager.client
-                .rpc("start_template_visit", params: params)
-                .execute()
-                .value
+            let visitId = try await createVisit(appState: appState, staffId: staffId, startingAddress: startingAddress)
 
             booking.visitId = visitId
             booking.visitStatus = "en_route"
@@ -82,16 +69,19 @@ final class JobDetailViewModel {
             booking.status = "in_progress"
             try? context.save()
 
-            // Initialize checklist
+            // Initialize checklist (the visit is already started; if this fails, say so but carry on)
             if let orgId = appState.organizationId {
-                let _: UUID? = try? await appState.supabaseManager.client
-                    .rpc("initialize_visit_checklist", params: [
-                        "p_visit_id": visitId.uuidString,
-                        "p_service_id": booking.serviceId.uuidString,
-                        "p_org_id": orgId.uuidString
-                    ])
-                    .execute()
-                    .value
+                do {
+                    try await appState.supabaseManager.client
+                        .rpc("initialize_visit_checklist", params: [
+                            "p_visit_id": visitId.uuidString,
+                            "p_service_id": booking.serviceId.uuidString,
+                            "p_org_id": orgId.uuidString
+                        ])
+                        .execute()
+                } catch {
+                    self.error = "Visit started, but its checklist couldn't be set up: \(error.localizedDescription)"
+                }
             }
         } catch {
             self.error = "Failed to start visit: \(error.localizedDescription)"
@@ -109,15 +99,11 @@ final class JobDetailViewModel {
         error = nil
 
         do {
-            let lat = appState.locationManager.latitude
-            let lng = appState.locationManager.longitude
+            var params = appState.locationManager.rpcCoordinateParams
+            params["p_visit_id"] = visitId.uuidString
 
             let result: ArrivalResponse = try await appState.supabaseManager.client
-                .rpc("arrive_at_site", params: [
-                    "p_visit_id": visitId.uuidString,
-                    "p_lat": lat.map { "\($0)" } ?? "",
-                    "p_lng": lng.map { "\($0)" } ?? ""
-                ])
+                .rpc("arrive_at_site", params: params)
                 .execute()
                 .value
 
@@ -143,18 +129,7 @@ final class JobDetailViewModel {
             visitId = existing
         } else {
             do {
-                let lat = appState.locationManager.latitude
-                let lng = appState.locationManager.longitude
-                var params: [String: String] = [
-                    "p_booking_id": booking.bookingId.uuidString,
-                    "p_worker_id": staffId.uuidString,
-                    "p_lat": lat.map { "\($0)" } ?? "",
-                    "p_lng": lng.map { "\($0)" } ?? ""
-                ]
-                let newVisitId: UUID = try await appState.supabaseManager.client
-                    .rpc("start_template_visit", params: params)
-                    .execute()
-                    .value
+                let newVisitId = try await createVisit(appState: appState, staffId: staffId, startingAddress: nil)
                 booking.visitId = newVisitId
                 visitId = newVisitId
             } catch {
@@ -166,16 +141,11 @@ final class JobDetailViewModel {
         isReportingBlocked = true
         error = nil
 
-        let lat = appState.locationManager.latitude
-        let lng = appState.locationManager.longitude
-        let params: [String: String] = [
-            "p_visit_id": visitId.uuidString,
-            "p_worker_id": staffId.uuidString,
-            "p_reason_code": reason.rawValue,
-            "p_notes": notes ?? "",
-            "p_lat": lat.map { "\($0)" } ?? "",
-            "p_lng": lng.map { "\($0)" } ?? ""
-        ]
+        var params = appState.locationManager.rpcCoordinateParams
+        params["p_visit_id"] = visitId.uuidString
+        params["p_worker_id"] = staffId.uuidString
+        params["p_reason_code"] = reason.rawValue
+        params["p_notes"] = notes ?? ""
 
         do {
             try await appState.supabaseManager.client
@@ -214,6 +184,20 @@ final class JobDetailViewModel {
         }
 
         isReportingBlocked = false
+    }
+
+    /// Creates the visit on the server (start_template_visit) and returns its id.
+    private func createVisit(appState: AppState, staffId: UUID, startingAddress: String?) async throws -> UUID {
+        var params = appState.locationManager.rpcCoordinateParams
+        params["p_booking_id"] = booking.bookingId.uuidString
+        params["p_worker_id"] = staffId.uuidString
+        if let startingAddress, !startingAddress.isEmpty {
+            params["p_starting_address"] = startingAddress
+        }
+        return try await appState.supabaseManager.client
+            .rpc("start_template_visit", params: params)
+            .execute()
+            .value
     }
 
     func openInMaps() {

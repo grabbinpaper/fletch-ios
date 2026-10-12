@@ -11,6 +11,14 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     var latitude: Double? { currentLocation?.coordinate.latitude }
     var longitude: Double? { currentLocation?.coordinate.longitude }
 
+    /// `p_lat` / `p_lng` for an RPC call — left out entirely when there's no GPS fix
+    /// (permission denied, simulator, indoors). Sending "" instead made the database
+    /// reject the whole call ("invalid input syntax for type numeric").
+    var rpcCoordinateParams: [String: String] {
+        guard let latitude, let longitude else { return [:] }
+        return ["p_lat": "\(latitude)", "p_lng": "\(longitude)"]
+    }
+
     override init() {
         super.init()
         manager.delegate = self

@@ -751,9 +751,11 @@ final class ActiveVisitViewModel {
             skippedSurfaceInfo = response.skippedSurfaces
             requiresSignature = response.requiresSignature
         } catch {
-            // If validation RPC isn't available yet, fall back to local-only checks
+            // Don't pretend everything is fine: say the check failed. The server checks
+            // again when the visit is completed, so nothing incomplete can slip through.
             completionBlockers = []
             requiresSignature = false
+            self.error = "Couldn't check what's still needed to finish this visit: \(error.localizedDescription)"
         }
 
         isValidating = false
@@ -777,17 +779,11 @@ final class ActiveVisitViewModel {
         }
 
         do {
-            let lat = appState.locationManager.latitude
-            let lng = appState.locationManager.longitude
-
-            let params: [String: String] = [
-                "p_visit_id": visitId.uuidString,
-                "p_worker_id": staffId.uuidString,
-                "p_lat": lat.map { "\($0)" } ?? "",
-                "p_lng": lng.map { "\($0)" } ?? "",
-                "p_outcome": outcome,
-                "p_notes": completionNotes
-            ]
+            var params = appState.locationManager.rpcCoordinateParams
+            params["p_visit_id"] = visitId.uuidString
+            params["p_worker_id"] = staffId.uuidString
+            params["p_outcome"] = outcome
+            params["p_notes"] = completionNotes
             let response: CompleteVisitResponse = try await appState.supabaseManager.client
                 .rpc("complete_template_visit", params: params)
                 .execute()
