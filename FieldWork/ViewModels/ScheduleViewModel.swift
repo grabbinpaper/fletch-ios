@@ -74,17 +74,19 @@ final class ScheduleViewModel {
     }
 
     func loadFromCache(context: ModelContext) {
+        bookings = (try? context.fetch(Self.todaysBookingsDescriptor())) ?? []
+    }
+
+    /// Today's bookings stored on the phone, earliest first (Schedule and Home tabs).
+    static func todaysBookingsDescriptor() -> FetchDescriptor<CachedBooking> {
         let today = Calendar.current.startOfDay(for: Date())
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
-
-        let descriptor = FetchDescriptor<CachedBooking>(
+        return FetchDescriptor<CachedBooking>(
             predicate: #Predicate<CachedBooking> {
                 $0.scheduledDate >= today && $0.scheduledDate < tomorrow
             },
             sortBy: [SortDescriptor(\.startDatetime)]
         )
-
-        bookings = (try? context.fetch(descriptor)) ?? []
     }
 
     /// Today's bookings for this tech, straight from the server.

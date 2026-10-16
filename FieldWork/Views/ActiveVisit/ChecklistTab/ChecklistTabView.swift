@@ -112,7 +112,10 @@ struct ChecklistTabView: View {
                             viewModel.selectedTab = .photos
                         }
                     )
-                ) : nil
+                ) : nil,
+                onTakePhoto: {
+                    viewModel.selectedTab = .photos
+                }
             )
         }
     }
@@ -132,6 +135,7 @@ struct ChecklistPassFailRow: View {
     let onStatusChange: (String) -> Void
     let onNotesChange: (String) -> Void
     let photoChip: AnyView?
+    var onTakePhoto: (() -> Void)? = nil
 
     @State private var showNotes = false
     @State private var notesText = ""
@@ -170,6 +174,11 @@ struct ChecklistPassFailRow: View {
                         Divider()
                         Button { showNotes.toggle() } label: {
                             Label("Add Note", systemImage: "note.text")
+                        }
+                        if let onTakePhoto {
+                            Button { onTakePhoto() } label: {
+                                Label("Take Photo", systemImage: "camera")
+                            }
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")

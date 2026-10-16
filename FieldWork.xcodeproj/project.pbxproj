@@ -60,6 +60,19 @@
 		E783D1D0CECCA1285D750ED3 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BFA3CEC304527B30E2A2BA /* AppState.swift */; };
 		F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */; };
 		F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift */; };
+BB1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */; };
+		DD1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift */; };
+		E7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,6 +132,19 @@
 		FB23038FEC23AD1153D01E93 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionDefinitions.swift; sourceTree = "<group>"; };
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionTabView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallModels.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveInstallViewModel.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveInstallView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AreasTabView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSurfaceCard.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSiteTabView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallPhotoTabView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSignTabView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignaturePadView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallCompletionView.swift; sourceTree = "<group>"; };
+AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallChecklistTabView.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		F7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +166,7 @@
 				A9AB34E713574A66CD0460B2 /* CachedCutout.swift */,
 				132558B4C46A4FBE81B2ACE8 /* CachedBacksplashMeasurement.swift */,
 				610CB6823B8F76751FEE61CB /* CachedModels.swift */,
+				AA1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift */,
 			);
 			path = Local;
 			sourceTree = "<group>";
@@ -159,6 +186,7 @@
 			children = (
 				12BFA3CEC304527B30E2A2BA /* AppState.swift */,
 				8A8B8C7E0C6F31FD3EBDAABC /* FieldWorkApp.swift */,
+				CC1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -251,6 +279,7 @@
 			isa = PBXGroup;
 			children = (
 				208D9278EB6833136A75573E /* ActiveVisitViewModel.swift */,
+				AA1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift */,
 				AA104CD18B03FA07DDBC77D8 /* JobDetailViewModel.swift */,
 				67534B67BA973A83BD5C1EFE /* ScheduleViewModel.swift */,
 			);
@@ -332,7 +361,9 @@
 			isa = PBXGroup;
 			children = (
 				2B2064A00AD2D512C8E50540 /* ActiveVisit */,
+				CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */,
 				B009C3EB23661432E7578B15 /* Auth */,
+				D7A1B2C3D4E5F6A7B8C9D001 /* Home */,
 				136D6CDE5388E532640A9346 /* JobDetail */,
 				1F3B948DA0134BC893BA51CF /* Schedule */,
 				49699CEE3529393AF60146BE /* Settings */,
@@ -401,6 +432,62 @@
 				257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */,
 			);
 			path = Supabase;
+			sourceTree = "<group>";
+		};
+CC1B2C3D4E5F6A7B8C9D0E02 /* AreasTab */ = {
+	isa = PBXGroup;
+	children = (
+		AA1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift */,
+		AA1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift */,
+	);
+	path = AreasTab;
+	sourceTree = "<group>";
+};
+CC1B2C3D4E5F6A7B8C9D0E03 /* SiteTab */ = {
+	isa = PBXGroup;
+	children = (
+		AA1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift */,
+	);
+	path = SiteTab;
+	sourceTree = "<group>";
+};
+CC1B2C3D4E5F6A7B8C9D0E04 /* SignTab */ = {
+	isa = PBXGroup;
+	children = (
+		AA1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift */,
+		AA1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift */,
+	);
+	path = SignTab;
+	sourceTree = "<group>";
+};
+CC1B2C3D4E5F6A7B8C9D0E05 /* ChecklistTab */ = {
+	isa = PBXGroup;
+	children = (
+		AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */,
+	);
+	path = ChecklistTab;
+	sourceTree = "<group>";
+};
+CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */ = {
+	isa = PBXGroup;
+	children = (
+		AA1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift */,
+		AA1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift */,
+		AA1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift */,
+		CC1B2C3D4E5F6A7B8C9D0E02 /* AreasTab */,
+		CC1B2C3D4E5F6A7B8C9D0E05 /* ChecklistTab */,
+		CC1B2C3D4E5F6A7B8C9D0E03 /* SiteTab */,
+		CC1B2C3D4E5F6A7B8C9D0E04 /* SignTab */,
+	);
+	path = ActiveInstall;
+	sourceTree = "<group>";
+};
+		D7A1B2C3D4E5F6A7B8C9D001 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				F7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -490,6 +577,7 @@
 				287664ED5EE6FA31FF67E7A6 /* JobDetailViewModel.swift in Sources */,
 				DFD6751720E8BC77D2CBFCB5 /* LocationManager.swift in Sources */,
 				D8EFCE5EA67D0CA6AA8C7DF3 /* LoginView.swift in Sources */,
+				DD1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift in Sources */,
 				6F9B8816F92E996B155BCEA6 /* MeasurementTabView.swift in Sources */,
 				CCEC7301B1D390E150941B69 /* AddSurfaceSheet.swift in Sources */,
 				32BA26396407495DD5BE9792 /* EdgeProfilePicker.swift in Sources */,
@@ -515,6 +603,18 @@
 				029D317833F1A4BDFB2C2BFD /* SyncEngine.swift in Sources */,
 				F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */,
 				F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift in Sources */,
+BB1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift in Sources */,
+				E7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,6 +13,10 @@ final class AppState {
     /// Why the last sign-in didn't get past the login screen (shown there).
     var signInError: String?
 
+    // Active visit tracking for tab navigation
+    var activeBooking: CachedBooking?
+    var selectedTab: AppTab = .home
+
     let modelContainer: ModelContainer
     let authManager: AuthManager
     let supabaseManager: SupabaseManager
@@ -31,7 +35,8 @@ final class AppState {
             CachedVisit.self,
             CachedChecklistItem.self,
             CachedPhoto.self,
-            SyncOperation.self
+            SyncOperation.self,
+            CachedSurfaceStatus.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         // swiftlint:disable:next force_try

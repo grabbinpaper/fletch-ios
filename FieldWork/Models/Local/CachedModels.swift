@@ -27,7 +27,14 @@ func parsePlainDate(_ string: String) -> Date? {
 }
 
 @Model
-final class CachedBooking {
+final class CachedBooking: Hashable {
+    static func == (lhs: CachedBooking, rhs: CachedBooking) -> Bool {
+        lhs.bookingId == rhs.bookingId
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(bookingId)
+    }
     @Attribute(.unique) var bookingId: UUID
     var scheduledDate: Date
     var startDatetime: Date
@@ -244,6 +251,10 @@ final class CachedBooking {
         }
     }
 
+    var isInstallVisit: Bool {
+        serviceCode?.lowercased() == "install" || serviceName.lowercased().contains("install")
+    }
+
     var fullAddress: String {
         [siteAddressLine1, siteCity, siteState, siteZip]
             .compactMap { $0 }
@@ -400,6 +411,7 @@ final class CachedChecklistItem {
         self.requiresPhoto = item.requiresPhoto ?? false
         self.photoCount = item.photoCount ?? 0
     }
+
 }
 
 /// Photos and signatures are saved flat in the app's Documents folder, but iOS moves that folder

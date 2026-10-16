@@ -5,61 +5,36 @@ struct JobDetailView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: JobDetailViewModel
-    @State private var showActiveVisit = false
     @State private var showBlockedSheet = false
-    @State private var showStartTripSheet = false
 
     init(booking: CachedBooking) {
         _viewModel = State(initialValue: JobDetailViewModel(booking: booking))
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // Job header
-                jobHeader
-
-                // Warnings
-                warningCards
-
-                // Salesperson card
-                salespersonCard
-
-                // Customer card
-                customerCard
-
-                // Site card
-                siteCard
-
-                // Surfaces
-                surfacesSection
-
-                // Travel summary
-                travelCard
-
-                // CTA
-                ctaButton
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 12) {
+                    jobHeader
+                    warningCards
+                    customerCard
+                    siteCard
+                    surfacesSection
+                    travelCard
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 16)
             }
-            .padding()
+
+            // Sticky bottom CTA
+            bottomCTA
         }
         .navigationTitle(viewModel.booking.jobNumber.map { "#\($0)" } ?? "Job Detail")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             viewModel.configure(appState: appState)
             appState.locationManager.requestPermission()
-        }
-        .fullScreenCover(isPresented: $showActiveVisit) {
-            NavigationStack {
-                ActiveVisitView(booking: viewModel.booking)
-            }
-        }
-        .sheet(isPresented: $showStartTripSheet) {
-            StartTripSheet(booking: viewModel.booking) { address in
-                showStartTripSheet = false
-                Task {
-                    await viewModel.startVisit(startingAddress: address, context: modelContext)
-                }
-            }
         }
         .sheet(isPresented: $showBlockedSheet) {
             BlockedVisitSheet { reason, notes in
@@ -85,20 +60,15 @@ struct JobDetailView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    if let status = viewModel.booking.jobStatus {
-                        StatusBadge(text: status.replacingOccurrences(of: "_", with: " ").capitalized,
-                                    color: .blue)
-                    }
                     if viewModel.booking.priority != "standard" {
                         StatusBadge(text: viewModel.booking.priority.capitalized,
                                     color: .orange)
                     }
-                }
-
-                if let type = viewModel.booking.constructionType {
-                    Text(type.replacingOccurrences(of: "_", with: " ").capitalized)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if let type = viewModel.booking.constructionType {
+                        Text(type.replacingOccurrences(of: "_", with: " ").capitalized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
 
@@ -121,142 +91,119 @@ struct JobDetailView: View {
 
     @ViewBuilder
     private var warningCards: some View {
-        if viewModel.booking.tearoutRequired {
-            HStack {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
-                VStack(alignment: .leading) {
-                    Text("Tearout Required")
-                        .font(.subheadline.bold())
-                    if let notes = viewModel.booking.specialInstructions {
-                        Text(notes)
+        if viewModel.booking.tearoutRequired || viewModel.booking.plumbingDisconnect {
+            VStack(spacing: 6) {
+                if viewModel.booking.tearoutRequired {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                        Text("Tearout Required")
+                            .font(.caption.bold())
+                        Spacer()
                     }
                 }
-                Spacer()
+                if viewModel.booking.plumbingDisconnect {
+                    HStack(spacing: 8) {
+                        Image(systemName: "wrench.and.screwdriver.fill")
+                            .foregroundStyle(.blue)
+                            .font(.caption)
+                        Text("Plumbing Disconnect")
+                            .font(.caption.bold())
+                        Spacer()
+                    }
+                }
+                if let notes = viewModel.booking.specialInstructions {
+                    Text(notes)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
-            .padding()
+            .padding(10)
             .background(Color.orange.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-
-        if viewModel.booking.plumbingDisconnect {
-            HStack {
-                Image(systemName: "wrench.and.screwdriver.fill")
-                    .foregroundStyle(.blue)
-                Text("Plumbing disconnect required")
-                    .font(.subheadline.bold())
-                Spacer()
-            }
-            .padding()
-            .background(Color.blue.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 
     // MARK: - Customer Card
 
     private var customerCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Customer", systemImage: "person.fill")
-                .font(.subheadline.bold())
-                .foregroundStyle(.secondary)
-
-            if let name = viewModel.booking.customerName {
-                Text(name)
-                    .font(.headline)
-            }
-
-            if let phone = viewModel.booking.customerPhone {
-                Button { viewModel.callPhone(phone) } label: {
-                    Label(phone, systemImage: "phone.fill")
-                        .font(.subheadline)
+        VStack(alignment: .leading, spacing: 6) {
+            // Customer name + phone
+            HStack {
+                if let name = viewModel.booking.customerName {
+                    Text(name)
+                        .font(.headline)
+                }
+                Spacer()
+                if let phone = viewModel.booking.customerPhone {
+                    Button { viewModel.callPhone(phone) } label: {
+                        Image(systemName: "phone.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(.blue)
+                    }
                 }
             }
 
-            if let email = viewModel.booking.customerEmail {
-                Label(email, systemImage: "envelope.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            // Salesperson inline
+            if let salesperson = viewModel.booking.salespersonName {
+                HStack(spacing: 4) {
+                    Text("Sales:")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(salesperson)
+                        .font(.caption)
+                    if let phone = viewModel.booking.salespersonPhone {
+                        Button { viewModel.callPhone(phone) } label: {
+                            Image(systemName: "phone.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
             }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    // MARK: - Salesperson Card
-
-    @ViewBuilder
-    private var salespersonCard: some View {
-        if let salesperson = viewModel.booking.salespersonName {
-            VStack(alignment: .leading, spacing: 8) {
-                Label("Salesperson", systemImage: "briefcase.fill")
-                    .font(.subheadline.bold())
-                    .foregroundStyle(.secondary)
-
-                Text(salesperson)
-                    .font(.headline)
-
-                if let phone = viewModel.booking.salespersonPhone {
-                    Button { viewModel.callPhone(phone) } label: {
-                        Label(phone, systemImage: "phone.fill")
-                            .font(.subheadline)
-                    }
-                }
-
-                if let email = viewModel.booking.salespersonEmail {
-                    Label(email, systemImage: "envelope.fill")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.regularMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
     }
 
     // MARK: - Site Card
 
     private var siteCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Job Site", systemImage: "mappin.and.ellipse")
-                .font(.subheadline.bold())
-                .foregroundStyle(.secondary)
-
-            Text(viewModel.booking.fullAddress)
-                .font(.subheadline)
-
-            if viewModel.booking.siteLatitude != nil {
-                NavigateButton { viewModel.openInMaps() }
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(viewModel.booking.fullAddress)
+                    .font(.subheadline)
+                Spacer()
+                Button { viewModel.openInMaps() } label: {
+                    Image(systemName: "arrow.triangle.turn.up.right.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.blue)
+                }
             }
 
             if let contactName = viewModel.booking.contactName ?? viewModel.booking.siteContactName {
-                Divider()
-                Text("Site Contact: \(contactName)")
-                    .font(.subheadline)
-                if let phone = viewModel.booking.contactPhone ?? viewModel.booking.siteContactPhone {
-                    Button { viewModel.callPhone(phone) } label: {
-                        Label(phone, systemImage: "phone.fill")
-                            .font(.caption)
+                HStack(spacing: 4) {
+                    Text("Contact:")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(contactName)
+                        .font(.caption)
+                    if let phone = viewModel.booking.contactPhone ?? viewModel.booking.siteContactPhone {
+                        Button { viewModel.callPhone(phone) } label: {
+                            Image(systemName: "phone.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.blue)
+                        }
                     }
                 }
             }
 
             if let access = viewModel.booking.siteAccessNotes {
-                Divider()
                 Text(access)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            if let instructions = viewModel.booking.specialInstructions {
-                Divider()
-                Text(instructions)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -267,35 +214,30 @@ struct JobDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    // MARK: - Scope Summary
+    // MARK: - Scope
 
     private var surfacesSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Scope", systemImage: "square.dashed")
-                .font(.subheadline.bold())
-                .foregroundStyle(.secondary)
+        HStack(spacing: 16) {
+            let rooms = viewModel.booking.roomCount
+            let surfaces = viewModel.booking.surfaceCount
 
-            HStack(spacing: 16) {
-                let rooms = viewModel.booking.roomCount
-                let surfaces = viewModel.booking.surfaceCount
+            Label(rooms == 1 ? "1 room" : "\(rooms) rooms",
+                  systemImage: "door.left.hand.open")
+                .font(.subheadline)
 
-                Label(rooms == 1 ? "1 room" : "\(rooms) rooms",
-                      systemImage: "door.left.hand.open")
-                    .font(.subheadline)
+            Label(surfaces == 1 ? "1 surface" : "\(surfaces) surfaces",
+                  systemImage: "rectangle.3.group")
+                .font(.subheadline)
 
-                Label(surfaces == 1 ? "1 surface" : "\(surfaces) surfaces",
-                      systemImage: "rectangle.3.group")
-                    .font(.subheadline)
-            }
+            Spacer()
 
             if viewModel.booking.templatedSurfaceCount > 0 {
-                Text("\(viewModel.booking.templatedSurfaceCount) of \(viewModel.booking.surfaceCount) templated")
-                    .font(.caption)
+                Text("\(viewModel.booking.templatedSurfaceCount)/\(viewModel.booking.surfaceCount)")
+                    .font(.caption.monospacedDigit())
                     .foregroundStyle(.green)
             }
         }
         .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -304,109 +246,183 @@ struct JobDetailView: View {
 
     @ViewBuilder
     private var travelCard: some View {
-        let state = viewModel.visitState
-        if state == .enRoute || state == .onSite || state == .completed,
-           let address = viewModel.booking.startingAddress, !address.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                Label("Travel", systemImage: "car.fill")
-                    .font(.subheadline.bold())
-                    .foregroundStyle(.secondary)
-
-                HStack(spacing: 4) {
-                    Image(systemName: "location.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(address)
-                        .font(.subheadline)
-                }
-
-                if let miles = viewModel.booking.travelMiles,
-                   let minutes = viewModel.booking.travelTimeMinutes {
-                    Divider()
-                    HStack(spacing: 16) {
-                        Label(String(format: "%.1f mi", miles), systemImage: "road.lanes")
-                            .font(.subheadline)
-                        Label("\(minutes) min", systemImage: "clock")
-                            .font(.subheadline)
-                    }
-                } else if state == .enRoute {
-                    Text("Distance calculated on arrival")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+        if let miles = viewModel.booking.travelMiles,
+           let minutes = viewModel.booking.travelTimeMinutes {
+            HStack(spacing: 16) {
+                Label(String(format: "%.1f mi", miles), systemImage: "road.lanes")
+                    .font(.caption)
+                Label("\(minutes) min", systemImage: "clock")
+                    .font(.caption)
+                Spacer()
             }
+            .foregroundStyle(.secondary)
             .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
             .background(.regularMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 
-    // MARK: - CTA
+    // MARK: - Sticky Bottom CTA
 
-    private var ctaButton: some View {
-        VStack(spacing: 12) {
-            if viewModel.visitState != .blocked {
+    private var bottomCTA: some View {
+        VStack(spacing: 6) {
+            if appState.locationManager.isDenied {
+                locationRequiredCard
+            } else if !appState.locationManager.isAuthorized {
+                // Still .notDetermined — request on appear
+                locationRequestCard
+            } else {
+                visitActions
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .background(.bar)
+    }
+
+    private var locationRequiredCard: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "location.slash.fill")
+                    .foregroundStyle(.red)
+                Text("Location access is required to start visits")
+                    .font(.subheadline)
+            }
+            Button {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                Text("Open Settings")
+                    .font(.subheadline.bold())
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private var locationRequestCard: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "location.fill")
+                    .foregroundStyle(.blue)
+                Text("Location needed to track mileage and verify on-site work")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Button {
+                appState.locationManager.requestPermission()
+            } label: {
+                Text("Enable Location")
+                    .font(.subheadline.bold())
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private var visitActions: some View {
+        Group {
+            switch viewModel.visitState {
+            case .notStarted:
+                // One tap — captures GPS silently, marks en_route
                 Button {
-                    handleCTA()
+                    Task {
+                        await viewModel.startVisit(startingAddress: nil, context: modelContext)
+                    }
                 } label: {
-                    HStack {
-                        if viewModel.isStartingVisit || viewModel.isArrivingAtSite {
-                            ProgressView()
-                                .tint(.white)
+                    HStack(spacing: 8) {
+                        if viewModel.isStartingVisit {
+                            ProgressView().tint(.white)
+                        } else {
+                            Image(systemName: "car.fill")
                         }
-                        Text(viewModel.ctaTitle)
+                        Text("Heading Out")
                             .font(.headline)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(viewModel.isStartingVisit || viewModel.isArrivingAtSite)
-            }
+                .disabled(viewModel.isStartingVisit)
 
-            if viewModel.canReportBlocked {
+                Button { showBlockedSheet = true } label: {
+                    Text("Can't make this visit")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+
+            case .enRoute:
+                // One tap — captures arrival GPS, marks on_site
                 Button {
-                    showBlockedSheet = true
+                    Task {
+                        await viewModel.arriveAtSite(context: modelContext)
+                        openActiveVisit()
+                    }
                 } label: {
-                    Label("Can't complete this visit", systemImage: "xmark.circle.fill")
-                        .font(.subheadline.bold())
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
+                    HStack(spacing: 8) {
+                        if viewModel.isArrivingAtSite {
+                            ProgressView().tint(.white)
+                        } else {
+                            Image(systemName: "mappin.and.ellipse")
+                        }
+                        Text("I'm Here")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+                .disabled(viewModel.isArrivingAtSite)
+
+                Button { showBlockedSheet = true } label: {
+                    Text("Can't make this visit")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+
+            case .onSite:
+                Button { openActiveVisit() } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.right.circle.fill")
+                        Text("Continue Visit")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                }
+                .buttonStyle(.borderedProminent)
+
+            case .completed:
+                Button { openActiveVisit() } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "eye.fill")
+                        Text("View Summary")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
                 }
                 .buttonStyle(.bordered)
-                .tint(.red)
-            }
 
-            if viewModel.visitState == .blocked {
-                HStack {
+            case .blocked:
+                HStack(spacing: 6) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.red)
-                    Text("This visit was reported as blocked")
-                        .font(.subheadline)
+                        .font(.caption)
+                    Text("Visit blocked")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.red.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
     }
 
-    private func handleCTA() {
-        switch viewModel.visitState {
-        case .notStarted:
-            showStartTripSheet = true
-        case .enRoute:
-            Task { await viewModel.arriveAtSite(context: modelContext) }
-        case .onSite:
-            showActiveVisit = true
-        case .completed:
-            showActiveVisit = true
-        case .blocked:
-            break
-        }
+    private func openActiveVisit() {
+        appState.activeBooking = viewModel.booking
+        appState.selectedTab = .activeVisit
     }
 }
-

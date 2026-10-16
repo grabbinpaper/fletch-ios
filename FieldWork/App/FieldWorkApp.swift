@@ -22,7 +22,7 @@ struct RootView: View {
             if appState.isCheckingAuth {
                 ProgressView("Loading...")
             } else if appState.isAuthenticated {
-                ScheduleView()
+                MainTabView()
             } else {
                 LoginView()
             }
