@@ -81,14 +81,14 @@ private struct SitePhotoCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             // Thumbnail
-            if let thumbPath = photo.thumbnailPath,
+            if let thumbPath = photo.thumbnailOnDisk,
                let uiImage = UIImage(contentsOfFile: thumbPath) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(1, contentMode: .fill)
                     .clipped()
                     .cornerRadius(8)
-            } else if let uiImage = UIImage(contentsOfFile: photo.localFilePath) {
+            } else if let uiImage = UIImage(contentsOfFile: photo.fileOnDisk) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(1, contentMode: .fill)

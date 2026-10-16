@@ -48,18 +48,11 @@ final class ScheduleViewModel {
         if hasNetwork, let staffId {
             do {
                 NSLog("[FieldWork] Fetching schedule for staff: %@ date: %@", staffId.uuidString, Date.todayString)
-                let response: ScheduleResponse = try await appState.supabaseManager.client
-                    .rpc("get_tech_schedule", params: [
-                        "p_staff_id": staffId.uuidString,
-                        "p_date": Date.todayString
-                    ])
-                    .execute()
-                    .value
-
-                NSLog("[FieldWork] Decoded %d bookings", response.bookings.count)
+                let remoteBookings = try await Self.fetchTodaysBookings(appState: appState, staffId: staffId)
+                NSLog("[FieldWork] Decoded %d bookings", remoteBookings.count)
 
                 // Upsert into SwiftData
-                upsertBookings(response.bookings, in: context)
+                Self.upsertBookings(remoteBookings, in: context)
                 lastRefreshed = Date()
             } catch {
                 self.error = "Failed to load schedule: \(error)"
@@ -94,7 +87,19 @@ final class ScheduleViewModel {
         bookings = (try? context.fetch(descriptor)) ?? []
     }
 
-    private func upsertBookings(_ remoteBookings: [ScheduleBooking], in context: ModelContext) {
+    /// Today's bookings for this tech, straight from the server.
+    static func fetchTodaysBookings(appState: AppState, staffId: UUID) async throws -> [ScheduleBooking] {
+        let response: ScheduleResponse = try await appState.supabaseManager.client
+            .rpc("get_tech_schedule", params: [
+                "p_staff_id": staffId.uuidString,
+                "p_date": Date.todayString
+            ])
+            .execute()
+            .value
+        return response.bookings
+    }
+
+    static func upsertBookings(_ remoteBookings: [ScheduleBooking], in context: ModelContext) {
         for remote in remoteBookings {
             let bookingId = remote.bookingId
             let descriptor = FetchDescriptor<CachedBooking>(

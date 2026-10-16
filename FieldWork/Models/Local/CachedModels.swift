@@ -402,6 +402,19 @@ final class CachedChecklistItem {
     }
 }
 
+/// Photos and signatures are saved flat in the app's Documents folder, but iOS moves that folder
+/// when the app is reinstalled or updated, so a full path saved earlier goes stale (photos vanish,
+/// queued uploads fail with "file not found"). Re-point a saved path at today's Documents folder.
+func documentsPath(for storedPath: String) -> String {
+    let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    return documentsURL.appendingPathComponent((storedPath as NSString).lastPathComponent).path
+}
+
+extension CachedPhoto {
+    var fileOnDisk: String { documentsPath(for: localFilePath) }
+    var thumbnailOnDisk: String? { thumbnailPath.map { documentsPath(for: $0) } }
+}
+
 @Model
 final class CachedPhoto {
     @Attribute(.unique) var localId: UUID

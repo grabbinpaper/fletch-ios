@@ -2,6 +2,11 @@ import Foundation
 import SwiftData
 import Supabase
 
+extension Notification.Name {
+    /// Posted on the main thread after a photo finishes uploading.
+    static let photoUploaded = Notification.Name("FieldWorkPhotoUploaded")
+}
+
 actor SyncEngine {
     private let supabase: SupabaseManager
     private let modelContainer: ModelContainer
@@ -204,10 +209,11 @@ actor SyncEngine {
 
     private func syncPhotoUpload(_ operation: SyncOperation) async throws {
         let payload = try JSONDecoder().decode(PhotoUploadPayload.self, from: operation.payload)
-        let fileURL = URL(fileURLWithPath: payload.localFilePath)
+        let filePath = documentsPath(for: payload.localFilePath)
+        let fileURL = URL(fileURLWithPath: filePath)
 
-        guard FileManager.default.fileExists(atPath: payload.localFilePath) else {
-            throw SyncError.fileNotFound(payload.localFilePath)
+        guard FileManager.default.fileExists(atPath: filePath) else {
+            throw SyncError.fileNotFound(filePath)
         }
 
         let fileData = try Data(contentsOf: fileURL)
@@ -217,7 +223,7 @@ actor SyncEngine {
 
         // Upload thumbnail if available
         var uploadedThumbPath: String?
-        if let thumbLocal = payload.thumbnailLocalPath,
+        if let thumbLocal = payload.thumbnailLocalPath.map({ documentsPath(for: $0) }),
            let thumbStorage = payload.thumbnailStoragePath,
            FileManager.default.fileExists(atPath: thumbLocal) {
             let thumbData = try Data(contentsOf: URL(fileURLWithPath: thumbLocal))
@@ -306,6 +312,8 @@ actor SyncEngine {
                 try? context.save()
             }
         }
+        // Screens holding their own list of photos (the visit's Photos tab) re-read it.
+        await MainActor.run { NotificationCenter.default.post(name: .photoUploaded, object: nil) }
     }
 
     private func syncChecklistItem(_ operation: SyncOperation) async throws {
@@ -336,10 +344,11 @@ actor SyncEngine {
 
     private func syncSignatureUpload(_ operation: SyncOperation) async throws {
         let payload = try JSONDecoder().decode(SignatureUploadPayload.self, from: operation.payload)
-        let fileURL = URL(fileURLWithPath: payload.localFilePath)
+        let filePath = documentsPath(for: payload.localFilePath)
+        let fileURL = URL(fileURLWithPath: filePath)
 
-        guard FileManager.default.fileExists(atPath: payload.localFilePath) else {
-            throw SyncError.fileNotFound(payload.localFilePath)
+        guard FileManager.default.fileExists(atPath: filePath) else {
+            throw SyncError.fileNotFound(filePath)
         }
 
         let fileData = try Data(contentsOf: fileURL)

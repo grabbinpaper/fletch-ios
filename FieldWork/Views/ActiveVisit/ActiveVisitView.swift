@@ -72,6 +72,9 @@ struct ActiveVisitView: View {
             viewModel.loadChecklist(context: modelContext)
             viewModel.loadPhotos(context: modelContext)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .photoUploaded)) { _ in
+            viewModel.loadPhotos(context: modelContext)
+        }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background || newPhase == .inactive {
                 viewModel.saveDraftNow(context: modelContext)

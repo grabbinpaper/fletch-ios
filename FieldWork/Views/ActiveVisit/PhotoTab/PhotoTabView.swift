@@ -183,7 +183,7 @@ struct PhotoTabView: View {
                 surfaces: viewModel.booking.surfaces,
                 onDelete: { deletePhoto(photo) },
                 onMarkup: {
-                    if let image = UIImage(contentsOfFile: photo.localFilePath) {
+                    if let image = UIImage(contentsOfFile: photo.fileOnDisk) {
                         selectedPhotoForDetail = nil
                         viewModel.pendingImage = image
                         viewModel.pendingSurfaceId = photo.surfaceId
@@ -284,8 +284,8 @@ struct PhotoTabView: View {
     }
 
     private func deletePhoto(_ photo: CachedPhoto) {
-        try? FileManager.default.removeItem(atPath: photo.localFilePath)
-        if let thumbPath = photo.thumbnailPath {
+        try? FileManager.default.removeItem(atPath: photo.fileOnDisk)
+        if let thumbPath = photo.thumbnailOnDisk {
             try? FileManager.default.removeItem(atPath: thumbPath)
         }
         viewModel.photos.removeAll { $0.localId == photo.localId }
@@ -385,12 +385,12 @@ struct PhotoThumbnail: View {
     }
 
     private func loadImage() -> UIImage? {
-        if let thumbPath = photo.thumbnailPath {
+        if let thumbPath = photo.thumbnailOnDisk {
             if let thumb = UIImage(contentsOfFile: thumbPath) {
                 return thumb
             }
         }
-        return UIImage(contentsOfFile: photo.localFilePath)
+        return UIImage(contentsOfFile: photo.fileOnDisk)
     }
 }
 
@@ -427,7 +427,7 @@ struct PhotoDetailView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Full-size photo
-                if let image = UIImage(contentsOfFile: photo.localFilePath) {
+                if let image = UIImage(contentsOfFile: photo.fileOnDisk) {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)

@@ -83,6 +83,15 @@ final class JobDetailViewModel {
                     self.error = "Visit started, but its checklist couldn't be set up: \(error.localizedDescription)"
                 }
             }
+
+            // Starting the visit creates a measurement row per surface on the server. Pull them
+            // down now: without them the Measure tab shows the fields but saves nothing.
+            do {
+                let remote = try await ScheduleViewModel.fetchTodaysBookings(appState: appState, staffId: staffId)
+                ScheduleViewModel.upsertBookings(remote.filter { $0.bookingId == booking.bookingId }, in: context)
+            } catch {
+                self.error = "Visit started, but its surfaces couldn't be loaded. Pull down on the schedule to refresh before measuring."
+            }
         } catch {
             self.error = "Failed to start visit: \(error.localizedDescription)"
         }
