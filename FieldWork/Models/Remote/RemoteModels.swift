@@ -114,16 +114,27 @@ struct ScheduleBooking: Codable, Identifiable {
         case jobService = "job_service"
         case job, customer, contact, surfaces, visit
     }
+
+    /// Whether the customer signs off: the visit's own setting once it has started, else the customer's.
+    var signatureRequired: Bool {
+        visit?.signatureRequired ?? customer?.signatureRequired ?? false
+    }
 }
 
 struct ScheduleService: Codable {
     let serviceId: UUID
     let name: String
     let code: String?
+    /// What kind of visit this is: the service's visit type (TMPL, INST, …), set per shop in Settings.
+    let visitTypeCode: String?
+    /// Install visits: another install day is still booked for this job after this one.
+    let moreInstallDays: Bool?
 
     enum CodingKeys: String, CodingKey {
         case serviceId = "service_id"
         case name, code
+        case visitTypeCode = "visit_type_code"
+        case moreInstallDays = "more_install_days"
     }
 }
 
@@ -208,6 +219,7 @@ struct ScheduleCustomer: Codable {
     let email: String?
     let accountNumber: String?
     let customerType: String?
+    let signatureRequired: Bool?
 
     enum CodingKeys: String, CodingKey {
         case customerId = "customer_id"
@@ -217,6 +229,7 @@ struct ScheduleCustomer: Codable {
         case phone, email
         case accountNumber = "account_number"
         case customerType = "customer_type"
+        case signatureRequired = "signature_required"
     }
 
     var displayName: String {
@@ -266,8 +279,11 @@ struct ScheduleSurface: Codable, Identifiable {
     let material: ScheduleMaterial?
     let edgeProfile: ScheduleEdgeProfile?
     let backsplashPieces: [ScheduleBacksplash]
+    /// Install visits: the status from an earlier, finished install day (multi-day installs).
+    let installStatus: String?
 
     enum CodingKeys: String, CodingKey {
+        case installStatus = "install_status"
         case surfaceId = "surface_id"
         case name
         case roomName = "room_name"

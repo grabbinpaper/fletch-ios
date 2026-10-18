@@ -178,24 +178,25 @@ struct InstallSignTabView: View {
             TextField("Customer name", text: $viewModel.signatureName)
                 .textFieldStyle(.roundedBorder)
 
-            // Confirm button
+            // Save the signature (the visit is finished with the button at the bottom)
             Button {
                 if let image = viewModel.signatureImage {
                     viewModel.saveSignature(
                         image: image,
-                        signerName: viewModel.signatureName,
+                        signerName: viewModel.signatureName.trimmingCharacters(in: .whitespaces),
                         context: modelContext
                     )
                 }
             } label: {
-                Label("Confirm & Complete", systemImage: "checkmark.seal")
+                Label("Save Signature", systemImage: "checkmark.seal")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
             }
             .buttonStyle(.borderedProminent)
             .tint(.green)
-            .disabled(viewModel.signatureImage == nil)
+            .disabled(viewModel.signatureImage == nil
+                      || viewModel.signatureName.trimmingCharacters(in: .whitespaces).isEmpty)
 
             // Switch to remote
             Button {
@@ -231,46 +232,56 @@ struct InstallSignTabView: View {
                     .font(.subheadline)
             }
 
-            if viewModel.signatureLinkSent {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                    VStack(alignment: .leading) {
-                        Text("Signature link sent")
-                            .font(.subheadline.bold())
-                        if let sentAt = viewModel.signatureLinkSentAt {
-                            Text(sentAt.formatted(date: .omitted, time: .shortened))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+            Picker("Send by", selection: $viewModel.remoteChannel) {
+                Text("Text").tag(SignoffChannel.sms)
+                    .disabled(viewModel.booking.customerPhone?.isEmpty ?? true)
+                Text("Email").tag(SignoffChannel.email)
+                    .disabled(viewModel.booking.customerEmail?.isEmpty ?? true)
+            }
+            .pickerStyle(.segmented)
+
+            if viewModel.booking.visitStatus != "completed" {
+                Text("The link goes to the customer when you finish the visit (button at the bottom).")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                if viewModel.signatureLinkSent {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                        VStack(alignment: .leading) {
+                            Text("Sign-off link sent")
+                                .font(.subheadline.bold())
+                            if let sentAt = viewModel.signatureLinkSentAt {
+                                Text(sentAt.formatted(date: .omitted, time: .shortened))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.green.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.green.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 Button {
-                    viewModel.showCompletionSheet = true
+                    Task { await viewModel.sendSignoffLink() }
                 } label: {
-                    Text("Complete Without Signature")
+                    Label(viewModel.signatureLinkSent ? "Re-send Link" : "Send Sign-off Link",
+                          systemImage: "paperplane.fill")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.orange)
-            } else {
-                Button {
-                    viewModel.signatureLinkSent = true
-                    viewModel.signatureLinkSentAt = Date()
-                } label: {
-                    Label("Send Signature Link", systemImage: "paperplane.fill")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
+                .disabled(viewModel.isSendingLink)
+
+                if let err = viewModel.signoffError {
+                    Text(err)
+                        .font(.caption)
+                        .foregroundStyle(.red)
                 }
-                .buttonStyle(.borderedProminent)
             }
 
             // Switch to in-person

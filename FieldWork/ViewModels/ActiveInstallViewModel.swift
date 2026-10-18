@@ -14,13 +14,22 @@ final class ActiveInstallViewModel {
     var showCompletionSheet = false
     var completionNotes = ""
     var error: String?
+    /// What the office got when the visit was finished (shown on the completion sheet).
+    var completionResult: CompleteInstallResult?
+
+    /// The shop's issue reasons for install visits (Settings -> Field Operations -> Issue codes).
+    var issueReasons: [IssueReasonCode] = IssueReasonCodes.cached
 
     // Signature
     var signatureMode: SignatureMode = .inPerson
     var signatureName = ""
     var signatureImage: UIImage?
+    /// Remote sign-off: how the link goes to the customer when the visit is finished.
+    var remoteChannel: SignoffChannel = .sms
     var signatureLinkSent = false
     var signatureLinkSentAt: Date?
+    var isSendingLink = false
+    var signoffError: String?
 
     // Site
     var siteNotes = ""
@@ -39,6 +48,29 @@ final class ActiveInstallViewModel {
 
     func configure(appState: AppState) {
         self.appState = appState
+        if booking.customerPhone?.isEmpty ?? true, !(booking.customerEmail?.isEmpty ?? true) {
+            remoteChannel = .email
+        }
+    }
+
+    @MainActor
+    func loadIssueReasons() async {
+        guard let appState else { return }
+        issueReasons = await IssueReasonCodes.load(appState: appState)
+    }
+
+    func issueReasons(for responsibility: IssueResponsibility) -> [IssueReasonCode] {
+        issueReasons.filter { $0.responsibility == responsibility.rawValue }
+    }
+
+    func issueReason(id: String?) -> IssueReasonCode? {
+        guard let id, let uuid = UUID(uuidString: id) else { return nil }
+        return issueReasons.first { $0.id == uuid }
+    }
+
+    /// Tabs shown: the Sign tab only when this customer signs off.
+    var visibleTabs: [InstallTab] {
+        InstallTab.allCases.filter { $0 != .sign || booking.signatureRequired }
     }
 
     // MARK: - Surface Status Management
@@ -55,10 +87,12 @@ final class ActiveInstallViewModel {
             surfaceStatuses[status.surfaceId] = status
         }
 
-        // Create missing statuses for surfaces that don't have one yet
+        // Create missing statuses for surfaces that don't have one yet. A surface installed on an
+        // earlier install day starts as installed (multi-day installs carry over).
         for surface in booking.surfaces {
             if surfaceStatuses[surface.surfaceId] == nil {
                 let status = CachedSurfaceStatus(visitId: visitId, surfaceId: surface.surfaceId)
+                if surface.installStatus == "installed" { status.status = "installed" }
                 context.insert(status)
                 surfaceStatuses[surface.surfaceId] = status
             }
@@ -77,6 +111,8 @@ final class ActiveInstallViewModel {
             surfaceStatus.responsibility = nil
             surfaceStatus.reasonCode = nil
             surfaceStatus.notes = nil
+        } else if surfaceStatus.responsibility == nil {
+            surfaceStatus.responsibility = IssueResponsibility.fabricator.rawValue  // what the card shows first
         }
         try? context.save()
         markDraftDirty(context: context)
@@ -128,11 +164,20 @@ final class ActiveInstallViewModel {
         totalSurfaceCount > 0 && installedCount == totalSurfaceCount
     }
 
+    var unmarkedCount: Int {
+        totalSurfaceCount - confirmedCount
+    }
+
+    /// Another install day is booked for this job, so unmarked surfaces carry over.
+    var moreInstallDays: Bool { booking.moreInstallDays }
+
     var ctaLabel: String {
         if allInstalled {
             return "Complete Visit"
         } else if flaggedCount > 0 {
             return "Complete Visit with Issues (\(flaggedCount) flagged)"
+        } else if moreInstallDays {
+            return "Finish Today (\(confirmedCount)/\(totalSurfaceCount))"
         } else {
             return "Complete as Partial (\(confirmedCount)/\(totalSurfaceCount))"
         }
@@ -353,41 +398,98 @@ final class ActiveInstallViewModel {
 
     // MARK: - Completion
 
-    func determineOutcome() -> String {
-        if allInstalled { return "installed" }
-        if flaggedCount > 0 && confirmedCount == totalSurfaceCount { return "partial" }
-        return "not_installed"
-    }
-
+    /// Finishes the visit on the server: surface statuses, Site tab, notes, and the customer's name
+    /// if they signed on the phone. The server decides what happens to the job (Completed /
+    /// Install Incomplete after the last install day) and sends problems to the Exceptions queue.
     @MainActor
     func completeVisit(context: ModelContext) async {
         guard let appState, let visitId = booking.visitId, let staffId = appState.staffId else { return }
 
         isCompleting = true
         error = nil
+        defer { isCompleting = false }
 
-        let outcome = determineOutcome()
+        let surfaces: [CompleteInstallParams.Surface] = booking.surfaces.compactMap { surface in
+            guard let st = surfaceStatuses[surface.surfaceId], st.status != "pending" else { return nil }
+            let flagged = st.status != "installed"
+            return .init(
+                surfaceId: surface.surfaceId,
+                status: st.status,
+                responsibility: flagged ? st.responsibility : nil,
+                reasonCodeId: flagged ? st.reasonCode.flatMap(UUID.init(uuidString:)) : nil,
+                notes: flagged ? st.notes : nil
+            )
+        }
+        let signedOnPhone = booking.signatureCaptured && !signatureName.trimmingCharacters(in: .whitespaces).isEmpty
+        let params = CompleteInstallParams(
+            visitId: visitId,
+            workerId: staffId,
+            surfaces: surfaces,
+            site: .init(
+                accessIssue: accessIssues,
+                accessNotes: accessIssues ? accessIssueNotes : nil,
+                tearoutStatus: tearoutStatus.rawValue
+            ),
+            notes: [siteNotes, completionNotes]
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+                .joined(separator: "\n\n"),
+            signedByName: signedOnPhone ? signatureName : nil,
+            lat: appState.locationManager.latitude,
+            lng: appState.locationManager.longitude
+        )
 
+        let result: CompleteInstallResult
         do {
-            var params = appState.locationManager.rpcCoordinateParams
-            params["p_visit_id"] = visitId.uuidString
-            params["p_worker_id"] = staffId.uuidString
-            params["p_outcome"] = outcome
-            params["p_notes"] = completionNotes
-            try await appState.supabaseManager.client
+            result = try await appState.supabaseManager.client
                 .rpc("complete_install_visit", params: params)
                 .execute()
-
-            booking.visitStatus = "completed"
-            booking.visitCompletedAt = Date()
-            booking.visitOutcome = outcome
-            try? context.save()
+                .value
         } catch {
-            // Only complete once the office has it (this used to mark it done on the phone anyway).
+            // Only complete once the office has it.
             self.error = "Couldn't complete the install visit: \(error.localizedDescription)"
+            return
         }
 
-        isCompleting = false
+        guard result.success else {
+            let reasons = (result.blockers ?? []).map { b in
+                [b.targetLabel, b.message].compactMap { $0 }.joined(separator: ": ")
+            }
+            self.error = reasons.isEmpty ? "The visit couldn't be completed." : reasons.joined(separator: "\n")
+            return
+        }
+
+        booking.visitStatus = "completed"
+        booking.visitCompletedAt = Date()
+        booking.visitOutcome = result.outcome
+        if let jobStatus = result.jobStatus { booking.jobStatus = jobStatus }
+        try? context.save()
+        completionResult = result
+
+        // Remote sign-off: send the link now that the visit is finished.
+        if result.signaturePending == true && signatureMode == .remote {
+            await sendSignoffLink()
+        }
+    }
+
+    /// Texts or emails the customer's sign-off link (again, after the first time). The website
+    /// reuses the open link, or makes a new one if it expired.
+    @MainActor
+    func sendSignoffLink() async {
+        guard let appState, let visitId = booking.visitId else { return }
+        let address = (remoteChannel == .sms ? booking.customerPhone : booking.customerEmail) ?? ""
+        isSendingLink = true
+        signoffError = nil
+        defer { isSendingLink = false }
+        do {
+            try await FieldworkWebAPI.sendSignoff(
+                visitId: visitId, channel: remoteChannel, address: address,
+                name: booking.customerName, appState: appState)
+            signatureLinkSent = true
+            signatureLinkSentAt = Date()
+        } catch {
+            signoffError = error.localizedDescription
+        }
     }
 
     func loadPhotos(context: ModelContext) {
@@ -402,62 +504,10 @@ final class ActiveInstallViewModel {
     // MARK: - Checklist
 
     func loadChecklist(context: ModelContext) {
-        guard let visitId = booking.visitId else { return }
-
-        Task {
-            guard let appState, appState.networkMonitor.isConnected else {
-                await MainActor.run {
-                    loadChecklistFromCache(visitId: visitId, context: context)
-                }
-                return
-            }
-
-            do {
-                struct VisitChecklist: Codable {
-                    let visitChecklistId: UUID
-                    enum CodingKeys: String, CodingKey {
-                        case visitChecklistId = "visit_checklist_id"
-                    }
-                }
-
-                let checklists: [VisitChecklist] = try await appState.supabaseManager.client
-                    .from("visit_checklist")
-                    .select("visit_checklist_id")
-                    .eq("visit_id", value: visitId.uuidString)
-                    .execute()
-                    .value
-
-                guard let checklistId = checklists.first?.visitChecklistId else { return }
-
-                let items: [ChecklistItemResponse] = try await appState.supabaseManager.client
-                    .from("visit_checklist_item")
-                    .select()
-                    .eq("visit_checklist_id", value: checklistId.uuidString)
-                    .order("display_order")
-                    .execute()
-                    .value
-
-                await MainActor.run {
-                    for item in items {
-                        let cached = CachedChecklistItem(from: item)
-                        context.insert(cached)
-                    }
-                    try? context.save()
-                    self.checklistItems = items.map { CachedChecklistItem(from: $0) }
-                }
-            } catch {
-                await MainActor.run {
-                    loadChecklistFromCache(visitId: visitId, context: context)
-                }
-            }
+        guard let appState, let visitId = booking.visitId else { return }
+        Task { @MainActor in
+            checklistItems = await CachedChecklistItem.load(visitId: visitId, appState: appState, context: context)
         }
-    }
-
-    private func loadChecklistFromCache(visitId: UUID, context: ModelContext) {
-        let descriptor = FetchDescriptor<CachedChecklistItem>(
-            sortBy: [SortDescriptor(\.displayOrder)]
-        )
-        checklistItems = (try? context.fetch(descriptor)) ?? []
     }
 
     func updateChecklistItem(
@@ -511,6 +561,89 @@ enum InstallTab: String, CaseIterable {
 enum SignatureMode: String {
     case inPerson = "in_person"
     case remote = "remote"
+}
+
+enum SignoffChannel: String {
+    case sms
+    case email
+}
+
+// MARK: - complete_install_visit
+
+struct CompleteInstallParams: Encodable {
+    struct Surface: Encodable {
+        let surfaceId: UUID
+        let status: String
+        let responsibility: String?
+        let reasonCodeId: UUID?
+        let notes: String?
+
+        enum CodingKeys: String, CodingKey {
+            case surfaceId = "surface_id"
+            case status, responsibility
+            case reasonCodeId = "reason_code_id"
+            case notes
+        }
+    }
+
+    struct Site: Encodable {
+        let accessIssue: Bool
+        let accessNotes: String?
+        let tearoutStatus: String
+
+        enum CodingKeys: String, CodingKey {
+            case accessIssue = "access_issue"
+            case accessNotes = "access_notes"
+            case tearoutStatus = "tearout_status"
+        }
+    }
+
+    let visitId: UUID
+    let workerId: UUID
+    let surfaces: [Surface]
+    let site: Site
+    let notes: String
+    let signedByName: String?
+    let lat: Double?
+    let lng: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case visitId = "p_visit_id"
+        case workerId = "p_worker_id"
+        case surfaces = "p_surfaces"
+        case site = "p_site"
+        case notes = "p_notes"
+        case signedByName = "p_signed_by_name"
+        case lat = "p_lat"
+        case lng = "p_lng"
+    }
+}
+
+struct CompleteInstallResult: Decodable {
+    struct Blocker: Decodable {
+        let message: String
+        let targetLabel: String?
+        enum CodingKeys: String, CodingKey {
+            case message
+            case targetLabel = "target_label"
+        }
+    }
+
+    let success: Bool
+    let blockers: [Blocker]?
+    let outcome: String?
+    let jobStatus: String?
+    let lastInstallDay: Bool?
+    let issuesCreated: Int?
+    let signaturePending: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case success, blockers, outcome
+        case jobStatus = "job_status"
+        case lastInstallDay = "last_install_day"
+        case issuesCreated = "issues_created"
+        case signaturePending = "signature_pending"
+    }
 }
 
 enum TearoutStatus: String, CaseIterable {

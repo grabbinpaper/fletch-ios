@@ -17,7 +17,7 @@ struct ActiveInstallView: View {
         VStack(spacing: 0) {
             // Tab picker
             Picker("Tab", selection: $viewModel.selectedTab) {
-                ForEach(InstallTab.allCases, id: \.self) { tab in
+                ForEach(viewModel.visibleTabs, id: \.self) { tab in
                     Text(tab.rawValue).tag(tab)
                 }
             }
@@ -44,8 +44,10 @@ struct ActiveInstallView: View {
                 InstallChecklistTabView(viewModel: viewModel)
                     .tag(InstallTab.checklist)
 
-                InstallSignTabView(viewModel: viewModel)
-                    .tag(InstallTab.sign)
+                if viewModel.visibleTabs.contains(.sign) {
+                    InstallSignTabView(viewModel: viewModel)
+                        .tag(InstallTab.sign)
+                }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
 
@@ -72,6 +74,7 @@ struct ActiveInstallView: View {
             viewModel.initializeSurfaceStatuses(context: modelContext)
             viewModel.loadPhotos(context: modelContext)
             viewModel.loadChecklist(context: modelContext)
+            await viewModel.loadIssueReasons()
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background || newPhase == .inactive {

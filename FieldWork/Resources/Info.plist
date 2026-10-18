@@ -28,6 +28,8 @@
 	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>SUPABASE_HOST</key>
 	<string>$(SUPABASE_HOST)</string>
+	<key>WEB_APP_URL</key>
+	<string>$(WEB_APP_URL)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
