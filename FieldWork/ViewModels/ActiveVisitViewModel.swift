@@ -552,65 +552,10 @@ final class ActiveVisitViewModel {
     // MARK: - Checklist
 
     func loadChecklist(context: ModelContext) {
-        guard let visitId = booking.visitId else { return }
-
-        // Try to load from remote
-        Task {
-            guard let appState, appState.networkMonitor.isConnected else {
-                loadChecklistFromCache(visitId: visitId, context: context)
-                return
-            }
-
-            do {
-                // Get the visit_checklist for this visit
-                struct VisitChecklist: Codable {
-                    let visitChecklistId: UUID
-                    enum CodingKeys: String, CodingKey {
-                        case visitChecklistId = "visit_checklist_id"
-                    }
-                }
-
-                let checklists: [VisitChecklist] = try await appState.supabaseManager.client
-                    .from("visit_checklist")
-                    .select("visit_checklist_id")
-                    .eq("visit_id", value: visitId.uuidString)
-                    .execute()
-                    .value
-
-                guard let checklistId = checklists.first?.visitChecklistId else {
-                    return
-                }
-
-                let items: [ChecklistItemResponse] = try await appState.supabaseManager.client
-                    .from("visit_checklist_item")
-                    .select()
-                    .eq("visit_checklist_id", value: checklistId.uuidString)
-                    .order("display_order")
-                    .execute()
-                    .value
-
-                // Cache locally
-                await MainActor.run {
-                    for item in items {
-                        let cached = CachedChecklistItem(from: item)
-                        context.insert(cached)
-                    }
-                    try? context.save()
-                    self.checklistItems = items.map { CachedChecklistItem(from: $0) }
-                }
-            } catch {
-                await MainActor.run {
-                    loadChecklistFromCache(visitId: visitId, context: context)
-                }
-            }
+        guard let appState, let visitId = booking.visitId else { return }
+        Task { @MainActor in
+            checklistItems = await CachedChecklistItem.load(visitId: visitId, appState: appState, context: context)
         }
-    }
-
-    private func loadChecklistFromCache(visitId: UUID, context: ModelContext) {
-        let descriptor = FetchDescriptor<CachedChecklistItem>(
-            sortBy: [SortDescriptor(\.displayOrder)]
-        )
-        checklistItems = (try? context.fetch(descriptor)) ?? []
     }
 
     func updateChecklistItem(

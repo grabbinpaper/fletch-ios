@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import Supabase
 
 // Shared date parsers for RPC response formats
 private let iso8601Formatter: ISO8601DateFormatter = {
@@ -48,6 +49,8 @@ final class CachedBooking: Hashable {
     var serviceName: String
     var serviceCode: String?
     var serviceId: UUID
+    var visitTypeCode: String?
+    var moreInstallDays: Bool = false
 
     // Denormalized job fields
     var jobId: UUID?
@@ -119,6 +122,8 @@ final class CachedBooking: Hashable {
         self.serviceName = booking.service.name
         self.serviceCode = booking.service.code
         self.serviceId = booking.service.serviceId
+        self.visitTypeCode = booking.service.visitTypeCode
+        self.moreInstallDays = booking.service.moreInstallDays ?? false
 
         self.jobId = booking.job?.jobId
         self.jobServiceId = booking.jobService?.jobServiceId
@@ -157,7 +162,7 @@ final class CachedBooking: Hashable {
         self.visitDepartedAt = booking.visit?.departedAt.flatMap { parseDatetime($0) }
         self.visitArrivedAt = booking.visit?.arrivedAt.flatMap { parseDatetime($0) }
         self.visitCompletedAt = booking.visit?.completedAt.flatMap { parseDatetime($0) }
-        self.signatureRequired = booking.visit?.signatureRequired ?? false
+        self.signatureRequired = booking.signatureRequired
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
 
         self.startingAddress = booking.visit?.startingAddress
@@ -209,7 +214,13 @@ final class CachedBooking: Hashable {
         self.visitDepartedAt = booking.visit?.departedAt.flatMap { parseDatetime($0) }
         self.visitArrivedAt = booking.visit?.arrivedAt.flatMap { parseDatetime($0) }
         self.visitCompletedAt = booking.visit?.completedAt.flatMap { parseDatetime($0) }
+        self.visitTypeCode = booking.service.visitTypeCode
+        self.moreInstallDays = booking.service.moreInstallDays ?? false
+        self.jobStatus = booking.job?.status ?? self.jobStatus
+        self.signatureRequired = booking.signatureRequired
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
+        let remoteSurfaces = Dictionary(booking.surfaces.map { ($0.surfaceId, $0) }, uniquingKeysWith: { a, _ in a })
+        for surface in surfaces { surface.installStatus = remoteSurfaces[surface.surfaceId]?.installStatus }
         self.startingAddress = booking.visit?.startingAddress ?? self.startingAddress
         self.travelMiles = booking.visit?.calculatedMiles ?? self.travelMiles
         self.travelTimeMinutes = booking.visit?.travelTimeMinutes ?? self.travelTimeMinutes
@@ -251,9 +262,8 @@ final class CachedBooking: Hashable {
         }
     }
 
-    var isInstallVisit: Bool {
-        serviceCode?.lowercased() == "install" || serviceName.lowercased().contains("install")
-    }
+    /// The service's visit type decides it (set per shop in Settings), never the service's name.
+    var isInstallVisit: Bool { visitTypeCode == "INST" }
 
     var fullAddress: String {
         [siteAddressLine1, siteCity, siteState, siteZip]
@@ -291,6 +301,8 @@ final class CachedSurface {
     var hasBacksplash: Bool
     var materialName: String?
     var edgeProfileName: String?
+    /// Install visits: status from an earlier, finished install day (installed / partial / not_installed).
+    var installStatus: String?
 
     @Relationship(deleteRule: .cascade) var backsplashPieces: [CachedBacksplash]
     @Relationship var booking: CachedBooking?
@@ -312,6 +324,7 @@ final class CachedSurface {
         self.hasBacksplash = surface.hasBacksplash ?? false
         self.materialName = surface.material?.displayName
         self.edgeProfileName = surface.edgeProfile?.name
+        self.installStatus = surface.installStatus
         self.backsplashPieces = surface.backsplashPieces.map { CachedBacksplash(from: $0) }
     }
 
@@ -387,6 +400,7 @@ final class CachedVisit {
 @Model
 final class CachedChecklistItem {
     @Attribute(.unique) var itemId: UUID
+    var visitId: UUID?
     var visitChecklistId: UUID
     var label: String
     var displayOrder: Int
@@ -398,8 +412,9 @@ final class CachedChecklistItem {
     var requiresPhoto: Bool = false
     var photoCount: Int = 0
 
-    init(from item: ChecklistItemResponse) {
+    init(from item: ChecklistItemResponse, visitId: UUID) {
         self.itemId = item.visitChecklistItemId
+        self.visitId = visitId
         self.visitChecklistId = item.visitChecklistId
         self.label = item.label
         self.displayOrder = item.displayOrder
@@ -412,6 +427,59 @@ final class CachedChecklistItem {
         self.photoCount = item.photoCount ?? 0
     }
 
+}
+
+// MARK: - Checklist loading (template and install visits)
+
+extension CachedChecklistItem {
+    /// This visit's checklist items. Online: fetched from the server; items the phone already has
+    /// keep their local answers (changes are queued to sync). Offline or on error: the phone's copy.
+    @MainActor
+    static func load(visitId: UUID, appState: AppState, context: ModelContext) async -> [CachedChecklistItem] {
+        if appState.networkMonitor.isConnected {
+            do {
+                struct VisitChecklist: Codable {
+                    let visitChecklistId: UUID
+                    enum CodingKeys: String, CodingKey { case visitChecklistId = "visit_checklist_id" }
+                }
+                let client = appState.supabaseManager.client
+                let checklists: [VisitChecklist] = try await client
+                    .from("visit_checklist")
+                    .select("visit_checklist_id")
+                    .eq("visit_id", value: visitId.uuidString)
+                    .execute()
+                    .value
+                if let checklistId = checklists.first?.visitChecklistId {
+                    let items: [ChecklistItemResponse] = try await client
+                        .from("visit_checklist_item")
+                        .select()
+                        .eq("visit_checklist_id", value: checklistId.uuidString)
+                        .order("display_order")
+                        .execute()
+                        .value
+                    let have = Dictionary(
+                        cached(visitId: visitId, context: context).map { ($0.itemId, $0) },
+                        uniquingKeysWith: { a, _ in a })
+                    for item in items where have[item.visitChecklistItemId] == nil {
+                        context.insert(CachedChecklistItem(from: item, visitId: visitId))
+                    }
+                    try? context.save()
+                }
+            } catch {
+                // fall through to what the phone has
+            }
+        }
+        return cached(visitId: visitId, context: context)
+    }
+
+    @MainActor
+    private static func cached(visitId: UUID, context: ModelContext) -> [CachedChecklistItem] {
+        let descriptor = FetchDescriptor<CachedChecklistItem>(
+            predicate: #Predicate<CachedChecklistItem> { $0.visitId == visitId },
+            sortBy: [SortDescriptor(\.displayOrder)]
+        )
+        return (try? context.fetch(descriptor)) ?? []
+    }
 }
 
 /// Photos and signatures are saved flat in the app's Documents folder, but iOS moves that folder

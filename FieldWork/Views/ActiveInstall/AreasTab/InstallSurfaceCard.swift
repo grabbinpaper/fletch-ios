@@ -54,10 +54,14 @@ struct InstallSurfaceCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(surface.displayName)
                     .font(.subheadline.bold())
-                if let room = surface.roomName {
-                    Text(room)
+                if surface.installStatus == "installed" {
+                    Text("Installed on an earlier day")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                } else if let earlier = surface.installStatus {
+                    Text(earlier == "partial" ? "Partly installed on an earlier day" : "Not installed on an earlier day")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
             }
 
@@ -195,15 +199,21 @@ struct InstallSurfaceCard: View {
                 .font(.caption.bold())
                 .foregroundStyle(.secondary)
 
-            let reasons = IssueReasonCodes.reasons(for: selectedResponsibility)
+            let reasons = viewModel.issueReasons(for: selectedResponsibility)
+            if reasons.isEmpty {
+                Text("No issue reasons loaded. Connect to the internet, or ask the office to add them in Settings → Issue codes.")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
             ForEach(reasons) { reason in
+                let picked = selectedReasonCode == reason.id.uuidString
                 Button {
-                    selectedReasonCode = reason.id
+                    selectedReasonCode = reason.id.uuidString
                     syncIssueDetails()
                 } label: {
                     HStack {
-                        Image(systemName: selectedReasonCode == reason.id ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(selectedReasonCode == reason.id ? .blue : .secondary)
+                        Image(systemName: picked ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(picked ? .blue : .secondary)
                         Text(reason.label)
                             .font(.subheadline)
                             .foregroundStyle(.primary)
@@ -212,6 +222,12 @@ struct InstallSurfaceCard: View {
                     .padding(.vertical, 4)
                 }
                 .buttonStyle(.plain)
+            }
+
+            if viewModel.issueReason(id: selectedReasonCode)?.requiresPhoto == true {
+                Label("Take a photo of this with the camera button", systemImage: "camera")
+                    .font(.caption)
+                    .foregroundStyle(.blue)
             }
 
             // Notes

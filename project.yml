@@ -48,6 +48,7 @@ targets:
         NSPhotoLibraryUsageDescription: "FieldWork needs photo library access to attach existing photos to jobs."
         SUPABASE_HOST: "$(SUPABASE_HOST)"
         SUPABASE_ANON_KEY: "$(SUPABASE_ANON_KEY)"
+        WEB_APP_URL: "$(WEB_APP_URL)"
     entitlements:
       path: FieldWork/Resources/FieldWork.entitlements
       properties:

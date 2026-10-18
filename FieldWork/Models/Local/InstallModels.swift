@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import Supabase
 
 // MARK: - Surface Install Status
 
@@ -10,7 +11,7 @@ final class CachedSurfaceStatus {
     var surfaceId: UUID
     var status: String // pending, installed, partial, not_installed
     var responsibility: String? // fabricator, customer — only when status != installed
-    var reasonCode: String? // issue reason code key
+    var reasonCode: String? // issue_reason_code.reason_code_id (uuid string)
     var notes: String?
 
     init(visitId: UUID, surfaceId: UUID) {
@@ -37,36 +38,50 @@ enum IssueResponsibility: String, CaseIterable, Identifiable {
     }
 }
 
-struct IssueReasonCode: Identifiable {
-    let id: String
+/// One of the shop's issue reasons (Settings -> Field Operations -> Issue codes).
+struct IssueReasonCode: Identifiable, Codable, Hashable {
+    let id: UUID
+    let code: String
     let label: String
-    let responsibility: IssueResponsibility
+    let responsibility: String
+    let requiresPhoto: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "reason_code_id"
+        case code, label, responsibility
+        case requiresPhoto = "requires_photo"
+    }
 }
 
+/// The shop's issue reasons for install visits: active codes for any visit type plus install-only
+/// ones. Loaded from the server and kept on the phone for offline use.
 enum IssueReasonCodes {
-    static let fabricatorReasons: [IssueReasonCode] = [
-        IssueReasonCode(id: "not_loaded", label: "Piece not loaded / forgotten at shop", responsibility: .fabricator),
-        IssueReasonCode(id: "damaged_transport", label: "Piece damaged in transport", responsibility: .fabricator),
-        IssueReasonCode(id: "cut_incorrectly", label: "Piece cut incorrectly", responsibility: .fabricator),
-        IssueReasonCode(id: "wrong_material", label: "Wrong material or color", responsibility: .fabricator),
-        IssueReasonCode(id: "edge_incorrect", label: "Edge profile incorrect", responsibility: .fabricator),
-        IssueReasonCode(id: "too_short", label: "Piece too short / doesn't fit", responsibility: .fabricator),
-    ]
+    private static let cacheKey = "installIssueReasons"
 
-    static let customerReasons: [IssueReasonCode] = [
-        IssueReasonCode(id: "cabinets_not_ready", label: "Cabinets not installed / not ready", responsibility: .customer),
-        IssueReasonCode(id: "cabinets_not_level", label: "Cabinets not level", responsibility: .customer),
-        IssueReasonCode(id: "tearout_incomplete", label: "Tearout not complete", responsibility: .customer),
-        IssueReasonCode(id: "appliances_not_removed", label: "Appliances not removed", responsibility: .customer),
-        IssueReasonCode(id: "plumbing_not_capped", label: "Plumbing not capped", responsibility: .customer),
-        IssueReasonCode(id: "electrical_in_way", label: "Electrical in the way", responsibility: .customer),
-        IssueReasonCode(id: "site_not_accessible", label: "Site not accessible", responsibility: .customer),
-    ]
+    static var cached: [IssueReasonCode] {
+        guard let data = UserDefaults.standard.data(forKey: cacheKey) else { return [] }
+        return (try? JSONDecoder().decode([IssueReasonCode].self, from: data)) ?? []
+    }
 
-    static func reasons(for responsibility: IssueResponsibility) -> [IssueReasonCode] {
-        switch responsibility {
-        case .fabricator: return fabricatorReasons
-        case .customer: return customerReasons
+    @MainActor
+    static func load(appState: AppState) async -> [IssueReasonCode] {
+        guard appState.networkMonitor.isConnected, let orgId = appState.organizationId else { return cached }
+        do {
+            let codes: [IssueReasonCode] = try await appState.supabaseManager.client
+                .from("issue_reason_code")
+                .select("reason_code_id, code, label, responsibility, requires_photo")
+                .eq("organization_id", value: orgId.uuidString)
+                .eq("is_active", value: true)
+                .or("applies_to.is.null,applies_to.cs.{install}")
+                .order("display_order")
+                .execute()
+                .value
+            if let data = try? JSONEncoder().encode(codes) {
+                UserDefaults.standard.set(data, forKey: cacheKey)
+            }
+            return codes
+        } catch {
+            return cached
         }
     }
 }
