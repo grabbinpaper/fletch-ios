@@ -219,8 +219,17 @@ final class CachedBooking: Hashable {
         self.jobStatus = booking.job?.status ?? self.jobStatus
         self.signatureRequired = booking.signatureRequired
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
-        let remoteSurfaces = Dictionary(booking.surfaces.map { ($0.surfaceId, $0) }, uniquingKeysWith: { a, _ in a })
-        for surface in surfaces { surface.installStatus = remoteSurfaces[surface.surfaceId]?.installStatus }
+        // Surfaces: refresh what an earlier install day left on each one, and add any this booking
+        // doesn't have yet (e.g. it was cached before the office added them). Nothing is removed here,
+        // and measured values stay as the tech left them until the visit syncs.
+        let cachedById = Dictionary(surfaces.map { ($0.surfaceId, $0) }, uniquingKeysWith: { a, _ in a })
+        for remote in booking.surfaces {
+            if let cached = cachedById[remote.surfaceId] {
+                cached.installStatus = remote.installStatus
+            } else {
+                surfaces.append(CachedSurface(from: remote))
+            }
+        }
         self.startingAddress = booking.visit?.startingAddress ?? self.startingAddress
         self.travelMiles = booking.visit?.calculatedMiles ?? self.travelMiles
         self.travelTimeMinutes = booking.visit?.travelTimeMinutes ?? self.travelTimeMinutes
@@ -285,7 +294,9 @@ final class CachedBooking: Hashable {
 
 @Model
 final class CachedSurface {
-    @Attribute(.unique) var surfaceId: UUID
+    /// Not unique: each booking keeps its own copy of a job's surfaces, so a template visit and
+    /// one or more install days on the same job can all be on the phone at once.
+    var surfaceId: UUID
     var name: String
     var roomName: String?
     var roomQualifier: String?
@@ -359,7 +370,8 @@ final class CachedSurface {
 
 @Model
 final class CachedBacksplash {
-    @Attribute(.unique) var surfaceBacksplashId: UUID
+    /// Not unique, for the same reason as `CachedSurface.surfaceId`.
+    var surfaceBacksplashId: UUID
     var displayOrder: Int
     var heightInches: Double
     var lengthInches: Double
