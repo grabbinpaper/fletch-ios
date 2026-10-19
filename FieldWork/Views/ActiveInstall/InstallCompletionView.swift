@@ -122,11 +122,16 @@ struct InstallCompletionView: View {
                     .font(.subheadline)
                     .foregroundStyle(.green)
             } else if viewModel.signatureMode == .remote {
-                Label(viewModel.remoteChannel == .sms ? "Sign-off link will be texted when you finish"
-                                                      : "Sign-off link will be emailed when you finish",
-                      systemImage: "paperplane.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(.blue)
+                if let how = viewModel.linkTargetsDescription {
+                    Label("Sign-off link will be \(how) when you finish", systemImage: "paperplane.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(.blue)
+                } else {
+                    Label("No phone or email picked — go back to the Sign tab to choose where the link goes",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.subheadline)
+                        .foregroundStyle(.orange)
+                }
             } else {
                 Label("Customer hasn't signed — the office can send them the link", systemImage: "pencil.slash")
                     .font(.subheadline)

@@ -5,6 +5,9 @@ struct InstallSignTabView: View {
     @Bindable var viewModel: ActiveInstallViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var clearSignal = 0
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @State private var editingPhone = false
+    @State private var editingEmail = false
 
     var body: some View {
         ScrollView {
@@ -15,10 +18,13 @@ struct InstallSignTabView: View {
                 // Signature section
                 if viewModel.booking.signatureCaptured {
                     signatureCapturedCard
-                } else if viewModel.signatureMode == .inPerson {
-                    inPersonSignatureCard
                 } else {
-                    remoteSignatureCard
+                    signoffChoices
+                    if viewModel.signatureMode == .inPerson {
+                        inPersonSignatureCard
+                    } else {
+                        remoteSignatureCard
+                    }
                 }
             }
             .padding()
@@ -73,6 +79,7 @@ struct InstallSignTabView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -87,6 +94,62 @@ struct InstallSignTabView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    // MARK: - Sign-off Choices
+
+    /// Two big choices: send the customer a link (the usual way), or sign on this device.
+    private var signoffChoices: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("How will the customer sign off?")
+                .font(.subheadline.bold())
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 12) {
+                choiceButton(
+                    mode: .remote,
+                    title: "Text / Email Link",
+                    subtitle: "Customer signs on their own phone",
+                    systemImage: "paperplane.fill"
+                )
+
+                choiceButton(
+                    mode: .inPerson,
+                    title: "Sign on This Device",
+                    subtitle: "Hand the device over",
+                    systemImage: "hand.draw.fill"
+                )
+            }
+        }
+    }
+
+    private func choiceButton(mode: SignatureMode, title: String, subtitle: String, systemImage: String) -> some View {
+        let selected = viewModel.signatureMode == mode
+        return Button {
+            viewModel.signatureMode = mode
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.title2)
+                Text(title)
+                    .font(.subheadline.bold())
+                    .multilineTextAlignment(.center)
+                Text(subtitle)
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(selected ? Color.white.opacity(0.85) : .secondary)
+            }
+            .frame(maxWidth: .infinity, minHeight: 120)
+            .padding(.horizontal, 8)
+            .foregroundStyle(selected ? Color.white : Color.accentColor)
+            .background(selected ? Color.accentColor : Color.accentColor.opacity(0.08))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.accentColor.opacity(selected ? 0 : 0.4), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Signature Captured
@@ -149,7 +212,7 @@ struct InstallSignTabView: View {
             SignaturePadView(clearSignal: $clearSignal) { image in
                 viewModel.signatureImage = image
             }
-            .frame(height: 200)
+            .frame(height: sizeClass == .regular ? 360 : 200)
             .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
@@ -195,17 +258,6 @@ struct InstallSignTabView: View {
             .tint(.green)
             .disabled(viewModel.signatureImage == nil
                       || viewModel.signatureName.trimmingCharacters(in: .whitespaces).isEmpty)
-
-            // Switch to remote
-            Button {
-                viewModel.signatureMode = .remote
-            } label: {
-                Text("Send signature link instead")
-                    .font(.caption)
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.blue)
         }
         .padding()
         .background(.regularMaterial)
@@ -216,27 +268,43 @@ struct InstallSignTabView: View {
 
     private var remoteSignatureCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Remote Signature", systemImage: "paperplane")
+            Label("Sign-off Link", systemImage: "paperplane")
                 .font(.subheadline.bold())
                 .foregroundStyle(.secondary)
 
-            if let email = viewModel.booking.customerEmail {
-                Label(email, systemImage: "envelope")
-                    .font(.subheadline)
-            }
+            Text("Send by text, email, or both")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
-            if let phone = viewModel.booking.customerPhone {
-                Label(phone, systemImage: "phone")
-                    .font(.subheadline)
-            }
+            linkChannelRow(
+                isOn: $viewModel.sendByText,
+                title: "Text",
+                systemImage: "message.fill",
+                address: $viewModel.linkPhone,
+                onFile: viewModel.booking.customerPhone,
+                placeholder: "Phone number",
+                keyboard: .phonePad,
+                isEditing: $editingPhone
+            )
 
-            Picker("Send by", selection: $viewModel.remoteChannel) {
-                Text("Text").tag(SignoffChannel.sms)
-                    .disabled(viewModel.booking.customerPhone?.isEmpty ?? true)
-                Text("Email").tag(SignoffChannel.email)
-                    .disabled(viewModel.booking.customerEmail?.isEmpty ?? true)
+            Divider()
+
+            linkChannelRow(
+                isOn: $viewModel.sendByEmail,
+                title: "Email",
+                systemImage: "envelope.fill",
+                address: $viewModel.linkEmail,
+                onFile: viewModel.booking.customerEmail,
+                placeholder: "Email address",
+                keyboard: .emailAddress,
+                isEditing: $editingEmail
+            )
+
+            if viewModel.linkTargets.isEmpty {
+                Label("Pick text or email so the link has somewhere to go", systemImage: "exclamationmark.triangle")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
             }
-            .pickerStyle(.segmented)
 
             if viewModel.booking.visitStatus != "completed" {
                 Text("The link goes to the customer when you finish the visit (button at the bottom).")
@@ -273,7 +341,7 @@ struct InstallSignTabView: View {
                         .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(viewModel.isSendingLink)
+                .disabled(viewModel.isSendingLink || viewModel.linkTargets.isEmpty)
 
                 if let err = viewModel.signoffError {
                     Text(err)
@@ -281,20 +349,66 @@ struct InstallSignTabView: View {
                         .foregroundStyle(.red)
                 }
             }
-
-            // Switch to in-person
-            Button {
-                viewModel.signatureMode = .inPerson
-            } label: {
-                Text("Capture signature in person instead")
-                    .font(.caption)
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.blue)
         }
         .padding()
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    /// One way to send the link: tick it on, see where it goes (from the office's records), and
+    /// change the address for this send if the customer asks for somewhere else.
+    private func linkChannelRow(
+        isOn: Binding<Bool>, title: String, systemImage: String, address: Binding<String>,
+        onFile: String?, placeholder: String, keyboard: UIKeyboardType, isEditing: Binding<Bool>
+    ) -> some View {
+        let onFileValue = onFile ?? ""
+        let showField = isEditing.wrappedValue || onFileValue.isEmpty
+        return VStack(alignment: .leading, spacing: 8) {
+            Button {
+                isOn.wrappedValue.toggle()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: isOn.wrappedValue ? "checkmark.square.fill" : "square")
+                        .font(.title2)
+                        .foregroundStyle(isOn.wrappedValue ? Color.accentColor : .secondary)
+                    Label(title, systemImage: systemImage)
+                        .font(.headline)
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if isOn.wrappedValue {
+                if showField {
+                    TextField(placeholder, text: address)
+                        .keyboardType(keyboard)
+                        .textContentType(keyboard == .phonePad ? .telephoneNumber : .emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .textFieldStyle(.roundedBorder)
+                    if !onFileValue.isEmpty {
+                        Button("Use the one on file: \(onFileValue)") {
+                            address.wrappedValue = onFileValue
+                            isEditing.wrappedValue = false
+                        }
+                        .font(.caption)
+                    } else {
+                        Text("Nothing on file — type where the customer wants it")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    HStack {
+                        Text(address.wrappedValue)
+                            .font(.subheadline)
+                        Spacer()
+                        Button("Send somewhere else") { isEditing.wrappedValue = true }
+                            .font(.caption)
+                    }
+                    .padding(.leading, 40)
+                }
+            }
+        }
     }
 }

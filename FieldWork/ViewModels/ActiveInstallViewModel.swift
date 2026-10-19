@@ -24,8 +24,13 @@ final class ActiveInstallViewModel {
     var signatureMode: SignatureMode = .inPerson
     var signatureName = ""
     var signatureImage: UIImage?
-    /// Remote sign-off: how the link goes to the customer when the visit is finished.
-    var remoteChannel: SignoffChannel = .sms
+    /// Remote sign-off: the link goes by text, email or both when the visit is finished. The
+    /// addresses start from the office's records; the installer can change them for this send
+    /// when the customer asks on the spot (the customer's record isn't changed).
+    var sendByText = false
+    var sendByEmail = false
+    var linkPhone = ""
+    var linkEmail = ""
     var signatureLinkSent = false
     var signatureLinkSentAt: Date?
     var isSendingLink = false
@@ -44,13 +49,33 @@ final class ActiveInstallViewModel {
 
     init(booking: CachedBooking) {
         self.booking = booking
+        // Sending the link is the usual way to sign off; the pad is for when the customer
+        // wants to sign right there (Matt, Oct 19).
+        linkPhone = booking.customerPhone ?? ""
+        linkEmail = booking.customerEmail ?? ""
+        sendByText = !linkPhone.isEmpty
+        sendByEmail = !linkEmail.isEmpty
+        if sendByText || sendByEmail { signatureMode = .remote }
+    }
+
+    /// Where the sign-off link will go: each ticked channel that has an address.
+    var linkTargets: [(channel: SignoffChannel, address: String)] {
+        var targets: [(channel: SignoffChannel, address: String)] = []
+        let phone = linkPhone.trimmingCharacters(in: .whitespaces)
+        let email = linkEmail.trimmingCharacters(in: .whitespaces)
+        if sendByText && !phone.isEmpty { targets.append((.sms, phone)) }
+        if sendByEmail && !email.isEmpty { targets.append((.email, email)) }
+        return targets
+    }
+
+    /// e.g. "texted and emailed" for the finish screens.
+    var linkTargetsDescription: String? {
+        let verbs = linkTargets.map { $0.channel == .sms ? "texted" : "emailed" }
+        return verbs.isEmpty ? nil : verbs.joined(separator: " and ")
     }
 
     func configure(appState: AppState) {
         self.appState = appState
-        if booking.customerPhone?.isEmpty ?? true, !(booking.customerEmail?.isEmpty ?? true) {
-            remoteChannel = .email
-        }
     }
 
     @MainActor
@@ -497,24 +522,34 @@ final class ActiveInstallViewModel {
         }
     }
 
-    /// Texts or emails the customer's sign-off link (again, after the first time). The website
-    /// reuses the open link, or makes a new one if it expired.
+    /// Texts and/or emails the customer's sign-off link (again, after the first time). The website
+    /// reuses the open link, so text and email carry the same one.
     @MainActor
     func sendSignoffLink() async {
         guard let appState, let visitId = booking.visitId else { return }
-        let address = (remoteChannel == .sms ? booking.customerPhone : booking.customerEmail) ?? ""
+        let targets = linkTargets
+        guard !targets.isEmpty else {
+            signoffError = "Pick text or email and enter where to send the link"
+            return
+        }
         isSendingLink = true
         signoffError = nil
         defer { isSendingLink = false }
-        do {
-            try await FieldworkWebAPI.sendSignoff(
-                visitId: visitId, channel: remoteChannel, address: address,
-                name: booking.customerName, appState: appState)
+        var failures: [String] = []
+        for target in targets {
+            do {
+                try await FieldworkWebAPI.sendSignoff(
+                    visitId: visitId, channel: target.channel, address: target.address,
+                    name: booking.customerName, appState: appState)
+            } catch {
+                failures.append("\(target.channel == .sms ? "Text" : "Email"): \(error.localizedDescription)")
+            }
+        }
+        if failures.count < targets.count {
             signatureLinkSent = true
             signatureLinkSentAt = Date()
-        } catch {
-            signoffError = error.localizedDescription
         }
+        if !failures.isEmpty { signoffError = failures.joined(separator: "\n") }
     }
 
     func loadPhotos(context: ModelContext) {
