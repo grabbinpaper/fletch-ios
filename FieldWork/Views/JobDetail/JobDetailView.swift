@@ -265,7 +265,7 @@ struct JobDetailView: View {
     // MARK: - Sticky Bottom CTA
 
     private var bottomCTA: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             if appState.locationManager.isDenied {
                 locationRequiredCard
             } else if !appState.locationManager.isAuthorized {
@@ -348,11 +348,7 @@ struct JobDetailView: View {
                 .buttonStyle(.borderedProminent)
                 .disabled(viewModel.isStartingVisit)
 
-                Button { showBlockedSheet = true } label: {
-                    Text("Can't make this visit")
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                }
+                cantMakeItButton
 
             case .enRoute:
                 // One tap — captures arrival GPS, marks on_site
@@ -378,11 +374,7 @@ struct JobDetailView: View {
                 .tint(.green)
                 .disabled(viewModel.isArrivingAtSite)
 
-                Button { showBlockedSheet = true } label: {
-                    Text("Can't make this visit")
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                }
+                cantMakeItButton
 
             case .onSite:
                 Button { openActiveVisit() } label: {
@@ -409,16 +401,37 @@ struct JobDetailView: View {
                 .buttonStyle(.bordered)
 
             case .blocked:
-                HStack(spacing: 6) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.red)
-                        .font(.caption)
-                    Text("Visit blocked")
-                        .font(.caption)
+                HStack(spacing: 10) {
+                    Image(systemName: "nosign")
+                        .font(.title3)
                         .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Couldn't make this visit")
+                            .font(.subheadline.bold())
+                        Text("Reported to the office.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
                 }
+                .padding(12)
+                .frame(maxWidth: .infinity)
+                .background(Color.secondary.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
+    }
+
+    /// Second, quieter action under Heading Out / I'm Here: report the visit can't happen.
+    private var cantMakeItButton: some View {
+        Button { showBlockedSheet = true } label: {
+            Label("Can't Make It", systemImage: "nosign")
+                .font(.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+        }
+        .buttonStyle(.bordered)
+        .tint(.primary)
     }
 
     private func openActiveVisit() {
