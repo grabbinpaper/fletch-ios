@@ -387,6 +387,9 @@ struct InstallSignTabView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .textFieldStyle(.roundedBorder)
+                    Text("A number or email that isn't on file goes on the customer's record for the office to confirm.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                     if !onFileValue.isEmpty {
                         Button("Use the one on file: \(onFileValue)") {
                             address.wrappedValue = onFileValue
