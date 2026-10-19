@@ -68,10 +68,14 @@ final class ActiveInstallViewModel {
         return issueReasons.first { $0.id == uuid }
     }
 
-    /// Tabs shown: the Sign tab only when this customer signs off.
+    /// Tabs shown: the Sign tab only when this customer signs off and the install is finished.
     var visibleTabs: [InstallTab] {
-        InstallTab.allCases.filter { $0 != .sign || booking.signatureRequired }
+        InstallTab.allCases.filter { $0 != .sign || (booking.signatureRequired && signOffAllowed) }
     }
+
+    /// The customer signs off only when the visit finishes the install: every surface on the job
+    /// installed, counting earlier install days (Matt, Oct 18). The server refuses otherwise.
+    var signOffAllowed: Bool { allInstalled }
 
     // MARK: - Surface Status Management
 
@@ -359,28 +363,41 @@ final class ActiveInstallViewModel {
 
     // MARK: - Signature
 
-    func saveSignature(image: UIImage, signerName: String, context: ModelContext) {
-        guard let appState, let visitId = booking.visitId else { return }
-
-        let fileName = "signature_\(visitId.uuidString).png"
+    /// Where the on-site signature is kept on the phone until the visit is finished.
+    private var signatureFileURL: URL? {
+        guard let visitId = booking.visitId else { return nil }
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(fileName)
+        return documentsURL.appendingPathComponent("signature_\(visitId.uuidString).png")
+    }
 
-        guard let pngData = image.pngData() else { return }
+    /// Keeps the signature on the phone only. It goes to the office once the visit is finished and
+    /// the install is complete (`completeVisit`) — a signature on an unfinished install isn't kept.
+    func saveSignature(image: UIImage, signerName: String, context: ModelContext) {
+        guard let fileURL = signatureFileURL, let pngData = image.pngData() else { return }
         try? pngData.write(to: fileURL)
 
         booking.signatureCaptured = true
         signatureImage = image
         signatureName = signerName
         try? context.save()
+    }
 
-        let storagePath = "signatures/\(visitId.uuidString)/\(fileName)"
+    func clearSignature(context: ModelContext) {
+        booking.signatureCaptured = false
+        signatureImage = nil
+        signatureName = ""
+        if let fileURL = signatureFileURL { try? FileManager.default.removeItem(at: fileURL) }
+        try? context.save()
+    }
+
+    private func queueSignatureUpload(context: ModelContext) {
+        guard let appState, let visitId = booking.visitId, let fileURL = signatureFileURL else { return }
         let payload = SignatureUploadPayload(
             visitId: visitId,
             localFilePath: fileURL.path,
-            storagePath: storagePath,
-            fileName: fileName,
-            signerName: signerName,
+            storagePath: "signatures/\(visitId.uuidString)/\(fileURL.lastPathComponent)",
+            fileName: fileURL.lastPathComponent,
+            signerName: signatureName,
             uploadedBy: appState.staffId ?? UUID()
         )
         if let data = try? JSONEncoder().encode(payload) {
@@ -420,7 +437,8 @@ final class ActiveInstallViewModel {
                 notes: flagged ? st.notes : nil
             )
         }
-        let signedOnPhone = booking.signatureCaptured && !signatureName.trimmingCharacters(in: .whitespaces).isEmpty
+        let signedOnPhone = signOffAllowed && booking.signatureCaptured
+            && !signatureName.trimmingCharacters(in: .whitespaces).isEmpty
         let params = CompleteInstallParams(
             visitId: visitId,
             workerId: staffId,
@@ -465,6 +483,13 @@ final class ActiveInstallViewModel {
         if let jobStatus = result.jobStatus { booking.jobStatus = jobStatus }
         try? context.save()
         completionResult = result
+
+        // The on-site signature goes to the office only for a finished install; otherwise drop it.
+        if signedOnPhone && result.outcome == "accomplished" && result.signatureNotAllowed != true {
+            queueSignatureUpload(context: context)
+        } else if booking.signatureCaptured {
+            clearSignature(context: context)
+        }
 
         // Remote sign-off: send the link now that the visit is finished.
         if result.signaturePending == true && signatureMode == .remote {
@@ -636,6 +661,8 @@ struct CompleteInstallResult: Decodable {
     let lastInstallDay: Bool?
     let issuesCreated: Int?
     let signaturePending: Bool?
+    /// The phone sent a signature but the install isn't finished, so the office didn't keep it.
+    let signatureNotAllowed: Bool?
 
     enum CodingKeys: String, CodingKey {
         case success, blockers, outcome
@@ -643,6 +670,7 @@ struct CompleteInstallResult: Decodable {
         case lastInstallDay = "last_install_day"
         case issuesCreated = "issues_created"
         case signaturePending = "signature_pending"
+        case signatureNotAllowed = "signature_not_allowed"
     }
 }
 

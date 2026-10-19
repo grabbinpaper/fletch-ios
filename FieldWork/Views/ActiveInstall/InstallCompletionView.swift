@@ -112,6 +112,11 @@ struct InstallCompletionView: View {
                 Label("No sign-off needed for this job", systemImage: "checkmark.seal")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            } else if !viewModel.signOffAllowed {
+                Label("Sign-off comes when the work is finished — no customer signature on this visit",
+                      systemImage: "signature")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             } else if viewModel.booking.signatureCaptured {
                 Label("Signature captured", systemImage: "checkmark.seal.fill")
                     .font(.subheadline)
@@ -228,6 +233,15 @@ struct InstallCompletionView: View {
                 Label("\(issues) problem\(issues == 1 ? "" : "s") sent to the office's Exceptions queue",
                       systemImage: "tray.full")
                     .foregroundStyle(.orange)
+            }
+
+            if result.signatureNotAllowed == true {
+                Label("The customer's signature wasn't kept — sign-off comes when the work is finished",
+                      systemImage: "signature")
+                    .foregroundStyle(.orange)
+            } else if viewModel.booking.signatureRequired && result.outcome != "accomplished" {
+                Label("No sign-off yet — the customer signs when the work is finished", systemImage: "signature")
+                    .foregroundStyle(.secondary)
             }
 
             if result.signaturePending == true {

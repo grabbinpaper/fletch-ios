@@ -24,6 +24,16 @@ struct ActiveVisitView: View {
             .pickerStyle(.segmented)
             .padding()
 
+            if viewModel.signoffWithheld {
+                Label("Visit finished. No sign-off yet — the customer signs when the template is finished.",
+                      systemImage: "signature")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+            }
+
             // Tab content
             TabView(selection: $viewModel.selectedTab) {
                 MeasurementTabView(
@@ -44,7 +54,7 @@ struct ActiveVisitView: View {
                 ChecklistTabView(viewModel: viewModel)
                     .tag(VisitTab.checklist)
 
-                if viewModel.requiresSignature || viewModel.signaturePending || viewModel.booking.signatureCaptured {
+                if viewModel.showsSignTab {
                     SignatureTabView(viewModel: viewModel)
                         .tag(VisitTab.signature)
                 }
@@ -55,6 +65,9 @@ struct ActiveVisitView: View {
             if viewModel.booking.visitStatus != "completed" {
                 bottomBar
             }
+        }
+        .onChange(of: visibleTabs) { _, tabs in
+            if !tabs.contains(viewModel.selectedTab) { viewModel.selectedTab = .measurements }
         }
         .navigationTitle("Template Visit")
         .navigationBarTitleDisplayMode(.inline)
@@ -188,9 +201,7 @@ struct ActiveVisitView: View {
 
     private var visibleTabs: [VisitTab] {
         var tabs: [VisitTab] = [.measurements, .site, .photos, .checklist]
-        if viewModel.requiresSignature || viewModel.signaturePending || viewModel.booking.signatureCaptured {
-            tabs.append(.signature)
-        }
+        if viewModel.showsSignTab { tabs.append(.signature) }
         return tabs
     }
 

@@ -72,13 +72,13 @@ struct PartialVisitSheet: View {
                     if viewModel.requiresSignature {
                         HStack(spacing: 10) {
                             Image(systemName: "signature")
-                                .foregroundStyle(.blue)
-                            Text("Signature link will be sent to the customer after completion.")
+                                .foregroundStyle(.secondary)
+                            Text("Sign-off comes when the work is finished — the customer isn't asked to sign for a partial visit.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         .padding()
-                        .background(Color.blue.opacity(0.06))
+                        .background(Color.secondary.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 

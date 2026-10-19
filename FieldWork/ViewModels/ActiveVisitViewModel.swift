@@ -20,6 +20,9 @@ final class ActiveVisitViewModel {
     var requiresSignature = false
     var isValidating = false
     var signaturePending = false
+    /// The visit was finished unfinished (partial) and this customer signs off, so no sign-off
+    /// was asked for (server: `signature_not_allowed`).
+    var signoffWithheld = false
     var edgeProfiles: [EdgeProfileOption] = []
     var showAddSurface = false
 
@@ -596,43 +599,6 @@ final class ActiveVisitViewModel {
         }
     }
 
-    // MARK: - Signature
-
-    func saveSignature(image: UIImage, signerName: String, context: ModelContext) {
-        guard let appState, let visitId = booking.visitId else { return }
-
-        let fileName = "signature_\(visitId.uuidString).png"
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(fileName)
-
-        guard let pngData = image.pngData() else { return }
-        try? pngData.write(to: fileURL)
-
-        booking.signatureCaptured = true
-        try? context.save()
-
-        let storagePath = "signatures/\(visitId.uuidString)/\(fileName)"
-        let payload = SignatureUploadPayload(
-            visitId: visitId,
-            localFilePath: fileURL.path,
-            storagePath: storagePath,
-            fileName: fileName,
-            signerName: signerName,
-            uploadedBy: appState.staffId ?? UUID()
-        )
-        if let data = try? JSONEncoder().encode(payload) {
-            Task {
-                await appState.syncEngine.queueOperation(
-                    type: "upload_signature",
-                    entityType: "signature",
-                    entityId: visitId.uuidString,
-                    payload: data,
-                    in: context
-                )
-            }
-        }
-    }
-
     // MARK: - Completion
 
     var isAllMeasured: Bool {
@@ -641,6 +607,17 @@ final class ActiveVisitViewModel {
 
     var isPartial: Bool {
         !booking.measurements.isEmpty && !isAllMeasured && booking.measurements.contains(where: \.isMeasured)
+    }
+
+    /// The customer signs off only when the whole template got done: every surface measured, none
+    /// skipped, not finished as partial (Matt, Oct 18). The server refuses otherwise.
+    var signOffAllowed: Bool {
+        booking.visitStatus == "completed" ? booking.visitOutcome == "accomplished" : isAllMeasured
+    }
+
+    /// Sign tab: once the customer has signed or the link is out, or when sign-off is due.
+    var showsSignTab: Bool {
+        signaturePending || booking.signatureCaptured || (requiresSignature && signOffAllowed)
     }
 
     var skippedCount: Int {
@@ -743,6 +720,7 @@ final class ActiveVisitViewModel {
             }
 
             signaturePending = response.signaturePending ?? false
+            signoffWithheld = response.signatureNotAllowed ?? false
 
             booking.visitStatus = "completed"
             booking.visitCompletedAt = Date()
@@ -837,6 +815,8 @@ struct CompleteVisitResponse: Codable {
     let signaturePending: Bool?
     let signatureToken: String?
     let blockers: [CompletionBlocker]?
+    /// Finished as partial, so the customer isn't asked to sign off yet.
+    let signatureNotAllowed: Bool?
 
     enum CodingKeys: String, CodingKey {
         case success
@@ -844,5 +824,6 @@ struct CompleteVisitResponse: Codable {
         case signaturePending = "signature_pending"
         case signatureToken = "signature_token"
         case blockers
+        case signatureNotAllowed = "signature_not_allowed"
     }
 }

@@ -56,6 +56,9 @@ struct ActiveInstallView: View {
                 bottomBar
             }
         }
+        .onChange(of: viewModel.visibleTabs) { _, tabs in
+            if !tabs.contains(viewModel.selectedTab) { viewModel.selectedTab = .areas }
+        }
         .navigationTitle("Install Visit")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

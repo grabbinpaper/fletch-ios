@@ -118,9 +118,7 @@ struct InstallSignTabView: View {
 
             // Start over button
             Button {
-                viewModel.booking.signatureCaptured = false
-                viewModel.signatureImage = nil
-                viewModel.signatureName = ""
+                viewModel.clearSignature(context: modelContext)
                 clearSignal += 1
             } label: {
                 Label("Start Over", systemImage: "arrow.counterclockwise")
