@@ -40,6 +40,8 @@
 		BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */; };
 		C0085DDD0CCB71E6AC0B1829 /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409EFBC2A787F66C203B3575 /* ImageProcessor.swift */; };
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* CachedMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */; };
+		A1C0FFEE5151000000000002 /* SinkSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE5151000000000001 /* SinkSheet.swift */; };
+		A1C0FFEE5151000000000004 /* QuotedSinkCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE5151000000000003 /* QuotedSinkCheckView.swift */; };
 		B29AA5D529E55A988A5C0AB9 /* CachedCutout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AB34E713574A66CD0460B2 /* CachedCutout.swift */; };
 		B914702F6571E0F78A313829 /* CachedBacksplashMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 132558B4C46A4FBE81B2ACE8 /* CachedBacksplashMeasurement.swift */; };
 		078B8FC9ADBE4BAB3CED7B1F /* BacksplashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4890E7DB7050FE7AD3A108E5 /* BacksplashSection.swift */; };
@@ -98,6 +100,8 @@ BB1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift in Sources */ = {isa =
 		409EFBC2A787F66C203B3575 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
 		5D095DABC0D652B9DD333FBB /* ScheduleJobRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleJobRow.swift; sourceTree = "<group>"; };
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedMeasurement.swift; sourceTree = "<group>"; };
+		A1C0FFEE5151000000000001 /* SinkSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinkSheet.swift; sourceTree = "<group>"; };
+		A1C0FFEE5151000000000003 /* QuotedSinkCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotedSinkCheckView.swift; sourceTree = "<group>"; };
 		A9AB34E713574A66CD0460B2 /* CachedCutout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedCutout.swift; sourceTree = "<group>"; };
 		132558B4C46A4FBE81B2ACE8 /* CachedBacksplashMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedBacksplashMeasurement.swift; sourceTree = "<group>"; };
 		4890E7DB7050FE7AD3A108E5 /* BacksplashSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacksplashSection.swift; sourceTree = "<group>"; };
@@ -164,6 +168,7 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 			children = (
 				D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */,
 				A9AB34E713574A66CD0460B2 /* CachedCutout.swift */,
+				A1C0FFEE5151000000000001 /* SinkSheet.swift */,
 				132558B4C46A4FBE81B2ACE8 /* CachedBacksplashMeasurement.swift */,
 				610CB6823B8F76751FEE61CB /* CachedModels.swift */,
 				AA1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift */,
@@ -383,6 +388,7 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 				D628E1796B69EAA30AADAE39 /* CutoutSection.swift */,
 				E929AB9353424B9FC23287E7 /* AddCutoutSheet.swift */,
 				C795873F92F250D5B50A3E2E /* SinkCutoutForm.swift */,
+				A1C0FFEE5151000000000003 /* QuotedSinkCheckView.swift */,
 				39C41BFB7A8AA0EAA5BAEFC0 /* CooktopCutoutForm.swift */,
 				4890E7DB7050FE7AD3A108E5 /* BacksplashSection.swift */,
 				2915BF157D7DBB2DEA18640F /* AddBacksplashSheet.swift */,
@@ -558,6 +564,7 @@ CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */ = {
 				24648163557BAD71CBD502F9 /* AuthManager.swift in Sources */,
 				C3D4E5F6A7B8C9D0E1F2A3B4 /* CachedMeasurement.swift in Sources */,
 				B29AA5D529E55A988A5C0AB9 /* CachedCutout.swift in Sources */,
+				A1C0FFEE5151000000000002 /* SinkSheet.swift in Sources */,
 				B914702F6571E0F78A313829 /* CachedBacksplashMeasurement.swift in Sources */,
 				078B8FC9ADBE4BAB3CED7B1F /* BacksplashSection.swift in Sources */,
 				4903D05290312E8A4DFA8115 /* AddBacksplashSheet.swift in Sources */,
@@ -586,6 +593,7 @@ CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */ = {
 				B68CBB526058162859CF419D /* CutoutSection.swift in Sources */,
 				43959281C71DF236702BEB96 /* AddCutoutSheet.swift in Sources */,
 				D9E50359B1CDC1F48D5ECC3F /* SinkCutoutForm.swift in Sources */,
+				A1C0FFEE5151000000000004 /* QuotedSinkCheckView.swift in Sources */,
 				3949AB717D8DC8EEE4667DE6 /* CooktopCutoutForm.swift in Sources */,
 				87188F997B4458025F430685 /* NetworkMonitor.swift in Sources */,
 				BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */,

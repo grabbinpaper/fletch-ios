@@ -5,6 +5,8 @@ struct CutoutSection: View {
     let isReadOnly: Bool
     let onAdd: (CutoutFormData) -> Void
     let onRemove: (CachedCutout) -> Void
+    /// Opens the check of a sink from the sink & faucet sheet.
+    var onCheck: ((CachedCutout) -> Void)? = nil
 
     @State private var showAddSheet = false
 
@@ -35,8 +37,12 @@ struct CutoutSection: View {
             }
 
             ForEach(cutouts, id: \.cutoutId) { cutout in
-                CutoutRow(cutout: cutout, isReadOnly: isReadOnly) {
-                    onRemove(cutout)
+                if cutout.isQuotedSink {
+                    QuotedSinkRow(cutout: cutout) { onCheck?(cutout) }
+                } else {
+                    CutoutRow(cutout: cutout, isReadOnly: isReadOnly) {
+                        onRemove(cutout)
+                    }
                 }
             }
         }
@@ -45,6 +51,55 @@ struct CutoutSection: View {
                 onAdd(data)
             }
         }
+    }
+}
+
+/// A sink from the sink & faucet sheet: what the sheet says, and whether the tech has checked it
+/// (Matches the sheet / CHANGED). Tapping opens the check; it can't be removed.
+private struct QuotedSinkRow: View {
+    let cutout: CachedCutout
+    let onCheck: () -> Void
+
+    var body: some View {
+        let q = cutout.quoted
+        let changes = q.map { cutout.sinkCheck.changeLines(from: $0) } ?? []
+        Button(action: onCheck) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text("Sink").font(.subheadline.bold())
+                        StatusBadge(text: "Sink sheet v\(cutout.sinkSheetVersion ?? 1)", color: .blue)
+                        if cutout.checkedAt == nil {
+                            StatusBadge(text: "Check on site", color: .orange)
+                        } else if !changes.isEmpty {
+                            StatusBadge(text: "CHANGED", color: .red)
+                        } else {
+                            StatusBadge(text: "Matches sheet", color: .green)
+                        }
+                    }
+                    if let q {
+                        Text("\(q.sinkTitle) · \(Inches.size(q.sinkCutoutWidth, q.sinkCutoutDepth))")
+                            .font(.caption).foregroundStyle(.secondary)
+                        if let faucet = q.faucetTitle {
+                            Text("Faucet: \(faucet)").font(.caption).foregroundStyle(.secondary)
+                        }
+                        Text("Holes: \(q.holesInWords(cutout.holes))").font(.caption2).foregroundStyle(.secondary)
+                    }
+                    ForEach(changes, id: \.self) { line in
+                        Text(line).font(.caption2).foregroundStyle(.red)
+                    }
+                    if cutout.bringToShop {
+                        Text("Sink not on site: bring to shop").font(.caption2).foregroundStyle(.orange)
+                    }
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.vertical, 4)
+        .accessibilityIdentifier("quotedSinkRow")
     }
 }
 

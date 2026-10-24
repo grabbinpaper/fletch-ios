@@ -18,6 +18,24 @@ final class CachedCutout {
     var locationNote: String?
     var changedFromQuote: Bool
 
+    // A sink from the job's sink & faucet sheet (source "quoted"): the sheet as it was when the
+    // visit started, and what the tech found on site. The office decides "changed" from these
+    // (`differences`); `SinkCheck` works out the same on the phone so the tech sees it straight away.
+    var sinkSheetId: UUID?
+    var sinkSheetVersion: Int?
+    var quotedJson: String?
+    var faucetMake: String?
+    var faucetModel: String?
+    var holesJson: String?
+    var measuredCutoutWidth: Double?
+    var measuredCutoutDepth: Double?
+    var sinkOnSite: Bool?
+    var faucetOnSite: Bool?
+    var checkedAt: Date?
+    var differences: [String] = []
+    /// Evidence photo categories the office already has ("sink_label", "faucet").
+    var serverPhotoCategories: [String] = []
+
     @Relationship var measurement: CachedMeasurement?
 
     init(
@@ -50,6 +68,57 @@ final class CachedCutout {
         self.count = count
         self.locationNote = locationNote
         self.changedFromQuote = changedFromQuote
+    }
+
+    var isQuotedSink: Bool { source == "quoted" && sinkSheetId != nil }
+
+    /// The sink & faucet sheet as quoted (nil for cutouts the tech added).
+    var quoted: QuotedSinkSheet? {
+        guard let data = quotedJson?.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(QuotedSinkSheet.self, from: data)
+    }
+
+    var holes: [SheetHole] {
+        get {
+            guard let data = holesJson?.data(using: .utf8) else { return [] }
+            return (try? JSONDecoder().decode([SheetHole].self, from: data)) ?? []
+        }
+        set {
+            holesJson = (try? JSONEncoder().encode(newValue)).flatMap { String(data: $0, encoding: .utf8) }
+        }
+    }
+
+    /// The tech's answers so far, for comparing with the sheet.
+    var sinkCheck: SinkCheck {
+        SinkCheck(make: make, model: modelName, mount: sinkInstallType, measuredWidth: measuredCutoutWidth,
+                  measuredDepth: measuredCutoutDepth, faucetMake: faucetMake, faucetModel: faucetModel,
+                  faucetHoles: faucetHoles, holes: holes, sinkOnSite: sinkOnSite, faucetOnSite: faucetOnSite)
+    }
+
+    /// Fills in a quoted sink from the schedule (the server's copy).
+    func applyRemote(_ remote: ScheduleCutout) {
+        make = remote.make
+        modelName = remote.model
+        sinkInstallType = remote.sinkInstallType
+        faucetHoles = remote.faucetHoles
+        bringToShop = remote.bringToShop ?? false
+        count = remote.count ?? 1
+        locationNote = remote.locationNote
+        changedFromQuote = remote.changedFromQuote ?? false
+        sinkSheetId = remote.sinkSheetId
+        sinkSheetVersion = remote.sinkSheetVersion
+        quotedJson = remote.quotedJson
+        faucetMake = remote.faucetMake
+        faucetModel = remote.faucetModel
+        holesJson = remote.holesJson
+        measuredCutoutWidth = remote.measuredCutoutWidth
+        measuredCutoutDepth = remote.measuredCutoutDepth
+        sinkOnSite = remote.sinkOnSite
+        faucetOnSite = remote.faucetOnSite
+        // Only "has it been checked" matters on the phone, so an odd date format still counts.
+        checkedAt = remote.checkedAt.map { parseDatetime($0) ?? .distantPast }
+        differences = remote.differences ?? []
+        serverPhotoCategories = remote.photoCategories ?? []
     }
 
     var displayType: String {

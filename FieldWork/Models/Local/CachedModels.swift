@@ -176,6 +176,7 @@ final class CachedBooking: Hashable {
            let remoteMeasurements = booking.visit?.measurements {
             self.measurements = remoteMeasurements.map { rm in
                 let m = CachedMeasurement(from: rm, visitId: visitId)
+                m.mergeCutouts(rm.cutouts, visitId: visitId)
                 if let remoteBMs = rm.backsplashMeasurements {
                     m.backsplashMeasurements = remoteBMs.map {
                         CachedBacksplashMeasurement(
@@ -245,8 +246,10 @@ final class CachedBooking: Hashable {
             for remote in remoteMeasurements {
                 if let existing = existingById[remote.measurementId] {
                     existing.update(from: remote)
+                    existing.mergeCutouts(remote.cutouts, visitId: visitId)
                 } else {
                     let m = CachedMeasurement(from: remote, visitId: visitId)
+                    m.mergeCutouts(remote.cutouts, visitId: visitId)
                     if let remoteBMs = remote.backsplashMeasurements {
                         m.backsplashMeasurements = remoteBMs.map {
                             CachedBacksplashMeasurement(
@@ -280,6 +283,9 @@ final class CachedBooking: Hashable {
             .filter { !$0.isEmpty }
             .joined(separator: ", ")
     }
+
+    /// SwiftData doesn't keep a relationship's order, so screens list surfaces by the job's order.
+    var surfacesInOrder: [CachedSurface] { surfaces.sorted { $0.displayOrder < $1.displayOrder } }
 
     var surfaceCount: Int { surfaces.count }
     var templatedSurfaceCount: Int { surfaces.filter(\.isTemplated).count }
@@ -524,6 +530,8 @@ final class CachedPhoto {
     var annotationData: Data?
     var siteConditionKey: String?
     var category: String = "general"
+    /// Evidence for a quoted sink (category "sink_label" / "faucet").
+    var cutoutId: UUID?
 
     init(
         localFilePath: String,

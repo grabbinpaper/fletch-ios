@@ -422,6 +422,7 @@ struct ScheduleVisitMeasurement: Codable, Identifiable {
     let skipReason: String?
     let isFieldAdded: Bool?
     let backsplashMeasurements: [ScheduleBacksplashMeasurement]?
+    let cutouts: [ScheduleCutout]?
 
     enum CodingKeys: String, CodingKey {
         case measurementId = "measurement_id"
@@ -446,7 +447,67 @@ struct ScheduleVisitMeasurement: Codable, Identifiable {
         case skipReason = "skip_reason"
         case isFieldAdded = "is_field_added"
         case backsplashMeasurements = "backsplash_measurements"
+        case cutouts
     }
+}
+
+/// A cutout on a surface (visit_cutout): a quoted sink from the sink & faucet sheet, or one the tech added.
+struct ScheduleCutout: Codable, Identifiable {
+    var id: UUID { cutoutId }
+
+    let cutoutId: UUID
+    let cutoutType: String
+    let source: String
+    let make: String?
+    let model: String?
+    let sinkInstallType: String?
+    let faucetHoles: Int?
+    let bringToShop: Bool?
+    let cooktopOnsite: Bool?
+    let count: Int?
+    let locationNote: String?
+    let changedFromQuote: Bool?
+    let sinkSheetId: UUID?
+    let sinkSheetVersion: Int?
+    let quoted: QuotedSinkSheet?
+    let faucetMake: String?
+    let faucetModel: String?
+    let holes: [SheetHole]?
+    let measuredCutoutWidth: Double?
+    let measuredCutoutDepth: Double?
+    let sinkOnSite: Bool?
+    let faucetOnSite: Bool?
+    let checkedAt: String?
+    let differences: [String]?
+    let photoCategories: [String]?
+
+    enum CodingKeys: String, CodingKey {
+        case source, make, model, count, quoted, holes, differences
+        case cutoutId = "cutout_id"
+        case cutoutType = "cutout_type"
+        case sinkInstallType = "sink_install_type"
+        case faucetHoles = "faucet_holes"
+        case bringToShop = "bring_to_shop"
+        case cooktopOnsite = "cooktop_onsite"
+        case locationNote = "location_note"
+        case changedFromQuote = "changed_from_quote"
+        case sinkSheetId = "sink_sheet_id"
+        case sinkSheetVersion = "sink_sheet_version"
+        case faucetMake = "faucet_make"
+        case faucetModel = "faucet_model"
+        case measuredCutoutWidth = "measured_cutout_width"
+        case measuredCutoutDepth = "measured_cutout_depth"
+        case sinkOnSite = "sink_on_site"
+        case faucetOnSite = "faucet_on_site"
+        case checkedAt = "checked_at"
+        case photoCategories = "photo_categories"
+    }
+
+    private static func json<T: Encodable>(_ v: T?) -> String? {
+        v.flatMap { try? JSONEncoder().encode($0) }.flatMap { String(data: $0, encoding: .utf8) }
+    }
+    var quotedJson: String? { Self.json(quoted) }
+    var holesJson: String? { Self.json(holes) }
 }
 
 struct ScheduleBacksplashMeasurement: Codable, Identifiable {

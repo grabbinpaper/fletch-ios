@@ -5,11 +5,12 @@ struct MeasurementTabView: View {
     @Bindable var viewModel: ActiveVisitViewModel
     @Environment(\.modelContext) private var modelContext
     var onCameraForSurface: ((UUID) -> Void)?
+    @State private var checkingCutout: CachedCutout?
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                ForEach(viewModel.booking.surfaces, id: \.surfaceId) { surface in
+                ForEach(viewModel.booking.surfacesInOrder, id: \.surfaceId) { surface in
                     let measurement = viewModel.booking.measurement(for: surface.surfaceId)
                     SurfaceMeasurementCard(
                         surface: surface,
@@ -29,6 +30,7 @@ struct MeasurementTabView: View {
                         onRemoveCutout: { cutout in
                             viewModel.removeCutout(cutout, context: modelContext)
                         },
+                        onCheckCutout: { cutout in checkingCutout = cutout },
                         onSaveBacksplash: {
                             if let m = measurement {
                                 viewModel.saveMeasurement(m, context: modelContext)
@@ -68,6 +70,10 @@ struct MeasurementTabView: View {
                     await viewModel.addFieldSurface(name: name, roomName: roomName, context: modelContext)
                 }
             }
+        }
+        .sheet(item: $checkingCutout) { cutout in
+            QuotedSinkCheckView(cutout: cutout, viewModel: viewModel,
+                                isReadOnly: viewModel.booking.visitStatus == "completed")
         }
     }
 }
@@ -124,6 +130,7 @@ struct SurfaceMeasurementCard: View {
     let onSave: () -> Void
     let onAddCutout: (CutoutFormData) -> Void
     let onRemoveCutout: (CachedCutout) -> Void
+    var onCheckCutout: ((CachedCutout) -> Void)? = nil
     let onSaveBacksplash: () -> Void
     let onAddBacksplash: (BacksplashFormData) -> Void
     let onRemoveBacksplash: (CachedBacksplashMeasurement) -> Void
@@ -170,7 +177,8 @@ struct SurfaceMeasurementCard: View {
                             cutouts: measurement.cutouts,
                             isReadOnly: isReadOnly,
                             onAdd: onAddCutout,
-                            onRemove: onRemoveCutout
+                            onRemove: onRemoveCutout,
+                            onCheck: onCheckCutout
                         )
                     }
 

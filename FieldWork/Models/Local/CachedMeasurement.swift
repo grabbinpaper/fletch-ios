@@ -121,6 +121,24 @@ final class CachedMeasurement {
         self.isFieldAdded = remote.isFieldAdded ?? false
     }
 
+    /// Cutouts from the office: adds the ones the phone doesn't have yet (e.g. the quoted sinks on a
+    /// visit just started). Once the tech has checked a quoted sink, the phone's answers win (they may
+    /// still be uploading); only which evidence photos the office has is refreshed.
+    func mergeCutouts(_ remote: [ScheduleCutout]?, visitId: UUID) {
+        for r in remote ?? [] {
+            if let local = cutouts.first(where: { $0.cutoutId == r.cutoutId }) {
+                if local.isQuotedSink {
+                    if local.checkedAt == nil { local.applyRemote(r) } else { local.serverPhotoCategories = r.photoCategories ?? [] }
+                }
+                continue
+            }
+            let c = CachedCutout(cutoutId: r.cutoutId, visitId: visitId, measurementId: measurementId,
+                                 cutoutType: r.cutoutType, source: r.source, cooktopOnsite: r.cooktopOnsite)
+            c.applyRemote(r)
+            cutouts.append(c)
+        }
+    }
+
     /// Whether actual dimensions differ from quoted
     var hasDimensionChange: Bool {
         guard let qL = quotedLengthIn, let qW = quotedWidthIn,

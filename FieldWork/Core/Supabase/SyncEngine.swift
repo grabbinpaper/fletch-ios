@@ -134,6 +134,8 @@ actor SyncEngine {
             try await syncCutoutInsert(operation)
         case "delete_cutout":
             try await syncCutoutDelete(operation)
+        case "update_cutout_check":
+            try await syncCutoutCheck(operation)
         case "insert_backsplash_measurement":
             try await syncBacksplashInsert(operation)
         case "delete_backsplash_measurement":
@@ -277,6 +279,7 @@ actor SyncEngine {
                 let has_annotations: Bool
                 let site_condition_key: String?
                 let category: String
+                let cutout_id: String?
             }
 
             try await supabase.client
@@ -296,7 +299,8 @@ actor SyncEngine {
                     thumbnail_path: uploadedThumbPath,
                     has_annotations: payload.hasAnnotations,
                     site_condition_key: payload.siteConditionKey,
-                    category: payload.category
+                    category: payload.category,
+                    cutout_id: payload.cutoutId?.uuidString
                 ))
                 .execute()
         }
@@ -458,6 +462,43 @@ actor SyncEngine {
             .execute()
     }
 
+    /// The tech's check of a quoted sink. The office works out what differs from the sheet and
+    /// records who checked it (the signed-in tech).
+    private func syncCutoutCheck(_ operation: SyncOperation) async throws {
+        let p = try JSONDecoder().decode(CutoutCheckPayload.self, from: operation.payload)
+
+        struct CheckUpdate: Encodable {
+            let make: String?
+            let model: String?
+            let sink_install_type: String?
+            let faucet_make: String?
+            let faucet_model: String?
+            let faucet_holes: Int?
+            let holes: [SheetHole]
+            let measured_cutout_width: Double?
+            let measured_cutout_depth: Double?
+            let sink_on_site: Bool?
+            let faucet_on_site: Bool?
+            let bring_to_shop: Bool
+            let location_note: String?
+            let checked_at: String
+            let checked_lat: Double?
+            let checked_lng: Double?
+        }
+
+        try await supabase.client
+            .from("visit_cutout")
+            .update(CheckUpdate(
+                make: p.make, model: p.model, sink_install_type: p.mount,
+                faucet_make: p.faucetMake, faucet_model: p.faucetModel, faucet_holes: p.faucetHoles,
+                holes: p.holes, measured_cutout_width: p.measuredWidth, measured_cutout_depth: p.measuredDepth,
+                sink_on_site: p.sinkOnSite, faucet_on_site: p.faucetOnSite, bring_to_shop: p.sinkOnSite == false,
+                location_note: p.note, checked_at: p.checkedAt.ISO8601Format(), checked_lat: p.latitude, checked_lng: p.longitude
+            ))
+            .eq("cutout_id", value: p.cutoutId.uuidString)
+            .execute()
+    }
+
     private func syncCutoutDelete(_ operation: SyncOperation) async throws {
         let payload = try JSONDecoder().decode(CutoutDeletePayload.self, from: operation.payload)
 
@@ -556,6 +597,9 @@ struct PhotoUploadPayload: Codable {
     let hasAnnotations: Bool
     let siteConditionKey: String?
     let category: String
+    /// Evidence for a quoted sink (category "sink_label" / "faucet"). Optional so uploads queued by
+    /// an older build still decode.
+    var cutoutId: UUID? = nil
 }
 
 struct ChecklistItemPayload: Codable {
@@ -615,6 +659,25 @@ struct CutoutInsertPayload: Codable {
     let count: Int
     let locationNote: String?
     let changedFromQuote: Bool
+}
+
+struct CutoutCheckPayload: Codable {
+    let cutoutId: UUID
+    let make: String?
+    let model: String?
+    let mount: String?
+    let faucetMake: String?
+    let faucetModel: String?
+    let faucetHoles: Int?
+    let holes: [SheetHole]
+    let measuredWidth: Double?
+    let measuredDepth: Double?
+    let sinkOnSite: Bool?
+    let faucetOnSite: Bool?
+    let note: String?
+    let checkedAt: Date
+    let latitude: Double?
+    let longitude: Double?
 }
 
 struct CutoutDeletePayload: Codable {

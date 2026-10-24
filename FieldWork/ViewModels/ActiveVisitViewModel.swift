@@ -253,6 +253,67 @@ final class ActiveVisitViewModel {
         }
     }
 
+    // MARK: - Quoted sinks (sink & faucet sheet)
+
+    /// Has this quoted sink got an evidence photo of this kind (on the phone, or already at the office)?
+    func hasEvidencePhoto(_ cutout: CachedCutout, category: String) -> Bool {
+        cutout.serverPhotoCategories.contains(category)
+            || photos.contains { $0.cutoutId == cutout.cutoutId && $0.category == category }
+    }
+
+    /// An evidence photo for a quoted sink: straight from the camera, no markup, tied to the sink
+    /// (not to the surface, so it doesn't count as a surface photo).
+    func saveEvidencePhoto(_ image: UIImage, cutout: CachedCutout, category: String, context: ModelContext) {
+        savePhoto(image: image, annotationData: nil,
+                  caption: category == "sink_label" ? "Sink box label / model number" : "Faucet or its spec sheet",
+                  category: category, cutoutId: cutout.cutoutId, context: context)
+    }
+
+    /// Saves the tech's check of a quoted sink: on the phone now, to the office when there's signal.
+    /// Recorded with when and where; the office records who and works out what differs.
+    func saveSinkCheck(_ cutout: CachedCutout, check: SinkCheck, note: String?, context: ModelContext) {
+        cutout.make = check.make
+        cutout.modelName = check.model
+        cutout.sinkInstallType = check.mount
+        cutout.faucetMake = check.faucetMake
+        cutout.faucetModel = check.faucetModel
+        cutout.faucetHoles = check.faucetHoles
+        cutout.holes = check.holes
+        cutout.measuredCutoutWidth = check.measuredWidth
+        cutout.measuredCutoutDepth = check.measuredDepth
+        cutout.sinkOnSite = check.sinkOnSite
+        cutout.faucetOnSite = check.faucetOnSite
+        cutout.bringToShop = check.sinkOnSite == false
+        cutout.locationNote = note
+        cutout.checkedAt = Date()
+        if let q = cutout.quoted {
+            cutout.differences = check.differences(from: q)
+            cutout.changedFromQuote = !cutout.differences.isEmpty
+        }
+        try? context.save()
+        markDraftDirty(context: context)
+
+        guard let appState, let checkedAt = cutout.checkedAt else { return }
+        let payload = CutoutCheckPayload(
+            cutoutId: cutout.cutoutId, make: check.make, model: check.model, mount: check.mount,
+            faucetMake: check.faucetMake, faucetModel: check.faucetModel, faucetHoles: check.faucetHoles,
+            holes: check.holes, measuredWidth: check.measuredWidth, measuredDepth: check.measuredDepth,
+            sinkOnSite: check.sinkOnSite, faucetOnSite: check.faucetOnSite, note: note, checkedAt: checkedAt,
+            latitude: appState.locationManager.latitude, longitude: appState.locationManager.longitude
+        )
+        if let encoded = try? JSONEncoder().encode(payload) {
+            Task {
+                await appState.syncEngine.queueOperation(
+                    type: "update_cutout_check",
+                    entityType: "visit_cutout",
+                    entityId: cutout.cutoutId.uuidString,
+                    payload: encoded,
+                    in: context
+                )
+            }
+        }
+    }
+
     // MARK: - Backsplash Measurements
 
     func addBacksplash(data: BacksplashFormData, measurement: CachedMeasurement, context: ModelContext) {
@@ -431,6 +492,7 @@ final class ActiveVisitViewModel {
         caption: String? = nil,
         siteConditionKey: String? = nil,
         category: String = "general",
+        cutoutId: UUID? = nil,
         context: ModelContext
     ) {
         guard let appState, let jobId = booking.jobId else { return }
@@ -469,6 +531,7 @@ final class ActiveVisitViewModel {
             siteConditionKey: siteConditionKey,
             category: category
         )
+        photo.cutoutId = cutoutId
         context.insert(photo)
         photos.append(photo)
         try? context.save()
@@ -496,7 +559,8 @@ final class ActiveVisitViewModel {
             thumbnailStoragePath: thumbStoragePath,
             hasAnnotations: hasAnnotations,
             siteConditionKey: siteConditionKey,
-            category: category
+            category: category,
+            cutoutId: cutoutId
         )
         if let data = try? JSONEncoder().encode(payload) {
             Task {
