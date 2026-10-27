@@ -7,6 +7,7 @@ struct HomeView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @State private var todayBookings: [CachedBooking] = []
+    @State private var schedule = ScheduleViewModel()
 
     var body: some View {
         NavigationStack {
@@ -49,10 +50,12 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.large)
             .sfBrandBar()
             .task {
+                // Show what's on the phone straight away, then fetch today's jobs from the server.
                 loadBookings()
+                await refresh()
             }
             .refreshable {
-                loadBookings()
+                await refresh()
             }
             .navigationDestination(for: CachedBooking.self) { booking in
                 JobDetailView(booking: booking)
@@ -141,6 +144,13 @@ struct HomeView: View {
 
     private func loadBookings() {
         todayBookings = (try? modelContext.fetch(ScheduleViewModel.todaysBookingsDescriptor())) ?? []
+    }
+
+    /// Downloads today's schedule (the same fetch the Schedule tab does) and redraws.
+    private func refresh() async {
+        schedule.configure(appState: appState)
+        await schedule.loadSchedule(context: modelContext, day: .today)
+        loadBookings()
     }
 
     // MARK: - Day summary
