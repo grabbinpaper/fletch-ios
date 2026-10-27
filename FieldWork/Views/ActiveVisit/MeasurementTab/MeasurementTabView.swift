@@ -212,7 +212,13 @@ struct SurfaceMeasurementCard: View {
                     // Rare, so it lives inside the card in words rather than as an icon on every header.
                     if !isReadOnly && measurement?.isMeasured == false && !isSkipped {
                         Button { showSkipPicker = true } label: {
-                            Label("Can't measure this surface", systemImage: "nosign")
+                            Label {
+                                Text("Can't measure this surface")
+                            } icon: {
+                                // Red marks it as the "stop" option; the words stay ink so they read.
+                                Image(systemName: "nosign")
+                                    .foregroundStyle(Color.sfDanger)
+                            }
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
                         }
