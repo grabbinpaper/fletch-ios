@@ -208,6 +208,17 @@ struct SurfaceMeasurementCard: View {
                     Divider()
 
                     notesSection
+
+                    // Rare, so it lives inside the card in words rather than as an icon on every header.
+                    if !isReadOnly && measurement?.isMeasured == false && !isSkipped {
+                        Button { showSkipPicker = true } label: {
+                            Label("Can't measure this surface", systemImage: "nosign")
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                        }
+                        .buttonStyle(SFSecondaryButtonStyle())
+                        .padding(.top, 4)
+                    }
                 }
             }
         }
@@ -226,7 +237,7 @@ struct SurfaceMeasurementCard: View {
                 onSave()
             }
         }
-        .confirmationDialog("Skip Surface", isPresented: $showSkipPicker, titleVisibility: .visible) {
+        .confirmationDialog("Can't measure this surface", isPresented: $showSkipPicker, titleVisibility: .visible) {
             ForEach(Self.skipReasons, id: \.0) { value, label in
                 Button(label) {
                     measurement?.status = "skipped"
@@ -318,16 +329,6 @@ struct SurfaceMeasurementCard: View {
                             .padding(.vertical, 6)
                             .background(.sfWarning.opacity(0.12))
                             .clipShape(Capsule())
-                    }
-                } else if measurement?.isMeasured == false {
-                    // Skip button — only shown for unmeasured surfaces
-                    Button { showSkipPicker = true } label: {
-                        Image(systemName: "nosign")
-                            .font(.subheadline)
-                            .foregroundStyle(.sfDanger)
-                            .frame(width: 36, height: 36)
-                            .background(.sfDanger.opacity(0.1))
-                            .clipShape(Circle())
                     }
                 }
 
