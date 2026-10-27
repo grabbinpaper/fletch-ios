@@ -157,6 +157,13 @@ final class AppState {
                 .value
 
             self.crewId = crewMembers.first?.crewId
+
+            #if DEBUG
+            // A real sign-in must never show the demo's sample jobs left on the phone.
+            let container = modelContainer
+            await MainActor.run { DemoMode.clear(from: container.mainContext) }
+            #endif
+
             self.isAuthenticated = true
             NSLog("[FieldWork] Auth complete. crewId: %@", crewId?.uuidString ?? "nil")
 
