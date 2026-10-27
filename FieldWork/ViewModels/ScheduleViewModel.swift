@@ -96,9 +96,9 @@ final class ScheduleViewModel {
             self.error = "Not signed in"
         }
 
-        // Visits are booked to crews; a tech who isn't on one would just see "No Jobs Today".
+        // Visits are booked to a technician (a one-person crew in Fletch); without one they'd just see "No jobs".
         if staffId != nil && appState.crewId == nil && error == nil {
-            self.error = "You're not on a crew in Fletch, so no visits can show here. Ask the office to add you to a crew."
+            self.error = "Your login isn't set up as a technician in Fletch yet, so no visits can show here. Ask the office to add you under Settings → Workforce."
         }
 
         // Always read from local cache
