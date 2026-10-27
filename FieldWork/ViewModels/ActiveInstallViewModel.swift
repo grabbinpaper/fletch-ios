@@ -213,9 +213,9 @@ final class ActiveInstallViewModel {
     }
 
     var ctaColor: Color {
-        if allInstalled { return .green }
-        if flaggedCount > 0 { return .orange }
-        return .orange
+        if allInstalled { return .sfInk }
+        if flaggedCount > 0 { return .sfWarning }
+        return .sfWarning
     }
 
     // MARK: - Draft Auto-Save

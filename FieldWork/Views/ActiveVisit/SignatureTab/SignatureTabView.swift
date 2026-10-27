@@ -21,7 +21,7 @@ struct SignatureTabView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "paperplane.fill")
                         .font(.system(size: 48))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.sfInkMuted)
 
                     Text("Signature Link Sent")
                         .font(.title3.bold())
@@ -37,7 +37,7 @@ struct SignatureTabView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "signature")
                         .font(.system(size: 48))
-                        .foregroundStyle(.blue.opacity(0.7))
+                        .foregroundStyle(.sfInkMuted)
 
                     Text("Signature Required")
                         .font(.title3.bold())

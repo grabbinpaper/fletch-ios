@@ -14,7 +14,7 @@ struct EdgeProfilePicker: View {
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
                 if isChanged {
-                    StatusBadge(text: "Changed", color: .orange)
+                    StatusBadge(text: "Changed", color: .sfWarning)
                 }
             }
 
@@ -68,7 +68,7 @@ struct EdgeProfileListSheet: View {
                         Spacer()
                         if profile.id == currentId {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.sfInkMuted)
                                 .fontWeight(.semibold)
                         }
                     }

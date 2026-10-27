@@ -52,12 +52,12 @@ struct MeasurementTabView: View {
 
                 if viewModel.booking.visitStatus != "completed" {
                     Button { viewModel.showAddSurface = true } label: {
-                        Label("Add Surface", systemImage: "plus.circle.fill")
+                        Label("Add surface", systemImage: "plus.circle.fill")
                             .font(.subheadline.bold())
+                            .foregroundStyle(.sfInk)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(.regularMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .sfCard()
                     }
                 }
             }
@@ -214,8 +214,7 @@ struct SurfaceMeasurementCard: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
         .onAppear(perform: loadFields)
         .sheet(isPresented: $showEdgeSheet) {
             EdgeProfileListSheet(
@@ -257,7 +256,7 @@ struct SurfaceMeasurementCard: View {
                             Text(surface.displayName)
                                 .font(.subheadline.bold())
                             if measurement?.isFieldAdded == true {
-                                StatusBadge(text: "Field Added", color: .purple)
+                                StatusBadge(text: "Field Added", color: .sfInfo)
                             }
                         }
 
@@ -272,10 +271,10 @@ struct SurfaceMeasurementCard: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "nosign")
                                     .font(.caption2)
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(.sfDanger)
                                 Text(skipReasonLabel(for: reason))
                                     .font(.caption)
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(.sfDanger)
                             }
                         }
 
@@ -288,15 +287,15 @@ struct SurfaceMeasurementCard: View {
                     if isSkipped {
                         Label("Skipped", systemImage: "nosign")
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.sfDanger)
                     } else if measurement?.isMeasured == true {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                            .foregroundStyle(.sfSuccess)
                             .font(.caption)
                     }
 
                     if measurement?.hasDimensionChange == true {
-                        StatusBadge(text: "Changed", color: .orange)
+                        StatusBadge(text: "Changed", color: .sfWarning)
                     }
 
                     Spacer()
@@ -314,10 +313,10 @@ struct SurfaceMeasurementCard: View {
                     } label: {
                         Text("Undo")
                             .font(.caption.bold())
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.sfWarning)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(.orange.opacity(0.12))
+                            .background(.sfWarning.opacity(0.12))
                             .clipShape(Capsule())
                     }
                 } else if measurement?.isMeasured == false {
@@ -325,9 +324,9 @@ struct SurfaceMeasurementCard: View {
                     Button { showSkipPicker = true } label: {
                         Image(systemName: "nosign")
                             .font(.subheadline)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.sfDanger)
                             .frame(width: 36, height: 36)
-                            .background(.red.opacity(0.1))
+                            .background(.sfDanger.opacity(0.1))
                             .clipShape(Circle())
                     }
                 }
@@ -336,9 +335,9 @@ struct SurfaceMeasurementCard: View {
                     Button { onCamera() } label: {
                         Image(systemName: "camera.fill")
                             .font(.title3)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.sfInk)
                             .frame(width: 44, height: 44)
-                            .background(.blue.opacity(0.1))
+                            .background(.sfSurface300)
                             .clipShape(Circle())
                     }
                 }

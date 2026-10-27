@@ -62,10 +62,10 @@ struct QuotedSinkCheckView: View {
 
             Section {
                 if changes.isEmpty {
-                    Label("Matches the sheet", systemImage: "checkmark.seal.fill").foregroundStyle(.green)
+                    Label("Matches the sheet", systemImage: "checkmark.seal.fill").foregroundStyle(.sfSuccess)
                 } else {
                     ForEach(changes, id: \.self) { line in
-                        Label(line, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red).font(.subheadline)
+                        Label(line, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.sfDanger).font(.subheadline)
                     }
                     Text("The office sees this as CHANGED, old → new, to sort out with the customer before anything is cut.")
                         .font(.caption).foregroundStyle(.secondary)
@@ -176,7 +176,7 @@ struct QuotedSinkCheckView: View {
                 Label(ok ? "Matches the sheet (\(Inches.size(qw, qd)), within \(Inches.format(q.tolerance)))"
                          : "Different from the sheet: \(Inches.size(qw, qd))",
                       systemImage: ok ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                    .font(.caption).foregroundStyle(ok ? .green : .red)
+                    .font(.caption).foregroundStyle(ok ? .sfSuccess : .sfDanger)
             }
         } else if !widthText.isEmpty || !depthText.isEmpty {
             Text("Type inches like 29 1/2 or 29.5").font(.caption).foregroundStyle(.secondary)
@@ -267,8 +267,8 @@ private struct YesNo: View {
             Text(label).font(.subheadline).frame(maxWidth: .infinity).padding(.vertical, 6)
         }
         .buttonStyle(.bordered)
-        .tint(value == v ? .blue : .gray)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(value == v ? Color.blue : .clear, lineWidth: 2))
+        .tint(value == v ? .sfInk : .sfInkMuted)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(value == v ? Color.sfInk : .clear, lineWidth: 2))
     }
 }
 
@@ -286,7 +286,7 @@ private struct EvidencePhotoButton: View {
     var body: some View {
         HStack {
             Image(systemName: done ? "checkmark.circle.fill" : "camera.fill")
-                .foregroundStyle(done ? .green : .blue)
+                .foregroundStyle(done ? .sfSuccess : .sfInk)
             #if targetEnvironment(simulator)
             PhotosPicker(selection: $pick, matching: .images) { Text(done ? "\(title) ✓ (add another)" : title) }
                 .disabled(disabled)
@@ -319,7 +319,7 @@ private struct HoleLayout: View {
     let placing: String?
     let disabled: Bool
 
-    private static let colors: [Color] = [.blue, .green, .orange, .purple, .teal, .pink]
+    private static let colors: [Color] = [.sfAccentStrong, .sfInfo, .sfWarning, .sfDanger, .sfInkMuted, .sfInk]
     private func color(_ use: String) -> Color {
         Self.colors[max(0, uses.firstIndex { $0.use == use } ?? 0) % Self.colors.count]
     }
@@ -351,7 +351,7 @@ private struct HoleLayout: View {
                         }
                         Circle()
                             .fill(hole.map { color($0.use) } ?? Color.clear)
-                            .overlay(Circle().stroke(hole.map { color($0.use) } ?? .gray, lineWidth: 1.5))
+                            .overlay(Circle().stroke(hole.map { color($0.use) } ?? .sfInkMuted, lineWidth: 1.5))
                             .frame(width: 22, height: 22)
                     }
                     .position(x: px, y: holeY)

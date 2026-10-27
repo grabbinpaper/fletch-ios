@@ -19,8 +19,7 @@ struct InstallSiteTabView: View {
                         .lineLimit(3...6)
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
 
                 // Access issues
                 VStack(alignment: .leading, spacing: 8) {
@@ -36,8 +35,7 @@ struct InstallSiteTabView: View {
                     }
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
 
                 // Tearout status
                 VStack(alignment: .leading, spacing: 8) {
@@ -55,7 +53,7 @@ struct InstallSiteTabView: View {
                     if viewModel.tearoutStatus == .incomplete {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(.sfWarning)
                             Text("Tearout is incomplete — this will be flagged for follow-up")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -63,8 +61,7 @@ struct InstallSiteTabView: View {
                     }
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
 
                 // Site photos
                 VStack(alignment: .leading, spacing: 8) {
@@ -100,8 +97,7 @@ struct InstallSiteTabView: View {
                     .buttonStyle(.bordered)
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
             }
             .padding()
         }

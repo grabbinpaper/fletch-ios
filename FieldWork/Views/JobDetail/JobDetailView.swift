@@ -30,7 +30,8 @@ struct JobDetailView: View {
             // Sticky bottom CTA
             bottomCTA
         }
-        .navigationTitle(viewModel.booking.jobNumber.map { "#\($0)" } ?? "Job Detail")
+        .background(Color.sfSurface100.ignoresSafeArea())
+        .navigationTitle(viewModel.booking.jobNumber ?? "Job detail")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             viewModel.configure(appState: appState)
@@ -62,7 +63,7 @@ struct JobDetailView: View {
                 HStack(spacing: 8) {
                     if viewModel.booking.priority != "standard" {
                         StatusBadge(text: viewModel.booking.priority.capitalized,
-                                    color: .orange)
+                                    color: .sfWarning)
                     }
                     if let type = viewModel.booking.constructionType {
                         Text(type.replacingOccurrences(of: "_", with: " ").capitalized)
@@ -83,8 +84,7 @@ struct JobDetailView: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Warnings
@@ -96,7 +96,7 @@ struct JobDetailView: View {
                 if viewModel.booking.tearoutRequired {
                     HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.sfWarning)
                             .font(.caption)
                         Text("Tearout Required")
                             .font(.caption.bold())
@@ -106,7 +106,7 @@ struct JobDetailView: View {
                 if viewModel.booking.plumbingDisconnect {
                     HStack(spacing: 8) {
                         Image(systemName: "wrench.and.screwdriver.fill")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.sfInkMuted)
                             .font(.caption)
                         Text("Plumbing Disconnect")
                             .font(.caption.bold())
@@ -121,7 +121,7 @@ struct JobDetailView: View {
                 }
             }
             .padding(10)
-            .background(Color.orange.opacity(0.1))
+            .background(Color.sfWarning.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -141,7 +141,7 @@ struct JobDetailView: View {
                     Button { viewModel.callPhone(phone) } label: {
                         Image(systemName: "phone.fill")
                             .font(.subheadline)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.sfInkMuted)
                     }
                 }
             }
@@ -158,7 +158,7 @@ struct JobDetailView: View {
                         Button { viewModel.callPhone(phone) } label: {
                             Image(systemName: "phone.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.sfInkMuted)
                         }
                     }
                 }
@@ -166,8 +166,7 @@ struct JobDetailView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Site Card
@@ -181,7 +180,7 @@ struct JobDetailView: View {
                 Button { viewModel.openInMaps() } label: {
                     Image(systemName: "arrow.triangle.turn.up.right.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.sfInkMuted)
                 }
             }
 
@@ -196,7 +195,7 @@ struct JobDetailView: View {
                         Button { viewModel.callPhone(phone) } label: {
                             Image(systemName: "phone.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.sfInkMuted)
                         }
                     }
                 }
@@ -210,8 +209,7 @@ struct JobDetailView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Scope
@@ -234,12 +232,11 @@ struct JobDetailView: View {
             if viewModel.booking.templatedSurfaceCount > 0 {
                 Text("\(viewModel.booking.templatedSurfaceCount)/\(viewModel.booking.surfaceCount)")
                     .font(.caption.monospacedDigit())
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.sfSuccess)
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Travel Card
@@ -257,8 +254,7 @@ struct JobDetailView: View {
             }
             .foregroundStyle(.secondary)
             .padding()
-            .background(.regularMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .sfCard()
         }
     }
 
@@ -284,7 +280,7 @@ struct JobDetailView: View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "location.slash.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.sfDanger)
                 Text("Location access is required to start visits")
                     .font(.subheadline)
             }
@@ -299,6 +295,7 @@ struct JobDetailView: View {
                     .frame(height: 44)
             }
             .buttonStyle(.borderedProminent)
+            .foregroundStyle(Color.sfOnFill)
         }
     }
 
@@ -306,7 +303,7 @@ struct JobDetailView: View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "location.fill")
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.sfInkMuted)
                 Text("Location needed to track mileage and verify on-site work")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -320,6 +317,7 @@ struct JobDetailView: View {
                     .frame(height: 44)
             }
             .buttonStyle(.borderedProminent)
+            .foregroundStyle(Color.sfOnFill)
         }
     }
 
@@ -335,7 +333,7 @@ struct JobDetailView: View {
                 } label: {
                     HStack(spacing: 8) {
                         if viewModel.isStartingVisit {
-                            ProgressView().tint(.white)
+                            ProgressView().tint(.sfOnFill)
                         } else {
                             Image(systemName: "car.fill")
                         }
@@ -347,6 +345,7 @@ struct JobDetailView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(viewModel.isStartingVisit)
+                .foregroundStyle(Color.sfOnFill)
 
                 cantMakeItButton
 
@@ -360,7 +359,7 @@ struct JobDetailView: View {
                 } label: {
                     HStack(spacing: 8) {
                         if viewModel.isArrivingAtSite {
-                            ProgressView().tint(.white)
+                            ProgressView().tint(.sfOnFill)
                         } else {
                             Image(systemName: "mappin.and.ellipse")
                         }
@@ -371,7 +370,8 @@ struct JobDetailView: View {
                     .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.green)
+                .tint(.sfInk)
+                .foregroundStyle(Color.sfOnFill)
                 .disabled(viewModel.isArrivingAtSite)
 
                 cantMakeItButton
@@ -387,6 +387,7 @@ struct JobDetailView: View {
                     .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
+                .foregroundStyle(Color.sfOnFill)
 
             case .completed:
                 Button { openActiveVisit() } label: {

@@ -28,7 +28,7 @@ struct NavigateButton: View {
                 .font(.subheadline)
         }
         .buttonStyle(.bordered)
-        .tint(.blue)
+        .tint(.sfInk)
     }
 }
 
@@ -44,8 +44,8 @@ struct OfflineBanner: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
-        .background(.orange)
-        .foregroundStyle(.white)
+        .background(.sfWarning)
+        .foregroundStyle(.sfOnFill)
     }
 }
 
@@ -60,7 +60,7 @@ struct SyncStatusIndicator: View {
             if pendingCount > 0 {
                 HStack(spacing: 2) {
                     Circle()
-                        .fill(.yellow)
+                        .fill(.sfWarning)
                         .frame(width: 8, height: 8)
                     Text("\(pendingCount)")
                         .font(.caption2)
@@ -68,7 +68,7 @@ struct SyncStatusIndicator: View {
                 }
             } else {
                 Circle()
-                    .fill(.green)
+                    .fill(.sfSuccess)
                     .frame(width: 8, height: 8)
             }
         }

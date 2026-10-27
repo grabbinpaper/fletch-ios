@@ -40,7 +40,8 @@ targets:
       properties:
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
         UISupportedInterfaceOrientations~iphone:
           - UIInterfaceOrientationPortrait
         NSCameraUsageDescription: "FieldWork needs camera access to take photos of job sites and surfaces."

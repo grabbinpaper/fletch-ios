@@ -21,7 +21,7 @@ struct ChecklistToggleRow: View {
 
                 if isReadOnly {
                     Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(isOn ? .green : .secondary)
+                        .foregroundStyle(isOn ? .sfSuccess : .secondary)
                 } else {
                     Toggle("", isOn: Binding(
                         get: { isOn },
@@ -32,7 +32,7 @@ struct ChecklistToggleRow: View {
                         }
                     ))
                     .labelsHidden()
-                    .tint(.green)
+                    .tint(.sfInk)
                 }
             }
 

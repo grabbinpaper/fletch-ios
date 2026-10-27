@@ -44,7 +44,7 @@ struct InstallSignTabView: View {
                     count: viewModel.installedCount,
                     total: viewModel.totalSurfaceCount,
                     label: "installed",
-                    color: .green
+                    color: .sfSuccess
                 )
 
                 if viewModel.flaggedCount > 0 {
@@ -52,7 +52,7 @@ struct InstallSignTabView: View {
                         count: viewModel.flaggedCount,
                         total: viewModel.totalSurfaceCount,
                         label: "flagged",
-                        color: .orange
+                        color: .sfWarning
                     )
                 }
             }
@@ -71,9 +71,9 @@ struct InstallSignTabView: View {
                             .font(.subheadline)
                         Spacer()
                         if status?.status == "partial" {
-                            StatusBadge(text: "Partial", color: .orange)
+                            StatusBadge(text: "Partial", color: .sfWarning)
                         } else {
-                            StatusBadge(text: "Not Installed", color: .red)
+                            StatusBadge(text: "Not Installed", color: .sfDanger)
                         }
                     }
                 }
@@ -81,8 +81,7 @@ struct InstallSignTabView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     private func summaryItem(count: Int, total: Int, label: String, color: Color) -> some View {
@@ -137,16 +136,16 @@ struct InstallSignTabView: View {
                 Text(subtitle)
                     .font(.caption)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(selected ? Color.white.opacity(0.85) : .secondary)
+                    .foregroundStyle(selected ? Color.sfSurface200.opacity(0.85) : .secondary)
             }
             .frame(maxWidth: .infinity, minHeight: 120)
             .padding(.horizontal, 8)
-            .foregroundStyle(selected ? Color.white : Color.accentColor)
-            .background(selected ? Color.accentColor : Color.accentColor.opacity(0.08))
+            .foregroundStyle(selected ? Color.sfSurface200 : Color.sfInk)
+            .background(selected ? Color.sfInk : Color.sfSurface200)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.accentColor.opacity(selected ? 0 : 0.4), lineWidth: 1)
+                    .stroke(Color.sfBorderStrong.opacity(selected ? 0 : 1), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -158,7 +157,7 @@ struct InstallSignTabView: View {
         VStack(spacing: 12) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(.green)
+                .foregroundStyle(.sfSuccess)
 
             Text("Signature Captured")
                 .font(.headline)
@@ -188,12 +187,11 @@ struct InstallSignTabView: View {
                     .font(.subheadline)
             }
             .buttonStyle(.bordered)
-            .tint(.red)
+            .tint(.sfDanger)
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - In-Person Signature
@@ -230,7 +228,7 @@ struct InstallSignTabView: View {
                         .font(.caption)
                 }
                 .buttonStyle(.bordered)
-                .tint(.red)
+                .tint(.sfDanger)
 
                 Spacer()
             }
@@ -255,13 +253,13 @@ struct InstallSignTabView: View {
                     .frame(height: 50)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.green)
+            .tint(.sfInk)
+            .foregroundStyle(Color.sfOnFill)
             .disabled(viewModel.signatureImage == nil
                       || viewModel.signatureName.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Remote Signature
@@ -303,7 +301,7 @@ struct InstallSignTabView: View {
             if viewModel.linkTargets.isEmpty {
                 Label("Pick text or email so the link has somewhere to go", systemImage: "exclamationmark.triangle")
                     .font(.caption)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
             }
 
             if viewModel.booking.visitStatus != "completed" {
@@ -314,7 +312,7 @@ struct InstallSignTabView: View {
                 if viewModel.signatureLinkSent {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                            .foregroundStyle(.sfSuccess)
                         VStack(alignment: .leading) {
                             Text("Sign-off link sent")
                                 .font(.subheadline.bold())
@@ -327,8 +325,7 @@ struct InstallSignTabView: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.green.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .sfCard()
                 }
 
                 Button {
@@ -342,17 +339,17 @@ struct InstallSignTabView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(viewModel.isSendingLink || viewModel.linkTargets.isEmpty)
+                .foregroundStyle(Color.sfOnFill)
 
                 if let err = viewModel.signoffError {
                     Text(err)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.sfDanger)
                 }
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     /// One way to send the link: tick it on, see where it goes (from the office's records), and
@@ -370,7 +367,7 @@ struct InstallSignTabView: View {
                 HStack(spacing: 12) {
                     Image(systemName: isOn.wrappedValue ? "checkmark.square.fill" : "square")
                         .font(.title2)
-                        .foregroundStyle(isOn.wrappedValue ? Color.accentColor : .secondary)
+                        .foregroundStyle(isOn.wrappedValue ? Color.sfInk : .secondary)
                     Label(title, systemImage: systemImage)
                         .font(.headline)
                     Spacer()
@@ -389,7 +386,7 @@ struct InstallSignTabView: View {
                         .textFieldStyle(.roundedBorder)
                     Text("A number or email that isn't on file goes on the customer's record for the office to confirm.")
                         .font(.caption)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.sfWarning)
                     if !onFileValue.isEmpty {
                         Button("Use the one on file: \(onFileValue)") {
                             address.wrappedValue = onFileValue

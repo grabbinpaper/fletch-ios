@@ -60,6 +60,7 @@ struct SiteConditionTabView: View {
                 .buttonStyle(.borderedProminent)
                 .padding(.horizontal)
                 .padding(.bottom, 8)
+                .foregroundStyle(Color.sfOnFill)
             }
         }
         .sheet(isPresented: $showCamera) {
@@ -113,8 +114,8 @@ private struct SitePhotoCell: View {
                             .font(.system(size: 9))
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
-                            .background(Color.blue.opacity(0.15), in: Capsule())
-                            .foregroundStyle(.blue)
+                            .background(Color.sfSurface300, in: Capsule())
+                            .foregroundStyle(.sfInk)
                     }
                 }
             }
@@ -248,8 +249,8 @@ private struct TagChip: View {
                 .font(.subheadline)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(isSelected ? Color.blue : Color.secondary.opacity(0.15), in: Capsule())
-                .foregroundStyle(isSelected ? .white : .primary)
+                .background(isSelected ? Color.sfInk : Color.secondary.opacity(0.15), in: Capsule())
+                .foregroundStyle(isSelected ? .sfOnFill : .primary)
         }
         .buttonStyle(.plain)
     }

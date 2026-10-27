@@ -25,7 +25,7 @@ struct CutoutSection: View {
                 if !isReadOnly {
                     Button { showAddSheet = true } label: {
                         Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.sfInkMuted)
                     }
                 }
             }
@@ -68,13 +68,13 @@ private struct QuotedSinkRow: View {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Text("Sink").font(.subheadline.bold())
-                        StatusBadge(text: "Sink sheet v\(cutout.sinkSheetVersion ?? 1)", color: .blue)
+                        StatusBadge(text: "Sink sheet v\(cutout.sinkSheetVersion ?? 1)", color: .sfInkMuted)
                         if cutout.checkedAt == nil {
-                            StatusBadge(text: "Check on site", color: .orange)
+                            StatusBadge(text: "Check on site", color: .sfWarning)
                         } else if !changes.isEmpty {
-                            StatusBadge(text: "CHANGED", color: .red)
+                            StatusBadge(text: "CHANGED", color: .sfDanger)
                         } else {
-                            StatusBadge(text: "Matches sheet", color: .green)
+                            StatusBadge(text: "Matches sheet", color: .sfSuccess)
                         }
                     }
                     if let q {
@@ -86,10 +86,10 @@ private struct QuotedSinkRow: View {
                         Text("Holes: \(q.holesInWords(cutout.holes))").font(.caption2).foregroundStyle(.secondary)
                     }
                     ForEach(changes, id: \.self) { line in
-                        Text(line).font(.caption2).foregroundStyle(.red)
+                        Text(line).font(.caption2).foregroundStyle(.sfDanger)
                     }
                     if cutout.bringToShop {
-                        Text("Sink not on site: bring to shop").font(.caption2).foregroundStyle(.orange)
+                        Text("Sink not on site: bring to shop").font(.caption2).foregroundStyle(.sfWarning)
                     }
                 }
                 Spacer()
@@ -115,7 +115,7 @@ private struct CutoutRow: View {
                     Text(cutout.displayType)
                         .font(.subheadline.bold())
                     if cutout.source == "field" {
-                        StatusBadge(text: "Field", color: .purple)
+                        StatusBadge(text: "Field", color: .sfInfo)
                     }
                     if cutout.count > 1 {
                         Text("\u{00D7}\(cutout.count)")
@@ -138,7 +138,7 @@ private struct CutoutRow: View {
                         if cutout.bringToShop {
                             Text("Bring to shop")
                                 .font(.caption2)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(.sfWarning)
                         }
                     }
                 }

@@ -59,7 +59,8 @@ struct ActiveInstallView: View {
         .onChange(of: viewModel.visibleTabs) { _, tabs in
             if !tabs.contains(viewModel.selectedTab) { viewModel.selectedTab = .areas }
         }
-        .navigationTitle("Install Visit")
+        .background(Color.sfSurface100.ignoresSafeArea())
+        .navigationTitle("Install visit")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -166,7 +167,7 @@ struct ActiveInstallView: View {
             HStack(spacing: 4) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.caption2)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.sfSuccess)
                 Text("Saved")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -175,10 +176,10 @@ struct ActiveInstallView: View {
             HStack(spacing: 4) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.caption2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
                 Text(msg)
                     .font(.caption2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
             }
         case .idle:
             EmptyView()
@@ -190,7 +191,7 @@ struct ActiveInstallView: View {
             // Progress summary
             HStack {
                 ProgressView(value: viewModel.surfaceProgress)
-                    .tint(viewModel.allInstalled ? .green : .blue)
+                    .tint(.sfInk)
                 HStack(spacing: 4) {
                     Text("\(viewModel.confirmedCount)/\(viewModel.totalSurfaceCount) confirmed")
                         .font(.caption.monospacedDigit())
@@ -198,7 +199,7 @@ struct ActiveInstallView: View {
                     if viewModel.flaggedCount > 0 {
                         Text("\u{00B7} \(viewModel.flaggedCount) flagged")
                             .font(.caption.monospacedDigit())
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.sfWarning)
                     }
                 }
             }
@@ -214,6 +215,7 @@ struct ActiveInstallView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(viewModel.ctaColor)
+            .foregroundStyle(Color.sfOnFill)
             .padding(.horizontal)
         }
         .padding(.vertical, 8)

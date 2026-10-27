@@ -220,16 +220,16 @@ struct ChecklistPassFailRow: View {
         switch item.status {
         case "passed":
             Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
+                .foregroundStyle(.sfSuccess)
         case "failed":
             Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(.sfDanger)
         case "skipped":
             Image(systemName: "arrow.right.circle")
-                .foregroundStyle(.orange)
+                .foregroundStyle(.sfWarning)
         case "not_applicable":
             Image(systemName: "minus.circle")
-                .foregroundStyle(.gray)
+                .foregroundStyle(.sfInkMuted)
         default:
             Image(systemName: "circle")
                 .foregroundStyle(.secondary)

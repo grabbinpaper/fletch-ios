@@ -1,9 +1,11 @@
 import SwiftUI
 
+// Legacy names, kept so existing call sites keep compiling.
+// New code should use the StoneFlow tokens in Theme/StoneFlowTheme.swift.
 extension Color {
-    static let fieldWorkPrimary = Color.blue
-    static let fieldWorkSuccess = Color.green
-    static let fieldWorkWarning = Color.orange
-    static let fieldWorkDanger = Color.red
-    static let fieldWorkMuted = Color.secondary
+    static let fieldWorkPrimary = Color.sfAccentStrong
+    static let fieldWorkSuccess = Color.sfSuccess
+    static let fieldWorkWarning = Color.sfWarning
+    static let fieldWorkDanger = Color.sfDanger
+    static let fieldWorkMuted = Color.sfInkMuted
 }
