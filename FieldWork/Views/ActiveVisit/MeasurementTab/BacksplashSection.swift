@@ -105,9 +105,12 @@ private struct BacksplashMeasurementRow: View {
                             .textFieldStyle(.roundedBorder)
                             .frame(maxWidth: 60)
                             .disabled(isReadOnly)
-                            .onChange(of: heightText) {
-                                heightText = filterNum(heightText)
-                                let val = Double(heightText)
+                            .onChange(of: heightText) { _, new in
+                                // Rewrite only when the filter removed something (that rewrite
+                                // comes back here); rewriting every keystroke could drop the next one.
+                                let clean = filterNum(new)
+                                guard clean == new else { heightText = clean; return }
+                                let val = Double(clean)
                                 guard val != bm.actualHeightIn else { return }
                                 bm.actualHeightIn = val
                                 onSave()
@@ -128,9 +131,10 @@ private struct BacksplashMeasurementRow: View {
                             .textFieldStyle(.roundedBorder)
                             .frame(maxWidth: 60)
                             .disabled(isReadOnly)
-                            .onChange(of: lengthText) {
-                                lengthText = filterNum(lengthText)
-                                let val = Double(lengthText)
+                            .onChange(of: lengthText) { _, new in
+                                let clean = filterNum(new)
+                                guard clean == new else { lengthText = clean; return }
+                                let val = Double(clean)
                                 guard val != bm.actualLengthIn else { return }
                                 bm.actualLengthIn = val
                                 onSave()

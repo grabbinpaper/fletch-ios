@@ -31,10 +31,8 @@ struct MeasurementTabView: View {
                             viewModel.removeCutout(cutout, context: modelContext)
                         },
                         onCheckCutout: { cutout in checkingCutout = cutout },
-                        onSaveBacksplash: {
-                            if let m = measurement {
-                                viewModel.saveMeasurement(m, context: modelContext)
-                            }
+                        onSaveBacksplash: { bm in
+                            viewModel.saveBacksplash(bm, context: modelContext)
                         },
                         onAddBacksplash: { data in
                             if let m = measurement {
@@ -131,7 +129,7 @@ struct SurfaceMeasurementCard: View {
     let onAddCutout: (CutoutFormData) -> Void
     let onRemoveCutout: (CachedCutout) -> Void
     var onCheckCutout: ((CachedCutout) -> Void)? = nil
-    let onSaveBacksplash: () -> Void
+    let onSaveBacksplash: (CachedBacksplashMeasurement) -> Void
     let onAddBacksplash: (BacksplashFormData) -> Void
     let onRemoveBacksplash: (CachedBacksplashMeasurement) -> Void
     var onCamera: (() -> Void)?
@@ -197,7 +195,7 @@ struct SurfaceMeasurementCard: View {
                         BacksplashSection(
                             backsplashMeasurements: measurement.backsplashMeasurements,
                             isReadOnly: isReadOnly,
-                            onSave: { _ in onSaveBacksplash() },
+                            onSave: onSaveBacksplash,
                             onAdd: onAddBacksplash,
                             onRemove: onRemoveBacksplash
                         )
@@ -216,6 +214,8 @@ struct SurfaceMeasurementCard: View {
         .padding()
         .sfCard()
         .onAppear(perform: loadFields)
+        // Belt and braces: whatever is in the fields is saved when the card closes or scrolls away.
+        .onDisappear(perform: commitDimensions)
         .sheet(isPresented: $showEdgeSheet) {
             EdgeProfileListSheet(
                 profiles: edgeProfiles,
@@ -423,9 +423,8 @@ struct SurfaceMeasurementCard: View {
                         .textFieldStyle(.roundedBorder)
                         .frame(maxWidth: 80)
                         .disabled(isReadOnly)
-                        .onChange(of: lengthText) {
-                            lengthText = filterNumeric(lengthText)
-                            commitDimensions()
+                        .onChange(of: lengthText) { _, new in
+                            dimensionTextChanged(new, into: $lengthText)
                         }
                     Text("\"")
                         .foregroundStyle(.secondary)
@@ -442,9 +441,8 @@ struct SurfaceMeasurementCard: View {
                         .textFieldStyle(.roundedBorder)
                         .frame(maxWidth: 80)
                         .disabled(isReadOnly)
-                        .onChange(of: widthText) {
-                            widthText = filterNumeric(widthText)
-                            commitDimensions()
+                        .onChange(of: widthText) { _, new in
+                            dimensionTextChanged(new, into: $widthText)
                         }
                     Text("\"")
                         .foregroundStyle(.secondary)
@@ -578,6 +576,18 @@ struct SurfaceMeasurementCard: View {
         seamLocations = parseSeamLocations(measurement?.seamLocationsJson)
         finishedEdges = measurement?.finishedEdges ?? ""
         notesText = measurement?.templateNotes ?? surface.templateNotes ?? ""
+    }
+
+    /// Saves as the tech types. Rewriting the text inside its own onChange on every keystroke
+    /// could drop the next keystroke's save (typed "67", saved 6), so only rewrite when the filter
+    /// actually removed something; that rewrite comes back here and saves the clean value.
+    private func dimensionTextChanged(_ text: String, into binding: Binding<String>) {
+        let clean = filterNumeric(text)
+        if clean != text {
+            binding.wrappedValue = clean
+            return
+        }
+        commitDimensions()
     }
 
     private func commitDimensions() {

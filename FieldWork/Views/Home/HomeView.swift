@@ -13,6 +13,11 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
+                    if let notice = appState.visitCompletedNotice {
+                        completedBanner(notice)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+
                     if todayBookings.isEmpty {
                         SFEmptyState(
                             title: "No jobs on today's schedule.",
@@ -60,7 +65,47 @@ struct HomeView: View {
             .navigationDestination(for: CachedBooking.self) { booking in
                 JobDetailView(booking: booking)
             }
+            .task(id: appState.visitCompletedNotice) {
+                guard appState.visitCompletedNotice != nil else { return }
+                // A visit just finished: redraw the day, then let the banner go after a few seconds.
+                loadBookings()
+                try? await Task.sleep(for: .seconds(5))
+                withAnimation(.easeOut(duration: 0.2)) { appState.visitCompletedNotice = nil }
+            }
+            .animation(.easeOut(duration: 0.2), value: appState.visitCompletedNotice)
         }
+    }
+
+    /// "Visit complete · Kip Lewis", tap to dismiss.
+    private func completedBanner(_ notice: String) -> some View {
+        Button {
+            appState.visitCompletedNotice = nil
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.sfSuccess)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(notice)
+                        .font(.headline)
+                        .foregroundStyle(Color.sfInk)
+                    Text("Sent to the office.")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.sfInkMuted)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "xmark")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.sfInkMuted)
+            }
+            .padding(16)
+            .frame(minHeight: 64)
+            .background(Color.sfAccentTint)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.sfSuccess.opacity(0.3), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Dismisses")
     }
 
     // MARK: - Data

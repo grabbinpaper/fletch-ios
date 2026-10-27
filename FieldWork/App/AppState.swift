@@ -20,6 +20,16 @@ final class AppState {
     var selectedTab: AppTab = .home
     /// Which day the Schedule tab shows (Home's "See tomorrow" switches it).
     var scheduleDay: ScheduleDay = .today
+    /// Shown once as a banner on Home after a visit is finished ("Visit complete · Kip Lewis").
+    var visitCompletedNotice: String?
+
+    /// A visit is finished and nothing else is needed on it: back to Home, the Visit tab
+    /// empties (and loses its badge), and Home says so.
+    func finishActiveVisit(customerName: String?) {
+        activeBooking = nil
+        selectedTab = .home
+        visitCompletedNotice = ["Visit complete", customerName].compactMap { $0 }.joined(separator: " · ")
+    }
 
     let modelContainer: ModelContainer
     let authManager: AuthManager

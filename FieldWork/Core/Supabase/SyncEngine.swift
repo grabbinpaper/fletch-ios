@@ -140,6 +140,8 @@ actor SyncEngine {
             try await syncBacksplashInsert(operation)
         case "delete_backsplash_measurement":
             try await syncBacksplashDelete(operation)
+        case "update_backsplash_measurement":
+            try await syncBacksplashUpdate(operation)
         default:
             print("Unknown operation type: \(operation.operationType)")
         }
@@ -546,6 +548,30 @@ actor SyncEngine {
             .execute()
     }
 
+    /// The tech's measured size for a splash piece (quoted pieces are created on the server when
+    /// the visit starts; completion needs their height and length).
+    private func syncBacksplashUpdate(_ operation: SyncOperation) async throws {
+        let payload = try JSONDecoder().decode(BacksplashUpdatePayload.self, from: operation.payload)
+
+        struct BacksplashUpdate: Encodable {
+            let actual_height_in: Double?
+            let actual_length_in: Double?
+            let finished_ends: Int
+            let notes: String?
+        }
+
+        try await supabase.client
+            .from("visit_backsplash_measurement")
+            .update(BacksplashUpdate(
+                actual_height_in: payload.actualHeightIn,
+                actual_length_in: payload.actualLengthIn,
+                finished_ends: payload.finishedEnds,
+                notes: payload.notes
+            ))
+            .eq("backsplash_measurement_id", value: payload.backsplashMeasurementId.uuidString)
+            .execute()
+    }
+
     private func syncBacksplashDelete(_ operation: SyncOperation) async throws {
         let payload = try JSONDecoder().decode(BacksplashDeletePayload.self, from: operation.payload)
 
@@ -696,6 +722,14 @@ struct BacksplashInsertPayload: Codable {
     let actualLengthIn: Double?
     let finishedEnds: Int
     let source: String
+    let notes: String?
+}
+
+struct BacksplashUpdatePayload: Codable {
+    let backsplashMeasurementId: UUID
+    let actualHeightIn: Double?
+    let actualLengthIn: Double?
+    let finishedEnds: Int
     let notes: String?
 }
 

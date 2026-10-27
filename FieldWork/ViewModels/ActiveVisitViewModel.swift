@@ -316,6 +316,35 @@ final class ActiveVisitViewModel {
 
     // MARK: - Backsplash Measurements
 
+    /// A splash piece's size or finished ends changed: save on the phone now, send it to the
+    /// server a moment after the tech stops typing (one update, not one per keystroke).
+    func saveBacksplash(_ bm: CachedBacksplashMeasurement, context: ModelContext) {
+        try? context.save()
+        markDraftDirty(context: context)
+
+        let id = bm.backsplashMeasurementId
+        debounceTasks[id]?.cancel()
+        debounceTasks[id] = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled, let self, let appState = self.appState else { return }
+            let payload = BacksplashUpdatePayload(
+                backsplashMeasurementId: bm.backsplashMeasurementId,
+                actualHeightIn: bm.actualHeightIn,
+                actualLengthIn: bm.actualLengthIn,
+                finishedEnds: bm.finishedEnds,
+                notes: bm.notes
+            )
+            guard let encoded = try? JSONEncoder().encode(payload) else { return }
+            await appState.syncEngine.queueOperation(
+                type: "update_backsplash_measurement",
+                entityType: "visit_backsplash_measurement",
+                entityId: bm.backsplashMeasurementId.uuidString,
+                payload: encoded,
+                in: context
+            )
+        }
+    }
+
     func addBacksplash(data: BacksplashFormData, measurement: CachedMeasurement, context: ModelContext) {
         let bm = CachedBacksplashMeasurement(
             visitId: measurement.visitId,

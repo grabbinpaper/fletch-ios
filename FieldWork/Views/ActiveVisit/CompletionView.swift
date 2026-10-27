@@ -3,6 +3,7 @@ import SwiftData
 
 struct CompletionView: View {
     @Bindable var viewModel: ActiveVisitViewModel
+    @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -15,7 +16,7 @@ struct CompletionView: View {
                         Text("Visit Summary")
                             .font(.title2.bold())
                         if let jobNumber = viewModel.booking.jobNumber {
-                            Text("Job #\(jobNumber)")
+                            Text("Job \(jobNumber)")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -140,6 +141,13 @@ struct CompletionView: View {
                             await viewModel.completeVisit(context: modelContext)
                             if viewModel.error == nil {
                                 dismiss()
+                                // The customer still signs off: stay on the visit's Sign tab to send
+                                // the link. Otherwise the visit is done: back to Home.
+                                if viewModel.signaturePending {
+                                    viewModel.selectedTab = .signature
+                                } else {
+                                    appState.finishActiveVisit(customerName: viewModel.booking.customerName)
+                                }
                             }
                         }
                     } label: {

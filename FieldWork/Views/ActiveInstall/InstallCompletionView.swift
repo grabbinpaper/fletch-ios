@@ -3,6 +3,7 @@ import SwiftData
 
 struct InstallCompletionView: View {
     @Bindable var viewModel: ActiveInstallViewModel
+    @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -51,7 +52,11 @@ struct InstallCompletionView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     if viewModel.completionResult != nil {
-                        Button("Done") { dismiss() }
+                        Button("Done") {
+                            // Install sign-off happens before completing, so the visit is done.
+                            dismiss()
+                            appState.finishActiveVisit(customerName: viewModel.booking.customerName)
+                        }
                     }
                 }
             }
