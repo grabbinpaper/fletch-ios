@@ -275,7 +275,7 @@ private struct YesNo: View {
 
 /// Takes an evidence photo with the camera. Only the iOS Simulator (no camera) picks from the
 /// photo library instead, so on a phone the photo is always taken on site.
-private struct EvidencePhotoButton: View {
+struct EvidencePhotoButton: View {
     let title: String
     let done: Bool
     let disabled: Bool
@@ -305,6 +305,7 @@ private struct EvidencePhotoButton: View {
                 .disabled(disabled)
             #endif
         }
+        .multilineTextAlignment(.leading)
         .sheet(isPresented: $showCamera) {
             CameraView { onImage($0) }
         }

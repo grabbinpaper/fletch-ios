@@ -34,6 +34,14 @@ struct MeasurementTabView: View {
                             viewModel.removeCutout(cutout, context: modelContext)
                         },
                         onCheckCutout: { cutout in checkingCutout = cutout },
+                        labelPhotos: { cutout in
+                            viewModel.labelPhotos(for: cutout).map { need in
+                                LabelPhoto(title: need.title,
+                                           done: viewModel.hasEvidencePhoto(cutout, category: need.category)) { image in
+                                    viewModel.saveEvidencePhoto(image, cutout: cutout, category: need.category, context: modelContext)
+                                }
+                            }
+                        },
                         onSaveBacksplash: { bm in
                             viewModel.saveBacksplash(bm, context: modelContext)
                         },
@@ -150,6 +158,7 @@ struct SurfaceMeasurementCard: View {
     let onAddCutout: (CutoutFormData) -> Void
     let onRemoveCutout: (CachedCutout) -> Void
     var onCheckCutout: ((CachedCutout) -> Void)? = nil
+    var labelPhotos: (CachedCutout) -> [LabelPhoto] = { _ in [] }
     let onSaveBacksplash: (CachedBacksplashMeasurement) -> Void
     let onAddBacksplash: (BacksplashFormData) -> Void
     let onRemoveBacksplash: (CachedBacksplashMeasurement) -> Void
@@ -199,7 +208,8 @@ struct SurfaceMeasurementCard: View {
                             isReadOnly: isReadOnly,
                             onAdd: onAddCutout,
                             onRemove: onRemoveCutout,
-                            onCheck: onCheckCutout
+                            onCheck: onCheckCutout,
+                            labelPhotos: labelPhotos
                         )
                     }
 

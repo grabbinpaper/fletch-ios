@@ -256,6 +256,25 @@ final class ActiveVisitViewModel {
     // MARK: - Quoted sinks (sink & faucet sheet)
 
     /// Has this quoted sink got an evidence photo of this kind (on the phone, or already at the office)?
+    /// Laser visits: a fixture the tech added on site is the customer's own, so its label is
+    /// photographed (brand, make, model). Same rule as the office's completion check.
+    func labelPhotos(for cutout: CachedCutout) -> [(category: String, title: String)] {
+        guard booking.isLaserVisit, cutout.source == "field" else { return [] }
+        switch cutout.cutoutType {
+        case "sink":
+            var out: [(String, String)] = []
+            if !cutout.bringToShop { out.append(("sink_label", "Photo of the sink's box label or model number")) }
+            if (cutout.faucetHoles ?? 0) > 0 { out.append(("faucet", "Photo of the faucet or its spec sheet")) }
+            return out
+        case "cooktop" where cutout.cooktopOnsite != false:
+            return [("fixture_label", "Photo of the cooktop's label or model number")]
+        case "soap_dispenser":
+            return [("fixture_label", "Photo of the soap dispenser's label or box")]
+        default:
+            return []
+        }
+    }
+
     func hasEvidencePhoto(_ cutout: CachedCutout, category: String) -> Bool {
         cutout.serverPhotoCategories.contains(category)
             || photos.contains { $0.cutoutId == cutout.cutoutId && $0.category == category }
@@ -264,8 +283,13 @@ final class ActiveVisitViewModel {
     /// An evidence photo for a quoted sink: straight from the camera, no markup, tied to the sink
     /// (not to the surface, so it doesn't count as a surface photo).
     func saveEvidencePhoto(_ image: UIImage, cutout: CachedCutout, category: String, context: ModelContext) {
+        let caption = switch category {
+        case "sink_label": "Sink box label / model number"
+        case "fixture_label": "\(cutout.displayType) label / model number"
+        default: "Faucet or its spec sheet"
+        }
         savePhoto(image: image, annotationData: nil,
-                  caption: category == "sink_label" ? "Sink box label / model number" : "Faucet or its spec sheet",
+                  caption: caption,
                   category: category, cutoutId: cutout.cutoutId, context: context)
     }
 

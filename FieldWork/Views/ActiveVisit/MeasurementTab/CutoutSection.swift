@@ -7,6 +7,8 @@ struct CutoutSection: View {
     let onRemove: (CachedCutout) -> Void
     /// Opens the check of a sink from the sink & faucet sheet.
     var onCheck: ((CachedCutout) -> Void)? = nil
+    /// Label photos a fixture still asks for (laser visits: the customer's own fixtures).
+    var labelPhotos: (CachedCutout) -> [LabelPhoto] = { _ in [] }
 
     @State private var showAddSheet = false
 
@@ -40,7 +42,7 @@ struct CutoutSection: View {
                 if cutout.isQuotedSink {
                     QuotedSinkRow(cutout: cutout) { onCheck?(cutout) }
                 } else {
-                    CutoutRow(cutout: cutout, isReadOnly: isReadOnly) {
+                    CutoutRow(cutout: cutout, isReadOnly: isReadOnly, labelPhotos: labelPhotos(cutout)) {
                         onRemove(cutout)
                     }
                 }
@@ -103,9 +105,17 @@ private struct QuotedSinkRow: View {
     }
 }
 
+/// One photo a fixture asks for, and whether it's taken.
+struct LabelPhoto {
+    let title: String
+    let done: Bool
+    let onImage: (UIImage) -> Void
+}
+
 private struct CutoutRow: View {
     let cutout: CachedCutout
     let isReadOnly: Bool
+    var labelPhotos: [LabelPhoto] = []
     let onRemove: () -> Void
 
     var body: some View {
@@ -152,6 +162,11 @@ private struct CutoutRow: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .italic()
+                }
+                ForEach(labelPhotos, id: \.title) { photo in
+                    EvidencePhotoButton(title: photo.title, done: photo.done, disabled: isReadOnly, onImage: photo.onImage)
+                        .font(.caption)
+                        .frame(minHeight: 44)
                 }
             }
 
