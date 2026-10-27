@@ -15,12 +15,14 @@ struct ScheduleView: View {
                     OfflineBanner()
                 }
             }
+            .background(Color.sfSurface100.ignoresSafeArea())
             .navigationTitle("Schedule")
+            .sfBrandBar()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Text(Date.todayFormatted)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.sfInkMuted)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     SyncStatusIndicator(syncEngine: appState.syncEngine)
@@ -41,25 +43,23 @@ struct ScheduleView: View {
         if viewModel.isLoading && viewModel.bookings.isEmpty {
             VStack {
                 Spacer()
-                ProgressView("Loading schedule...")
+                ProgressView("Loading schedule…")
                 Spacer()
             }
+            .frame(maxWidth: .infinity)
         } else if let error = viewModel.error {
-            ContentUnavailableView(
-                "Error Loading Schedule",
-                systemImage: "exclamationmark.triangle",
-                description: Text(error)
-            )
+            SFEmptyState(title: "Couldn't load the schedule.", message: error)
+                .frame(maxHeight: .infinity)
         } else if viewModel.bookings.isEmpty {
-            ContentUnavailableView(
-                "No Jobs Today",
-                systemImage: "calendar.badge.checkmark",
-                description: Text("You have no scheduled jobs for today.")
+            SFEmptyState(
+                title: "No jobs on today's schedule.",
+                message: "Pull down to check for new bookings."
             )
+            .frame(maxHeight: .infinity)
         } else {
             List {
                 if !viewModel.inProgressBookings.isEmpty {
-                    Section("In Progress") {
+                    Section("In progress") {
                         ForEach(viewModel.inProgressBookings, id: \.bookingId) { booking in
                             NavigationLink(value: booking) {
                                 ScheduleJobRow(booking: booking)
@@ -89,6 +89,8 @@ struct ScheduleView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .listRowBackground(Color.sfSurface200)
+            .sfScreenBackground()
             .navigationDestination(for: CachedBooking.self) { booking in
                 JobDetailView(booking: booking)
             }

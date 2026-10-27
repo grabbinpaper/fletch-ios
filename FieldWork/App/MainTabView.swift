@@ -30,9 +30,7 @@ struct MainTabView: View {
             .badge(appState.activeBooking != nil ? 1 : 0)
 
             Tab("Settings", systemImage: "gear", value: AppTab.settings) {
-                NavigationStack {
-                    SettingsView()
-                }
+                SettingsView()
             }
         }
     }
@@ -52,11 +50,16 @@ struct MainTabView: View {
                 }
             }
         } else {
-            ContentUnavailableView(
-                "No Active Visit",
-                systemImage: "wrench.and.screwdriver",
-                description: Text("Start a visit from the schedule to begin working.")
-            )
+            NavigationStack {
+                SFEmptyState(
+                    title: "No visit in progress",
+                    message: "Start a visit from the schedule to begin working."
+                )
+                .frame(maxHeight: .infinity)
+                .background(Color.sfSurface100.ignoresSafeArea())
+                .navigationTitle("Visit")
+                .sfBrandBar()
+            }
         }
     }
 }

@@ -33,11 +33,21 @@ struct HomeView: View {
                     if !upcomingBookings.isEmpty {
                         weekAheadSection
                     }
+
+                    if todayBookings.isEmpty {
+                        SFEmptyState(
+                            title: "No jobs on today's schedule.",
+                            message: "Pull down to check for new bookings."
+                        )
+                        .padding(.top, 48)
+                    }
                 }
                 .padding()
             }
+            .sfScreenBackground()
             .navigationTitle(greeting)
             .navigationBarTitleDisplayMode(.large)
+            .sfBrandBar()
             .task {
                 loadBookings()
             }
@@ -101,40 +111,40 @@ struct HomeView: View {
             HStack(spacing: 12) {
                 // Pulsing indicator
                 Circle()
-                    .fill(.green)
+                    .fill(.sfSuccess)
                     .frame(width: 12, height: 12)
                     .overlay(
                         Circle()
-                            .stroke(.green.opacity(0.4), lineWidth: 3)
+                            .stroke(.sfSuccess.opacity(0.4), lineWidth: 3)
                             .scaleEffect(1.5)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Active Visit")
+                    Text("Active visit")
                         .font(.caption.bold())
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.sfSuccess)
                     if let name = booking.customerName {
                         Text(name)
                             .font(.subheadline.bold())
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.sfInk)
                     }
                     Text(booking.visitStatus == "en_route" ? "En route" : "On site")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.sfInkMuted)
                 }
 
                 Spacer()
 
                 Image(systemName: "arrow.right.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.sfSuccess)
             }
             .padding()
-            .background(Color.green.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .background(Color.sfAccentTint)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.sfSuccess.opacity(0.3), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -148,19 +158,19 @@ struct HomeView: View {
                 value: "\(totalToday)",
                 label: "Visits",
                 icon: "calendar",
-                color: .blue
+                color: .sfInkMuted
             )
 
-            Divider().frame(height: 50)
+            Divider().overlay(Color.sfHairline).frame(height: 50)
 
             statCell(
                 value: "\(completedCount)",
                 label: "Done",
                 icon: "checkmark.circle.fill",
-                color: .green
+                color: .sfSuccess
             )
 
-            Divider().frame(height: 50)
+            Divider().overlay(Color.sfHairline).frame(height: 50)
 
             let sqft = todayBookings.reduce(0.0) { total, booking in
                 total + booking.surfaces.reduce(0.0) { $0 + ($1.estimatedSqft ?? 0) }
@@ -169,12 +179,11 @@ struct HomeView: View {
                 value: sqft > 0 ? String(format: "%.0f", sqft) : "—",
                 label: "Sq Ft",
                 icon: "square.dashed",
-                color: .purple
+                color: .sfInkMuted
             )
         }
         .padding(.vertical, 16)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .sfCard()
     }
 
     private func statCell(value: String, label: String, icon: String, color: Color) -> some View {
@@ -183,10 +192,11 @@ struct HomeView: View {
                 .font(.subheadline)
                 .foregroundStyle(color)
             Text(value)
-                .font(.title2.bold().monospacedDigit())
+                .font(.system(.title2, design: .monospaced).bold())
+                .foregroundStyle(.sfInk)
             Text(label)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.sfInkMuted)
         }
         .frame(maxWidth: .infinity)
     }
@@ -197,13 +207,11 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
             HStack {
-                Text("NEXT UP")
-                    .font(.caption.bold())
-                    .foregroundStyle(.secondary)
+                SFSectionLabel("Next up")
                 Spacer()
                 Text(booking.startDatetime.formatted(date: .omitted, time: .shortened))
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundStyle(.sfInkMuted)
             }
             .padding(.horizontal)
             .padding(.top, 12)
@@ -217,16 +225,18 @@ struct HomeView: View {
                     HStack {
                         if let number = booking.jobNumber {
                             Text("#\(number)")
-                                .font(.subheadline.bold())
+                                .font(.system(.subheadline, design: .monospaced).bold())
+                                .foregroundStyle(.sfInk)
                         }
                         if let name = booking.customerName {
                             Text(name)
                                 .font(.subheadline)
+                                .foregroundStyle(.sfInk)
                         }
                         Spacer()
                         StatusBadge(
                             text: booking.isInstallVisit ? "Install" : "Template",
-                            color: booking.isInstallVisit ? .purple : .blue
+                            color: booking.isInstallVisit ? .sfInfo : .sfAccentStrong
                         )
                     }
 
@@ -237,33 +247,30 @@ struct HomeView: View {
                             .font(.caption)
                             .lineLimit(1)
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.sfInkMuted)
 
                     HStack(spacing: 12) {
                         Label("\(booking.surfaceCount) surfaces", systemImage: "square.stack.3d.up")
                             .font(.caption)
                         if booking.priority != "standard" {
-                            StatusBadge(text: booking.priority.capitalized, color: .orange)
+                            StatusBadge(text: booking.priority.capitalized, color: .sfWarning)
                         }
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.sfInkMuted)
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
             }
             .buttonStyle(.plain)
         }
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .sfCard()
     }
 
     // MARK: - Remaining
 
     private var remainingSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("LATER TODAY")
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
+            SFSectionLabel("Later today")
                 .padding(.horizontal)
                 .padding(.top, 12)
                 .padding(.bottom, 8)
@@ -274,13 +281,14 @@ struct HomeView: View {
                 NavigationLink(value: booking) {
                     HStack {
                         Text(booking.startDatetime.formatted(date: .omitted, time: .shortened))
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                            .frame(width: 55, alignment: .leading)
+                            .font(.system(.caption, design: .monospaced))
+                            .foregroundStyle(.sfInkMuted)
+                            .frame(width: 64, alignment: .leading)
 
                         if let name = booking.customerName {
                             Text(name)
                                 .font(.subheadline)
+                                .foregroundStyle(.sfInk)
                                 .lineLimit(1)
                         }
 
@@ -288,7 +296,7 @@ struct HomeView: View {
 
                         StatusBadge(
                             text: booking.isInstallVisit ? "Install" : "Template",
-                            color: booking.isInstallVisit ? .purple : .blue
+                            color: booking.isInstallVisit ? .sfInfo : .sfAccentStrong
                         )
                     }
                     .padding(.horizontal)
@@ -301,33 +309,30 @@ struct HomeView: View {
                 }
             }
         }
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .sfCard()
     }
 
     // MARK: - Week Ahead
 
     private var weekAheadSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("THIS WEEK")
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
+            SFSectionLabel("This week")
 
             ForEach(upcomingBookings, id: \.bookingId) { booking in
                 HStack {
                     Text(booking.scheduledDate.formatted(date: .abbreviated, time: .omitted))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.sfInkMuted)
                     if let name = booking.customerName {
                         Text(name)
                             .font(.subheadline)
+                            .foregroundStyle(.sfInk)
                     }
                     Spacer()
                 }
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .sfCard()
     }
 }

@@ -61,7 +61,7 @@ struct InstallSurfaceCard: View {
                 } else if let earlier = surface.installStatus {
                     Text(earlier == "partial" ? "Partly installed on an earlier day" : "Not installed on an earlier day")
                         .font(.caption)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.sfWarning)
                 }
             }
 
@@ -75,9 +75,9 @@ struct InstallSurfaceCard: View {
                 Button(action: onCamera) {
                     Image(systemName: "camera.fill")
                         .font(.subheadline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.sfOnFill)
                         .frame(width: 32, height: 32)
-                        .background(.blue)
+                        .background(.sfAccentStrong)
                         .clipShape(Circle())
                 }
             }
@@ -93,13 +93,13 @@ struct InstallSurfaceCard: View {
     private var statusBadge: some View {
         switch currentStatus {
         case "installed":
-            StatusBadge(text: "Installed", color: .green)
+            StatusBadge(text: "Installed", color: .sfSuccess)
         case "partial":
-            StatusBadge(text: "Partial", color: .orange)
+            StatusBadge(text: "Partial", color: .sfWarning)
         case "not_installed":
-            StatusBadge(text: "Not Installed", color: .red)
+            StatusBadge(text: "Not Installed", color: .sfDanger)
         default:
-            StatusBadge(text: "Pending", color: .gray)
+            StatusBadge(text: "Pending", color: .sfInkMuted)
         }
     }
 
@@ -114,9 +114,9 @@ struct InstallSurfaceCard: View {
                     .foregroundStyle(.secondary)
 
                 HStack(spacing: 8) {
-                    statusButton("Installed", status: "installed", icon: "checkmark.circle.fill", color: .green)
-                    statusButton("Partial", status: "partial", icon: "exclamationmark.triangle.fill", color: .orange)
-                    statusButton("Not Installed", status: "not_installed", icon: "xmark.circle.fill", color: .red)
+                    statusButton("Installed", status: "installed", icon: "checkmark.circle.fill", color: .sfSuccess)
+                    statusButton("Partial", status: "partial", icon: "exclamationmark.triangle.fill", color: .sfWarning)
+                    statusButton("Not Installed", status: "not_installed", icon: "xmark.circle.fill", color: .sfDanger)
                 }
             }
 
@@ -203,7 +203,7 @@ struct InstallSurfaceCard: View {
             if reasons.isEmpty {
                 Text("No issue reasons loaded. Connect to the internet, or ask the office to add them in Settings → Issue codes.")
                     .font(.caption)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
             }
             ForEach(reasons) { reason in
                 let picked = selectedReasonCode == reason.id.uuidString
@@ -213,7 +213,7 @@ struct InstallSurfaceCard: View {
                 } label: {
                     HStack {
                         Image(systemName: picked ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(picked ? .blue : .secondary)
+                            .foregroundStyle(picked ? .sfAccentStrong : .secondary)
                         Text(reason.label)
                             .font(.subheadline)
                             .foregroundStyle(.primary)
@@ -227,7 +227,7 @@ struct InstallSurfaceCard: View {
             if viewModel.issueReason(id: selectedReasonCode)?.requiresPhoto == true {
                 Label("Take a photo of this with the camera button", systemImage: "camera")
                     .font(.caption)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.sfAccentStrong)
             }
 
             // Notes
@@ -246,8 +246,8 @@ struct InstallSurfaceCard: View {
 
     private func responsibilityColor(_ resp: IssueResponsibility) -> Color {
         switch resp {
-        case .fabricator: return .red
-        case .customer: return .orange
+        case .fabricator: return .sfDanger
+        case .customer: return .sfWarning
         }
     }
 

@@ -25,14 +25,14 @@ struct SettingsView: View {
                 }
 
                 // Travel
-                Section("Default Start Location") {
+                Section("Default start location") {
                     TextField("Home or shop address", text: $defaultStartAddress, axis: .vertical)
                         .lineLimit(2...4)
                         .textContentType(.fullStreetAddress)
                     if !defaultStartAddress.isEmpty {
                         Text("Pre-filled when starting the first visit of the day.")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.sfInkMuted)
                     }
                 }
 
@@ -43,19 +43,19 @@ struct SettingsView: View {
                         Spacer()
                         HStack(spacing: 4) {
                             Circle()
-                                .fill(appState.networkMonitor.isConnected ? .green : .red)
+                                .fill(appState.networkMonitor.isConnected ? .sfSuccess : .sfDanger)
                                 .frame(width: 8, height: 8)
                             Text(appState.networkMonitor.isConnected ? "Online" : "Offline")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.sfInkMuted)
                         }
                     }
 
-                    LabeledContent("Pending Operations", value: "\(pendingOps)")
-                    LabeledContent("Failed Operations", value: "\(failedOps)")
+                    LabeledContent("Waiting to sync", value: "\(pendingOps)")
+                    LabeledContent("Failed to sync", value: "\(failedOps)")
 
                     if pendingOps > 0 {
-                        Button("Retry Sync") {
+                        Button("Retry sync") {
                             Task {
                                 await appState.syncEngine.processPendingOperations()
                                 await loadSyncCounts()
@@ -73,27 +73,36 @@ struct SettingsView: View {
                             signOut()
                         }
                     } label: {
-                        Text("Sign Out")
+                        Text("Sign out")
                     }
+                } footer: {
+                    VStack(spacing: 8) {
+                        SFLogoLockup(markSize: 18)
+                        Text("FieldWork \(appVersion)")
+                            .font(.caption)
+                            .foregroundStyle(Color.sfInkMuted)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 32)
                 }
             }
+            .sfScreenBackground()
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-            .alert("Pending Sync", isPresented: $showSignOutConfirm) {
-                Button("Sign Out Anyway", role: .destructive) { signOut() }
+            .sfBrandBar()
+            .alert("Unsynced changes", isPresented: $showSignOutConfirm) {
+                Button("Sign out anyway", role: .destructive) { signOut() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("You have \(pendingOps) pending operations that haven't synced. Signing out may lose this data.")
+                Text("\(pendingOps) changes haven't synced yet. Signing out may lose them.")
             }
             .task {
                 await loadSyncCounts()
             }
         }
+    }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     }
 
     private func signOut() {

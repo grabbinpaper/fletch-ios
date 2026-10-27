@@ -67,8 +67,8 @@ struct StartTripSheet: View {
                             Spacer()
                         }
                     }
-                    .listRowBackground(Color.accentColor)
-                    .foregroundStyle(.white)
+                    .listRowBackground(Color.sfAccentStrong)
+                    .foregroundStyle(.sfOnFill)
                 }
             }
             .navigationTitle("Start Visit")

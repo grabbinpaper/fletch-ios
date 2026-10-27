@@ -180,7 +180,7 @@ struct ActiveVisitView: View {
             HStack(spacing: 4) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.caption2)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.sfSuccess)
                 Text("Saved")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -189,10 +189,10 @@ struct ActiveVisitView: View {
             HStack(spacing: 4) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.caption2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
                 Text(msg)
                     .font(.caption2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
             }
         case .idle:
             EmptyView()
@@ -210,7 +210,7 @@ struct ActiveVisitView: View {
             // Progress summary
             HStack {
                 ProgressView(value: viewModel.measurementProgress)
-                    .tint(viewModel.measurementProgress == 1.0 ? .green : .blue)
+                    .tint(viewModel.measurementProgress == 1.0 ? .sfSuccess : .sfAccentStrong)
                 HStack(spacing: 4) {
                     Text("\(viewModel.measuredCount)/\(viewModel.totalMeasurementCount) measured")
                         .font(.caption.monospacedDigit())
@@ -218,7 +218,7 @@ struct ActiveVisitView: View {
                     if viewModel.skippedCount > 0 {
                         Text("\u{00B7} \(viewModel.skippedCount) skipped")
                             .font(.caption.monospacedDigit())
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.sfWarning)
                     }
                 }
             }
@@ -249,7 +249,7 @@ struct ActiveVisitView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
-            .tint(viewModel.isAllMeasured ? .green : .orange)
+            .tint(viewModel.isAllMeasured ? .sfSuccess : .sfWarning)
             .disabled(!viewModel.canComplete)
             .padding(.horizontal)
         }

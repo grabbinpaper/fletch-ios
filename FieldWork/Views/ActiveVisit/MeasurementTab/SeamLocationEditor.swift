@@ -46,7 +46,7 @@ struct SeamLocationEditor: View {
                         newSeamText = ""
                     } label: {
                         Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.sfAccentStrong)
                     }
                     .disabled(newSeamText.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
@@ -76,7 +76,7 @@ private struct SeamTag: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Color.blue.opacity(0.1))
+        .background(Color.sfAccentStrong.opacity(0.1))
         .clipShape(Capsule())
     }
 }

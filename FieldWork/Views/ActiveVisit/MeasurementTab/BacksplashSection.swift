@@ -28,7 +28,7 @@ struct BacksplashSection: View {
                             Text("Add Splash")
                                 .font(.caption)
                         }
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.sfAccentStrong)
                     }
                 }
             }
@@ -75,7 +75,7 @@ private struct BacksplashMeasurementRow: View {
                     .font(.subheadline.bold())
                 StatusBadge(
                     text: bm.source == "quoted" ? "Quoted" : "Field",
-                    color: bm.source == "quoted" ? .blue : .purple
+                    color: bm.source == "quoted" ? .sfAccentStrong : .sfInfo
                 )
                 Spacer()
                 if let onRemove, !isReadOnly {

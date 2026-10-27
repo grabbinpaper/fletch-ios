@@ -26,13 +26,13 @@ struct CompletionView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Label("Requirements Not Met", systemImage: "exclamationmark.triangle.fill")
                                 .font(.subheadline.bold())
-                                .foregroundStyle(.red)
+                                .foregroundStyle(.sfDanger)
 
                             ForEach(viewModel.completionBlockers) { blocker in
                                 HStack(alignment: .top, spacing: 8) {
                                     Image(systemName: blockerIcon(for: blocker.ruleType))
                                         .font(.caption)
-                                        .foregroundStyle(.red)
+                                        .foregroundStyle(.sfDanger)
                                         .frame(width: 16)
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(blocker.message)
@@ -47,11 +47,11 @@ struct CompletionView: View {
                             }
                         }
                         .padding()
-                        .background(Color.red.opacity(0.08))
+                        .background(Color.sfDanger.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(.red.opacity(0.3), lineWidth: 1)
+                                .strokeBorder(.sfDanger.opacity(0.3), lineWidth: 1)
                         )
                     }
 
@@ -73,10 +73,10 @@ struct CompletionView: View {
                                         .font(.caption.bold())
                                 }
                                 if measurement?.hasDimensionChange == true {
-                                    StatusBadge(text: "Changed", color: .orange)
+                                    StatusBadge(text: "Changed", color: .sfWarning)
                                 }
                                 Image(systemName: measurement?.isMeasured == true ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(measurement?.isMeasured == true ? .green : .secondary)
+                                    .foregroundStyle(measurement?.isMeasured == true ? .sfSuccess : .secondary)
                                     .font(.caption)
                             }
                         }
@@ -110,7 +110,7 @@ struct CompletionView: View {
                         HStack(spacing: 10) {
                             Image(systemName: "signature")
                                 .font(.title3)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.sfAccentStrong)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Signature link will be sent")
                                     .font(.subheadline.bold())
@@ -120,7 +120,7 @@ struct CompletionView: View {
                             }
                         }
                         .padding()
-                        .background(Color.blue.opacity(0.06))
+                        .background(Color.sfAccentStrong.opacity(0.06))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
@@ -154,13 +154,13 @@ struct CompletionView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.green)
+                    .tint(.sfSuccess)
                     .disabled(viewModel.isCompleting || !viewModel.completionBlockers.isEmpty)
 
                     if let error = viewModel.error {
                         Text(error)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.sfDanger)
                     }
                 }
                 .padding()
@@ -210,7 +210,7 @@ struct CompletionView: View {
                 Spacer()
                 HStack(spacing: 4) {
                     Image(systemName: isComplete ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(isComplete ? .green : .secondary)
+                        .foregroundStyle(isComplete ? .sfSuccess : .secondary)
                         .font(.caption)
                     Text(status)
                         .font(.caption)

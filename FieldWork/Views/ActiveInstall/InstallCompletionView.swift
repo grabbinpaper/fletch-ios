@@ -35,7 +35,7 @@ struct InstallCompletionView: View {
                     if let error = viewModel.error {
                         Text(error)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.sfDanger)
                     }
                     }
                 }
@@ -70,7 +70,7 @@ struct InstallCompletionView: View {
                 VStack {
                     Text("\(viewModel.installedCount)")
                         .font(.title.bold())
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.sfSuccess)
                     Text("Installed")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -80,7 +80,7 @@ struct InstallCompletionView: View {
                     VStack {
                         Text("\(viewModel.flaggedCount)")
                             .font(.title.bold())
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.sfWarning)
                         Text("Flagged")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -92,7 +92,7 @@ struct InstallCompletionView: View {
                     VStack {
                         Text("\(pendingCount)")
                             .font(.title.bold())
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(.sfInkMuted)
                         Text("Pending")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -120,22 +120,22 @@ struct InstallCompletionView: View {
             } else if viewModel.booking.signatureCaptured {
                 Label("Signature captured", systemImage: "checkmark.seal.fill")
                     .font(.subheadline)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.sfSuccess)
             } else if viewModel.signatureMode == .remote {
                 if let how = viewModel.linkTargetsDescription {
                     Label("Sign-off link will be \(how) when you finish", systemImage: "paperplane.fill")
                         .font(.subheadline)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.sfAccentStrong)
                 } else {
                     Label("No phone or email picked — go back to the Sign tab to choose where the link goes",
                           systemImage: "exclamationmark.triangle")
                         .font(.subheadline)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.sfWarning)
                 }
             } else {
                 Label("Customer hasn't signed — the office can send them the link", systemImage: "pencil.slash")
                     .font(.subheadline)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
             }
         }
         .padding()
@@ -149,7 +149,7 @@ struct InstallCompletionView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
                 Text("\(viewModel.flaggedCount) surface\(viewModel.flaggedCount == 1 ? "" : "s") flagged")
                     .font(.subheadline.bold())
             }
@@ -168,7 +168,7 @@ struct InstallCompletionView: View {
                             if let resp = status?.responsibility {
                                 Text(resp == "fabricator" ? "Our Issue" : "Customer Issue")
                                     .font(.caption)
-                                    .foregroundStyle(resp == "fabricator" ? .red : .orange)
+                                    .foregroundStyle(resp == "fabricator" ? .sfDanger : .sfWarning)
                             }
                             if let reason = viewModel.issueReason(id: status?.reasonCode) {
                                 Text(reason.label)
@@ -178,9 +178,9 @@ struct InstallCompletionView: View {
                         }
                         Spacer()
                         if status?.status == "partial" {
-                            StatusBadge(text: "Partial", color: .orange)
+                            StatusBadge(text: "Partial", color: .sfWarning)
                         } else {
-                            StatusBadge(text: "Not Installed", color: .red)
+                            StatusBadge(text: "Not Installed", color: .sfDanger)
                         }
                     }
                     .padding(.vertical, 4)
@@ -188,7 +188,7 @@ struct InstallCompletionView: View {
             }
         }
         .padding()
-        .background(Color.orange.opacity(0.1))
+        .background(Color.sfWarning.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -200,7 +200,7 @@ struct InstallCompletionView: View {
         return VStack(alignment: .leading, spacing: 6) {
             Label("\(surfaces) not marked", systemImage: "questionmark.circle.fill")
                 .font(.subheadline.bold())
-                .foregroundStyle(viewModel.moreInstallDays ? Color.secondary : Color.red)
+                .foregroundStyle(viewModel.moreInstallDays ? Color.secondary : Color.sfDanger)
             Text(viewModel.moreInstallDays
                  ? "Another install day is booked — they carry over to it."
                  : "This is the last install day booked. Unmarked surfaces go to the office as problems and the job shows Install Incomplete.")
@@ -209,7 +209,7 @@ struct InstallCompletionView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background((viewModel.moreInstallDays ? Color.secondary : Color.red).opacity(0.1))
+        .background((viewModel.moreInstallDays ? Color.secondary : Color.sfDanger).opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -220,14 +220,14 @@ struct InstallCompletionView: View {
         return VStack(alignment: .leading, spacing: 12) {
             Label("Visit finished", systemImage: "checkmark.circle.fill")
                 .font(.headline)
-                .foregroundStyle(.green)
+                .foregroundStyle(.sfSuccess)
 
             switch result.jobStatus {
             case "completed":
                 Label("Job is complete", systemImage: "flag.checkered")
             case "install_incomplete":
                 Label("Job is Install Incomplete", systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.sfDanger)
             default:
                 if result.lastInstallDay == false {
                     Label("More install days are booked — the job stays In Progress", systemImage: "calendar")
@@ -237,13 +237,13 @@ struct InstallCompletionView: View {
             if issues > 0 {
                 Label("\(issues) problem\(issues == 1 ? "" : "s") sent to the office's Exceptions queue",
                       systemImage: "tray.full")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
             }
 
             if result.signatureNotAllowed == true {
                 Label("The customer's signature wasn't kept — sign-off comes when the work is finished",
                       systemImage: "signature")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.sfWarning)
             } else if viewModel.booking.signatureRequired && result.outcome != "accomplished" {
                 Label("No sign-off yet — the customer signs when the work is finished", systemImage: "signature")
                     .foregroundStyle(.secondary)
@@ -252,14 +252,14 @@ struct InstallCompletionView: View {
             if result.signaturePending == true {
                 if viewModel.signatureLinkSent {
                     Label("Sign-off link sent", systemImage: "paperplane.fill")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.sfAccentStrong)
                 } else {
                     Label("Customer still needs to sign off — send the link from the Sign tab, or the office can",
                           systemImage: "signature")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.sfWarning)
                 }
                 if let err = viewModel.signoffError {
-                    Text(err).font(.caption).foregroundStyle(.red)
+                    Text(err).font(.caption).foregroundStyle(.sfDanger)
                 }
             }
         }
@@ -312,7 +312,7 @@ struct InstallCompletionView: View {
             }
         }
         .buttonStyle(.borderedProminent)
-        .tint(viewModel.flaggedCount > 0 ? .orange : .green)
+        .tint(viewModel.flaggedCount > 0 ? .sfWarning : .sfSuccess)
         .disabled(viewModel.isCompleting)
     }
 }

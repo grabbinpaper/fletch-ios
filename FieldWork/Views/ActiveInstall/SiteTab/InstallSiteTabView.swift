@@ -55,7 +55,7 @@ struct InstallSiteTabView: View {
                     if viewModel.tearoutStatus == .incomplete {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(.sfWarning)
                             Text("Tearout is incomplete — this will be flagged for follow-up")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)

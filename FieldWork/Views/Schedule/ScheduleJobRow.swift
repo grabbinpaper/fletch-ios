@@ -8,8 +8,8 @@ struct ScheduleJobRow: View {
             HStack {
                 // Time
                 Text(booking.startDatetime.formatted(date: .omitted, time: .shortened))
-                    .font(.subheadline.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .font(.system(.subheadline, design: .monospaced))
+                    .foregroundStyle(.sfInkMuted)
 
                 Spacer()
 
@@ -24,7 +24,7 @@ struct ScheduleJobRow: View {
                 // Visit type
                 StatusBadge(
                     text: booking.isInstallVisit ? "Install" : "Template",
-                    color: booking.isInstallVisit ? .purple : .blue
+                    color: booking.isInstallVisit ? .sfInfo : .sfAccentStrong
                 )
 
                 // Visit status
@@ -40,13 +40,14 @@ struct ScheduleJobRow: View {
             HStack {
                 if let jobNumber = booking.jobNumber {
                     Text("#\(jobNumber)")
-                        .font(.headline)
+                        .font(.system(.headline, design: .monospaced))
+                        .foregroundStyle(.sfInk)
                 }
 
                 if let name = booking.customerName {
                     Text(name)
                         .font(.subheadline)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.sfInk)
                         .lineLimit(1)
                 }
             }
@@ -55,7 +56,7 @@ struct ScheduleJobRow: View {
             if !booking.fullAddress.isEmpty {
                 Text(booking.fullAddress)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.sfInkMuted)
                     .lineLimit(1)
             }
 
@@ -74,24 +75,24 @@ struct ScheduleJobRow: View {
                       systemImage: "square.dashed")
                     .font(.caption)
             }
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.sfInkMuted)
         }
         .padding(.vertical, 4)
     }
 
     private var priorityColor: Color {
         switch booking.priority {
-        case "rush": return .orange
-        case "remake", "warranty": return .red
-        case "emergency": return .red
-        default: return .gray
+        case "rush": return .sfWarning
+        case "remake", "warranty": return .sfDanger
+        case "emergency": return .sfDanger
+        default: return .sfInkMuted
         }
     }
 
     private func visitStatusLabel(_ status: String) -> String {
         switch status {
-        case "en_route": return "En Route"
-        case "on_site": return "On Site"
+        case "en_route": return "En route"
+        case "on_site": return "On site"
         case "completed": return "Done"
         case "blocked": return "Blocked"
         default: return status.capitalized
@@ -100,11 +101,11 @@ struct ScheduleJobRow: View {
 
     private func visitStatusColor(_ status: String) -> Color {
         switch status {
-        case "en_route": return .blue
-        case "on_site": return .orange
-        case "completed": return .green
-        case "blocked": return .red
-        default: return .gray
+        case "en_route": return .sfAccentStrong
+        case "on_site": return .sfWarning
+        case "completed": return .sfSuccess
+        case "blocked": return .sfDanger
+        default: return .sfInkMuted
         }
     }
 }

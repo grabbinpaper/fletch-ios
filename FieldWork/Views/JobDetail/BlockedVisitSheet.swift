@@ -33,7 +33,7 @@ struct BlockedVisitSheet: View {
                                 Spacer()
                                 if selectedReason == reason {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(.sfAccentStrong)
                                         .fontWeight(.semibold)
                                 }
                             }
@@ -56,7 +56,7 @@ struct BlockedVisitSheet: View {
                             Spacer()
                             if isSubmitting {
                                 ProgressView()
-                                    .tint(.white)
+                                    .tint(.sfOnFill)
                             }
                             Text("Report Blocked")
                                 .fontWeight(.semibold)
@@ -65,9 +65,9 @@ struct BlockedVisitSheet: View {
                     }
                     .disabled(selectedReason == nil || isSubmitting)
                     .listRowBackground(
-                        (selectedReason != nil && !isSubmitting) ? Color.red : Color.red.opacity(0.3)
+                        (selectedReason != nil && !isSubmitting) ? Color.sfDanger : Color.sfDanger.opacity(0.3)
                     )
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.sfOnFill)
                 }
             }
             .navigationTitle("Can't Complete Visit")
@@ -114,11 +114,11 @@ enum BlockedReason: String, CaseIterable, Identifiable {
 
     var iconColor: Color {
         switch self {
-        case .noSiteAccess: return .orange
-        case .customerNotHome: return .blue
-        case .siteNotReady: return .purple
-        case .safetyHazard: return .red
-        case .wrongAddress: return .gray
+        case .noSiteAccess: return .sfWarning
+        case .customerNotHome: return .sfAccentStrong
+        case .siteNotReady: return .sfInfo
+        case .safetyHazard: return .sfDanger
+        case .wrongAddress: return .sfInkMuted
         }
     }
 }

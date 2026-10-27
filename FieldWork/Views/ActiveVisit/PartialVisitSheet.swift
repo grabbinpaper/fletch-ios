@@ -23,18 +23,18 @@ struct PartialVisitSheet: View {
                     HStack(spacing: 10) {
                         Image(systemName: "arrow.uturn.backward.circle.fill")
                             .font(.title3)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.sfWarning)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Return visit required")
                                 .font(.subheadline.bold())
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(.sfWarning)
                             Text("The office will schedule a return visit for skipped surfaces.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
                     .padding()
-                    .background(Color.orange.opacity(0.08))
+                    .background(Color.sfWarning.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     // Blockers section
@@ -42,20 +42,20 @@ struct PartialVisitSheet: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Label("Requirements Not Met", systemImage: "exclamationmark.triangle.fill")
                                 .font(.subheadline.bold())
-                                .foregroundStyle(.red)
+                                .foregroundStyle(.sfDanger)
 
                             ForEach(viewModel.completionBlockers) { blocker in
                                 HStack(alignment: .top, spacing: 8) {
                                     Image(systemName: "xmark.circle.fill")
                                         .font(.caption)
-                                        .foregroundStyle(.red)
+                                        .foregroundStyle(.sfDanger)
                                     Text(blocker.message)
                                         .font(.caption)
                                 }
                             }
                         }
                         .padding()
-                        .background(Color.red.opacity(0.08))
+                        .background(Color.sfDanger.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
@@ -112,19 +112,19 @@ struct PartialVisitSheet: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .tint(.sfWarning)
                     .disabled(viewModel.isCompleting || !viewModel.allSkippedHaveReasons || !viewModel.completionBlockers.isEmpty)
 
                     if !viewModel.allSkippedHaveReasons {
                         Text("Please provide a skip reason for all unmeasured surfaces.")
                             .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.sfWarning)
                     }
 
                     if let error = viewModel.error {
                         Text(error)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.sfDanger)
                     }
                 }
                 .padding()
@@ -161,11 +161,11 @@ private struct SurfaceSkipRow: View {
                 if measurement.isMeasured {
                     Label("Done", systemImage: "checkmark.circle.fill")
                         .font(.caption)
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.sfSuccess)
                 } else {
                     Label("Skipped", systemImage: "forward.fill")
                         .font(.caption)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.sfWarning)
                 }
             }
 
@@ -183,7 +183,7 @@ private struct SurfaceSkipRow: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .tint(.orange)
+                .tint(.sfWarning)
             }
         }
         .padding()

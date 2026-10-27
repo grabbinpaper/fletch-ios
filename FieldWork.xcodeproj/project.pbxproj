@@ -7,148 +7,152 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01D2C43BEB12175D08D66303 /* ChecklistToggleRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D57AE6D33B16B32D6831638 /* ChecklistToggleRow.swift */; };
 		029D317833F1A4BDFB2C2BFD /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */; };
-		4A5B6C7D8E9F0A1B2C3D4E5F /* DraftManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9A0B1C2D3E4F /* DraftManager.swift */; };
+		09FEC987658E74CAFAB65F80 /* ChecklistPickerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00896E7C841DF9C57102B3C0 /* ChecklistPickerRow.swift */; };
 		13A0BDA236A02410DF984D6D /* SignatureTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740A37AABACDB41BDF099409 /* SignatureTabView.swift */; };
+		16B80E85E4C81F88E5F1BE2B /* EdgeProfilePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 594D22857496421D9A7BAAF3 /* EdgeProfilePicker.swift */; };
+		178490781C483B84439E9D4C /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76224E972F3E3166BFE2368 /* MainTabView.swift */; };
 		24648163557BAD71CBD502F9 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF7F44CD643943EC71BA79F /* AuthManager.swift */; };
-		1A2B3C4D5E6F7A8B9C0D1E2F /* BlockedVisitSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */; };
-		3B4C5D6E7F8A9B0C1D2E3F4A /* StartTripSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5D6E7F8A9B0C1D2E3F4A5B /* StartTripSheet.swift */; };
+		24F48E040AC91B53BCEE2096 /* CachedCutout.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC68EE2BEFA824A407A402B3 /* CachedCutout.swift */; };
+		260390396CE137D0674F49F4 /* AddSurfaceSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA9A273D3C40A6616EB7DEA /* AddSurfaceSheet.swift */; };
 		287664ED5EE6FA31FF67E7A6 /* JobDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA104CD18B03FA07DDBC77D8 /* JobDetailViewModel.swift */; };
+		2A726B9D39546F7706F15C16 /* InstallSiteTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43906745476CF63579B3C58 /* InstallSiteTabView.swift */; };
+		2BF7881C7AFA4562D906632C /* AddBacksplashSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C33DC747B3D5CBCEAFE2E2 /* AddBacksplashSheet.swift */; };
 		2E29744B87DB6F208C4DC5A4 /* ChecklistTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6E0D5B9AA26F3203B31EA2 /* ChecklistTabView.swift */; };
-		7A1F2E3D4C5B6A8990817263 /* ChecklistToggleRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A6978869706152 /* ChecklistToggleRow.swift */; };
-		8B2E3F4D5C6A7B9901827364 /* ChecklistPickerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D3C4B5A69788697061F243 /* ChecklistPickerRow.swift */; };
-		9C3F4E5D6A7B8C0012938475 /* ChecklistPhotoChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C4B5A697886970615243F3 /* ChecklistPhotoChip.swift */; };
+		3B708D30EFDD0D2F7BEBADD1 /* InstallModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DBC0F76C33089EB6A56B83 /* InstallModels.swift */; };
 		3EF708983434DB95DB27E35F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8212D4383FA0F45F12F2D8CA /* SettingsView.swift */; };
 		4B46C871721BAB70FE7D6CAB /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B025D8DE3FCEB7A92FB035C5 /* Color+Theme.swift */; };
 		4E39643D5C43964BE71E5859 /* FieldWorkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8B8C7E0C6F31FD3EBDAABC /* FieldWorkApp.swift */; };
 		526EBEBF52CEB6535F0FE068 /* ActiveVisitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208D9278EB6833136A75573E /* ActiveVisitViewModel.swift */; };
 		538B9725B724C3BA6FBE9B11 /* RemoteModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E23278E739FF57AF62D2FB /* RemoteModels.swift */; };
 		5544954FA9E02160BB163569 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB23038FEC23AD1153D01E93 /* SharedComponents.swift */; };
+		55FA049F47FADCE7DAFE1FF7 /* PhotoGroupHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B80126A4432FC96F190A361 /* PhotoGroupHeader.swift */; };
+		5A7A2E333FE7ACAC717747FB /* InstallCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 125A7F3FF3EA8F5AAE88EBF5 /* InstallCompletionView.swift */; };
+		5EEE3D9730A448B31AF3BE75 /* SignaturePadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2115E03BC684D7386FA0C1EC /* SignaturePadView.swift */; };
+		5FCF58D813F80A8B3CB0BD47 /* FinishedEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4266D0D48DA1F96F3B77445A /* FinishedEdgesView.swift */; };
 		5FFFC382F4B050354B0AD656 /* ScheduleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67534B67BA973A83BD5C1EFE /* ScheduleViewModel.swift */; };
+		6210E92026B583664C557EBE /* CooktopCutoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC12D2BF9DD886CE9606046 /* CooktopCutoutForm.swift */; };
+		63C4B14F7A4EBE619642F2BE /* CutoutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEE9E49ABD9478924851723 /* CutoutSection.swift */; };
 		6F9B8816F92E996B155BCEA6 /* MeasurementTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */; };
-		CCEC7301B1D390E150941B69 /* AddSurfaceSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6647E376ECA6C0AC0876F533 /* AddSurfaceSheet.swift */; };
-		32BA26396407495DD5BE9792 /* EdgeProfilePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56DEE4DB6718CBA7C2A09F10 /* EdgeProfilePicker.swift */; };
-		091C0F284ACCF74C712BEDA7 /* FinishedEndsPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C5FBE109E8E8D62CF93FE1 /* FinishedEndsPicker.swift */; };
-		B5D89D34342C690D08CE07B4 /* SeamLocationEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0CFB62A3E4012E3997251D /* SeamLocationEditor.swift */; };
+		818DAB91AF7779CD7C1DB30E /* SinkCutoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F51BAE8FE697A419314D05 /* SinkCutoutForm.swift */; };
+		85CC83502A993B3F4135461F /* AreasTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862257FC2F3FC918327BE03D /* AreasTabView.swift */; };
 		87188F997B4458025F430685 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F464765E79993386ACE039 /* NetworkMonitor.swift */; };
+		8792956182C5E7867587606F /* ActiveInstallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A8967F6C2708A85C01C0B3 /* ActiveInstallView.swift */; };
+		89440D1A93AEE4497AB5F5CB /* InstallPhotoTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D8F444C3835383393908CF /* InstallPhotoTabView.swift */; };
+		8AFCB00A0B4ADEB3EBA8ACA4 /* ChecklistPhotoChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A186BDBADB2D69BE19667E79 /* ChecklistPhotoChip.swift */; };
+		8B3BF65B0F4E00BB9A26F3AD /* ActiveInstallViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D0BFD8DEF1B563C00380A8 /* ActiveInstallViewModel.swift */; };
+		8CA4283A39281B0F5E89C584 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359B55C4D8D0E75E9B7CFAB2 /* HomeView.swift */; };
+		94AA12489E69D610296E11EB /* CachedMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88AF1D2439B548E999CF89FE /* CachedMeasurement.swift */; };
+		990D67F36357C7FBFEC2190E /* DraftManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58BF54C6D90FB4EEE9DAF3F /* DraftManager.swift */; };
 		A452A9259F703B23B14E28B2 /* JobDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F349770D91CC9CC61D25F1 /* JobDetailView.swift */; };
+		A48FC29D165F04AF6F604F75 /* SiteConditionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CF459C3FFD1BBA64CA8411 /* SiteConditionTabView.swift */; };
+		A562EFDDF4B8A942149ACF85 /* CachedBacksplashMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = F25899B495365C25DDA60FD0 /* CachedBacksplashMeasurement.swift */; };
+		A65183845BB6316479FD304F /* FinishedEndsPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9DF8C906D0ACDDF73B775 /* FinishedEndsPicker.swift */; };
 		A872D6BE350EF15B3D02B3E2 /* ActiveVisitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BA5DFC86C8A0A6E3ABC068 /* ActiveVisitView.swift */; };
 		AAC7F1F46DEAD091E49FD8DD /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525D048B1A8E1E03AE1D8FB /* Date+Extensions.swift */; };
 		AC26F6265EDEB751A67F5A2C /* CompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */; };
-		E3B1A49A27071FD8B1671044 /* PartialVisitSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74A7C5527FA849A9F255DCA6 /* PartialVisitSheet.swift */; };
+		ACA69A84EE5A5A137C8FC4FC /* QuotedSinkCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA7B0F36024AC71B53E2F1D /* QuotedSinkCheckView.swift */; };
 		ADE924DA8514BC1B59D5E216 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 816733177A0C7F55E99F876D /* Supabase */; };
+		B1F1622E4AF3986763540A67 /* BlockedVisitSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94DD387470B0020CA5687D48 /* BlockedVisitSheet.swift */; };
+		B495271A667D79B91F33B68C /* InstallSurfaceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1864222BD7640B9EA6659ED2 /* InstallSurfaceCard.swift */; };
+		BD656723E4F71D51FDEDAB5A /* SinkSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C40A4AF4259BED525FD9BC /* SinkSheet.swift */; };
 		BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */; };
 		C0085DDD0CCB71E6AC0B1829 /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409EFBC2A787F66C203B3575 /* ImageProcessor.swift */; };
-		C3D4E5F6A7B8C9D0E1F2A3B4 /* CachedMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */; };
-		A1C0FFEE5151000000000002 /* SinkSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE5151000000000001 /* SinkSheet.swift */; };
-		A1C0FFEE5151000000000004 /* QuotedSinkCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE5151000000000003 /* QuotedSinkCheckView.swift */; };
-		B29AA5D529E55A988A5C0AB9 /* CachedCutout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AB34E713574A66CD0460B2 /* CachedCutout.swift */; };
-		B914702F6571E0F78A313829 /* CachedBacksplashMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 132558B4C46A4FBE81B2ACE8 /* CachedBacksplashMeasurement.swift */; };
-		078B8FC9ADBE4BAB3CED7B1F /* BacksplashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4890E7DB7050FE7AD3A108E5 /* BacksplashSection.swift */; };
-		4903D05290312E8A4DFA8115 /* AddBacksplashSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2915BF157D7DBB2DEA18640F /* AddBacksplashSheet.swift */; };
-		F9E88E26A56289239766BCFB /* FinishedEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85CD8FFCD33A3FE4719DC2D /* FinishedEdgesView.swift */; };
-		B68CBB526058162859CF419D /* CutoutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D628E1796B69EAA30AADAE39 /* CutoutSection.swift */; };
-		43959281C71DF236702BEB96 /* AddCutoutSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E929AB9353424B9FC23287E7 /* AddCutoutSheet.swift */; };
-		D9E50359B1CDC1F48D5ECC3F /* SinkCutoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C795873F92F250D5B50A3E2E /* SinkCutoutForm.swift */; };
-		3949AB717D8DC8EEE4667DE6 /* CooktopCutoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C41BFB7A8AA0EAA5BAEFC0 /* CooktopCutoutForm.swift */; };
 		C5E196C8DA9030C9DD039053 /* CachedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610CB6823B8F76751FEE61CB /* CachedModels.swift */; };
+		C74CF533910C6FC8E020D163 /* BacksplashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB11ACF2B01BE70683FE8EF2 /* BacksplashSection.swift */; };
+		C80866D5D9E53A8C52246669 /* AddCutoutSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 283D231F6A0AEE0F7DB28440 /* AddCutoutSheet.swift */; };
+		CE2EE82DD76A0A3A43240A44 /* StoneFlowTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BDD59F22DEC5BA97AC7FD86 /* StoneFlowTheme.swift */; };
 		D42B1A34C42A84C7503F392F /* ScheduleJobRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D095DABC0D652B9DD333FBB /* ScheduleJobRow.swift */; };
 		D53707B73B6EFDD0A1698314 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7255C6712031C2B57777E9B /* ScheduleView.swift */; };
 		D581C4D28793B15791631074 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA96418329537BF140D5DA9D /* SupabaseManager.swift */; };
 		D8EFCE5EA67D0CA6AA8C7DF3 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48B3A86DCE6DA03B6A7313F /* LoginView.swift */; };
+		D947C95374D4633FA9464650 /* SeamLocationEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23275D7113ABB17A0DC07D17 /* SeamLocationEditor.swift */; };
+		D999C5760131EC6210D549CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD4CD2AC1356827AF824E09B /* Assets.xcassets */; };
+		DA6C62F6E7685CD7D6E9A251 /* StartTripSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F4833EC2270278D235257A /* StartTripSheet.swift */; };
+		DCFC7701E9713852F05B4F3E /* PartialVisitSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9859FB983D90161AF3C258C5 /* PartialVisitSheet.swift */; };
 		DFD6751720E8BC77D2CBFCB5 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06F9D94DB4C7A89413C8969 /* LocationManager.swift */; };
 		E6CE5DF4EFFC55090B2D9618 /* PhotoTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */; };
-		6D7E8F9A0B1C2D3E4F506172 /* PhotoGroupHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6D7E8F9A0B1C2D3E4F5061 /* PhotoGroupHeader.swift */; };
 		E783D1D0CECCA1285D750ED3 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BFA3CEC304527B30E2A2BA /* AppState.swift */; };
-		F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */; };
-		F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift */; };
-BB1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */; };
-		DD1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift */; };
-		E7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift */; };
+		EAD6616A41AA1C61B333F2C1 /* InstallSignTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7108F818194362F74721C76C /* InstallSignTabView.swift */; };
+		F538390DB899DC8B1A8DA834 /* InstallChecklistTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B873E5D75F377CF5F413159 /* InstallChecklistTabView.swift */; };
+		F8496C2DF23DB78BDB0C710A /* SiteConditionDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F69A576CF165B782D352423 /* SiteConditionDefinitions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		00896E7C841DF9C57102B3C0 /* ChecklistPickerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistPickerRow.swift; sourceTree = "<group>"; };
+		05F51BAE8FE697A419314D05 /* SinkCutoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinkCutoutForm.swift; sourceTree = "<group>"; };
+		0DA9A273D3C40A6616EB7DEA /* AddSurfaceSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSurfaceSheet.swift; sourceTree = "<group>"; };
 		10D120AF9A23C5A57C4576B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		125A7F3FF3EA8F5AAE88EBF5 /* InstallCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallCompletionView.swift; sourceTree = "<group>"; };
 		12BFA3CEC304527B30E2A2BA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		14DBC0F76C33089EB6A56B83 /* InstallModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallModels.swift; sourceTree = "<group>"; };
+		1864222BD7640B9EA6659ED2 /* InstallSurfaceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSurfaceCard.swift; sourceTree = "<group>"; };
 		208D9278EB6833136A75573E /* ActiveVisitViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveVisitViewModel.swift; sourceTree = "<group>"; };
-		2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedVisitSheet.swift; sourceTree = "<group>"; };
-		4C5D6E7F8A9B0C1D2E3F4A5B /* StartTripSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTripSheet.swift; sourceTree = "<group>"; };
+		2115E03BC684D7386FA0C1EC /* SignaturePadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignaturePadView.swift; sourceTree = "<group>"; };
+		23275D7113ABB17A0DC07D17 /* SeamLocationEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamLocationEditor.swift; sourceTree = "<group>"; };
 		257AD0865DDB0FFFCEFA39FA /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
-		3A4B5C6D7E8F9A0B1C2D3E4F /* DraftManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftManager.swift; sourceTree = "<group>"; };
+		25D8F444C3835383393908CF /* InstallPhotoTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallPhotoTabView.swift; sourceTree = "<group>"; };
+		283D231F6A0AEE0F7DB28440 /* AddCutoutSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCutoutSheet.swift; sourceTree = "<group>"; };
 		298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementTabView.swift; sourceTree = "<group>"; };
-		6647E376ECA6C0AC0876F533 /* AddSurfaceSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSurfaceSheet.swift; sourceTree = "<group>"; };
-		56DEE4DB6718CBA7C2A09F10 /* EdgeProfilePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeProfilePicker.swift; sourceTree = "<group>"; };
-		E0C5FBE109E8E8D62CF93FE1 /* FinishedEndsPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishedEndsPicker.swift; sourceTree = "<group>"; };
-		DC0CFB62A3E4012E3997251D /* SeamLocationEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamLocationEditor.swift; sourceTree = "<group>"; };
-		D628E1796B69EAA30AADAE39 /* CutoutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutSection.swift; sourceTree = "<group>"; };
-		E929AB9353424B9FC23287E7 /* AddCutoutSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCutoutSheet.swift; sourceTree = "<group>"; };
-		C795873F92F250D5B50A3E2E /* SinkCutoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinkCutoutForm.swift; sourceTree = "<group>"; };
-		39C41BFB7A8AA0EAA5BAEFC0 /* CooktopCutoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CooktopCutoutForm.swift; sourceTree = "<group>"; };
+		29C33DC747B3D5CBCEAFE2E2 /* AddBacksplashSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBacksplashSheet.swift; sourceTree = "<group>"; };
+		2FA7B0F36024AC71B53E2F1D /* QuotedSinkCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotedSinkCheckView.swift; sourceTree = "<group>"; };
+		359B55C4D8D0E75E9B7CFAB2 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionView.swift; sourceTree = "<group>"; };
-		74A7C5527FA849A9F255DCA6 /* PartialVisitSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialVisitSheet.swift; sourceTree = "<group>"; };
 		3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMarkupView.swift; sourceTree = "<group>"; };
 		409EFBC2A787F66C203B3575 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
+		4266D0D48DA1F96F3B77445A /* FinishedEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishedEdgesView.swift; sourceTree = "<group>"; };
+		594D22857496421D9A7BAAF3 /* EdgeProfilePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeProfilePicker.swift; sourceTree = "<group>"; };
+		5B80126A4432FC96F190A361 /* PhotoGroupHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroupHeader.swift; sourceTree = "<group>"; };
 		5D095DABC0D652B9DD333FBB /* ScheduleJobRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleJobRow.swift; sourceTree = "<group>"; };
-		D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedMeasurement.swift; sourceTree = "<group>"; };
-		A1C0FFEE5151000000000001 /* SinkSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinkSheet.swift; sourceTree = "<group>"; };
-		A1C0FFEE5151000000000003 /* QuotedSinkCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotedSinkCheckView.swift; sourceTree = "<group>"; };
-		A9AB34E713574A66CD0460B2 /* CachedCutout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedCutout.swift; sourceTree = "<group>"; };
-		132558B4C46A4FBE81B2ACE8 /* CachedBacksplashMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedBacksplashMeasurement.swift; sourceTree = "<group>"; };
-		4890E7DB7050FE7AD3A108E5 /* BacksplashSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacksplashSection.swift; sourceTree = "<group>"; };
-		2915BF157D7DBB2DEA18640F /* AddBacksplashSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBacksplashSheet.swift; sourceTree = "<group>"; };
-		A85CD8FFCD33A3FE4719DC2D /* FinishedEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishedEdgesView.swift; sourceTree = "<group>"; };
 		610CB6823B8F76751FEE61CB /* CachedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedModels.swift; sourceTree = "<group>"; };
 		67534B67BA973A83BD5C1EFE /* ScheduleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewModel.swift; sourceTree = "<group>"; };
 		6AF7F44CD643943EC71BA79F /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		6F69A576CF165B782D352423 /* SiteConditionDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionDefinitions.swift; sourceTree = "<group>"; };
+		7108F818194362F74721C76C /* InstallSignTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSignTabView.swift; sourceTree = "<group>"; };
 		740A37AABACDB41BDF099409 /* SignatureTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureTabView.swift; sourceTree = "<group>"; };
 		77E23278E739FF57AF62D2FB /* RemoteModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteModels.swift; sourceTree = "<group>"; };
+		7B873E5D75F377CF5F413159 /* InstallChecklistTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallChecklistTabView.swift; sourceTree = "<group>"; };
+		7BDD59F22DEC5BA97AC7FD86 /* StoneFlowTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneFlowTheme.swift; sourceTree = "<group>"; };
 		8212D4383FA0F45F12F2D8CA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		862257FC2F3FC918327BE03D /* AreasTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AreasTabView.swift; sourceTree = "<group>"; };
 		87BA5DFC86C8A0A6E3ABC068 /* ActiveVisitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveVisitView.swift; sourceTree = "<group>"; };
+		88AF1D2439B548E999CF89FE /* CachedMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedMeasurement.swift; sourceTree = "<group>"; };
 		8A6E0D5B9AA26F3203B31EA2 /* ChecklistTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistTabView.swift; sourceTree = "<group>"; };
-		F1E2D3C4B5A6978869706152 /* ChecklistToggleRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistToggleRow.swift; sourceTree = "<group>"; };
-		E2D3C4B5A69788697061F243 /* ChecklistPickerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistPickerRow.swift; sourceTree = "<group>"; };
-		D3C4B5A697886970615243F3 /* ChecklistPhotoChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistPhotoChip.swift; sourceTree = "<group>"; };
 		8A8B8C7E0C6F31FD3EBDAABC /* FieldWorkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldWorkApp.swift; sourceTree = "<group>"; };
+		8D57AE6D33B16B32D6831638 /* ChecklistToggleRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistToggleRow.swift; sourceTree = "<group>"; };
+		91A8967F6C2708A85C01C0B3 /* ActiveInstallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveInstallView.swift; sourceTree = "<group>"; };
+		92C40A4AF4259BED525FD9BC /* SinkSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinkSheet.swift; sourceTree = "<group>"; };
 		94A8D7FEB3D39DBFBBDF6920 /* FieldWork.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldWork.entitlements; sourceTree = "<group>"; };
+		94DD387470B0020CA5687D48 /* BlockedVisitSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedVisitSheet.swift; sourceTree = "<group>"; };
+		9859FB983D90161AF3C258C5 /* PartialVisitSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialVisitSheet.swift; sourceTree = "<group>"; };
+		A186BDBADB2D69BE19667E79 /* ChecklistPhotoChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistPhotoChip.swift; sourceTree = "<group>"; };
+		A2D0BFD8DEF1B563C00380A8 /* ActiveInstallViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveInstallViewModel.swift; sourceTree = "<group>"; };
 		A57DF2495ECF3358EE2C42D3 /* FieldWork.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FieldWork.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A73F8A1600AFE413552BA7FB /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		AA104CD18B03FA07DDBC77D8 /* JobDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobDetailViewModel.swift; sourceTree = "<group>"; };
+		AB11ACF2B01BE70683FE8EF2 /* BacksplashSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacksplashSection.swift; sourceTree = "<group>"; };
+		AC68EE2BEFA824A407A402B3 /* CachedCutout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedCutout.swift; sourceTree = "<group>"; };
 		B025D8DE3FCEB7A92FB035C5 /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
+		B0E9DF8C906D0ACDDF73B775 /* FinishedEndsPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishedEndsPicker.swift; sourceTree = "<group>"; };
+		B43906745476CF63579B3C58 /* InstallSiteTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSiteTabView.swift; sourceTree = "<group>"; };
+		B58BF54C6D90FB4EEE9DAF3F /* DraftManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftManager.swift; sourceTree = "<group>"; };
 		B7255C6712031C2B57777E9B /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
+		B76224E972F3E3166BFE2368 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		BDEE9E49ABD9478924851723 /* CutoutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutSection.swift; sourceTree = "<group>"; };
 		C48B3A86DCE6DA03B6A7313F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		C4F464765E79993386ACE039 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		C525D048B1A8E1E03AE1D8FB /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoTabView.swift; sourceTree = "<group>"; };
-		5C6D7E8F9A0B1C2D3E4F5061 /* PhotoGroupHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroupHeader.swift; sourceTree = "<group>"; };
+		D0CF459C3FFD1BBA64CA8411 /* SiteConditionTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionTabView.swift; sourceTree = "<group>"; };
 		D2F349770D91CC9CC61D25F1 /* JobDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobDetailView.swift; sourceTree = "<group>"; };
+		DBC12D2BF9DD886CE9606046 /* CooktopCutoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CooktopCutoutForm.swift; sourceTree = "<group>"; };
+		DD4CD2AC1356827AF824E09B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E3F4833EC2270278D235257A /* StartTripSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTripSheet.swift; sourceTree = "<group>"; };
 		F06F9D94DB4C7A89413C8969 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		F25899B495365C25DDA60FD0 /* CachedBacksplashMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedBacksplashMeasurement.swift; sourceTree = "<group>"; };
 		FA96418329537BF140D5DA9D /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		FB23038FEC23AD1153D01E93 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionDefinitions.swift; sourceTree = "<group>"; };
-		B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteConditionTabView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallModels.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveInstallViewModel.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveInstallView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AreasTabView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSurfaceCard.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSiteTabView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallPhotoTabView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSignTabView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignaturePadView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallCompletionView.swift; sourceTree = "<group>"; };
-AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallChecklistTabView.swift; sourceTree = "<group>"; };
-		CC1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		F7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,12 +170,12 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		0211C08ED8B656931CDEAD64 /* Local */ = {
 			isa = PBXGroup;
 			children = (
-				D4E5F6A7B8C9D0E1F2A3B4C5 /* CachedMeasurement.swift */,
-				A9AB34E713574A66CD0460B2 /* CachedCutout.swift */,
-				A1C0FFEE5151000000000001 /* SinkSheet.swift */,
-				132558B4C46A4FBE81B2ACE8 /* CachedBacksplashMeasurement.swift */,
+				F25899B495365C25DDA60FD0 /* CachedBacksplashMeasurement.swift */,
+				AC68EE2BEFA824A407A402B3 /* CachedCutout.swift */,
+				88AF1D2439B548E999CF89FE /* CachedMeasurement.swift */,
 				610CB6823B8F76751FEE61CB /* CachedModels.swift */,
-				AA1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift */,
+				14DBC0F76C33089EB6A56B83 /* InstallModels.swift */,
+				92C40A4AF4259BED525FD9BC /* SinkSheet.swift */,
 			);
 			path = Local;
 			sourceTree = "<group>";
@@ -179,9 +183,9 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		136D6CDE5388E532640A9346 /* JobDetail */ = {
 			isa = PBXGroup;
 			children = (
-				2A3B4C5D6E7F8A9B0C1D2E3F /* BlockedVisitSheet.swift */,
+				94DD387470B0020CA5687D48 /* BlockedVisitSheet.swift */,
 				D2F349770D91CC9CC61D25F1 /* JobDetailView.swift */,
-				4C5D6E7F8A9B0C1D2E3F4A5B /* StartTripSheet.swift */,
+				E3F4833EC2270278D235257A /* StartTripSheet.swift */,
 			);
 			path = JobDetail;
 			sourceTree = "<group>";
@@ -191,9 +195,17 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 			children = (
 				12BFA3CEC304527B30E2A2BA /* AppState.swift */,
 				8A8B8C7E0C6F31FD3EBDAABC /* FieldWorkApp.swift */,
-				CC1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift */,
+				B76224E972F3E3166BFE2368 /* MainTabView.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		1826C5410D9F9742B470F6B5 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				359B55C4D8D0E75E9B7CFAB2 /* HomeView.swift */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 		1F3B948DA0134BC893BA51CF /* Schedule */ = {
@@ -210,12 +222,12 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 			children = (
 				87BA5DFC86C8A0A6E3ABC068 /* ActiveVisitView.swift */,
 				37F1EA1A1A9697F1620F09E9 /* CompletionView.swift */,
-				74A7C5527FA849A9F255DCA6 /* PartialVisitSheet.swift */,
+				9859FB983D90161AF3C258C5 /* PartialVisitSheet.swift */,
 				9E7D14468757E0F94067B396 /* ChecklistTab */,
 				C3F335D6F3BB44A35B9825E4 /* MeasurementTab */,
 				7C87382E755F746C94B4A2AB /* PhotoTab */,
 				D408CB66ECA5538BE40F980D /* SignatureTab */,
-				C4D5E6F7A8B9C0D1E2F3A4B5 /* SiteConditionTab */,
+				66947A3927A9890FA96D8926 /* SiteConditionTab */,
 			);
 			path = ActiveVisit;
 			sourceTree = "<group>";
@@ -226,6 +238,14 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 				77E23278E739FF57AF62D2FB /* RemoteModels.swift */,
 			);
 			path = Remote;
+			sourceTree = "<group>";
+		};
+		41F6FB5D3812C048643F3765 /* SiteTab */ = {
+			isa = PBXGroup;
+			children = (
+				B43906745476CF63579B3C58 /* InstallSiteTabView.swift */,
+			);
+			path = SiteTab;
 			sourceTree = "<group>";
 		};
 		46B3538BB93EFA0C5C332189 /* Products */ = {
@@ -265,11 +285,19 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		50B38BCD0301B0FBF77B4A2C /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				6F69A576CF165B782D352423 /* SiteConditionDefinitions.swift */,
 				0211C08ED8B656931CDEAD64 /* Local */,
 				3D135E7F5BD586E55F4FA23B /* Remote */,
-				A1B2C3D4E5F6A7B8C9D0E1F2 /* SiteConditionDefinitions.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		66947A3927A9890FA96D8926 /* SiteConditionTab */ = {
+			isa = PBXGroup;
+			children = (
+				D0CF459C3FFD1BBA64CA8411 /* SiteConditionTabView.swift */,
+			);
+			path = SiteConditionTab;
 			sourceTree = "<group>";
 		};
 		68F79EF7BDD9471A78979E11 /* Shared */ = {
@@ -283,8 +311,8 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		7A380C42B334D2C78B833E05 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				A2D0BFD8DEF1B563C00380A8 /* ActiveInstallViewModel.swift */,
 				208D9278EB6833136A75573E /* ActiveVisitViewModel.swift */,
-				AA1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift */,
 				AA104CD18B03FA07DDBC77D8 /* JobDetailViewModel.swift */,
 				67534B67BA973A83BD5C1EFE /* ScheduleViewModel.swift */,
 			);
@@ -294,20 +322,28 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		7C87382E755F746C94B4A2AB /* PhotoTab */ = {
 			isa = PBXGroup;
 			children = (
-				5C6D7E8F9A0B1C2D3E4F5061 /* PhotoGroupHeader.swift */,
+				5B80126A4432FC96F190A361 /* PhotoGroupHeader.swift */,
 				3D54D06187BDA5241363ED01 /* PhotoMarkupView.swift */,
 				CCDC4118B29E96AA5DDB0CEC /* PhotoTabView.swift */,
 			);
 			path = PhotoTab;
 			sourceTree = "<group>";
 		};
+		8EFE4301E51431CB1CE66080 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				7BDD59F22DEC5BA97AC7FD86 /* StoneFlowTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
 		9E7D14468757E0F94067B396 /* ChecklistTab */ = {
 			isa = PBXGroup;
 			children = (
+				A186BDBADB2D69BE19667E79 /* ChecklistPhotoChip.swift */,
+				00896E7C841DF9C57102B3C0 /* ChecklistPickerRow.swift */,
 				8A6E0D5B9AA26F3203B31EA2 /* ChecklistTabView.swift */,
-				F1E2D3C4B5A6978869706152 /* ChecklistToggleRow.swift */,
-				E2D3C4B5A69788697061F243 /* ChecklistPickerRow.swift */,
-				D3C4B5A697886970615243F3 /* ChecklistPhotoChip.swift */,
+				8D57AE6D33B16B32D6831638 /* ChecklistToggleRow.swift */,
 			);
 			path = ChecklistTab;
 			sourceTree = "<group>";
@@ -328,6 +364,7 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 				4B87125862B5D0266F073D51 /* Extensions */,
 				50B38BCD0301B0FBF77B4A2C /* Models */,
 				CF6316B425A90A854922D674 /* Resources */,
+				8EFE4301E51431CB1CE66080 /* Theme */,
 				7A380C42B334D2C78B833E05 /* ViewModels */,
 				B759B46193434408B96F7B06 /* Views */,
 			);
@@ -342,10 +379,24 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 			path = Config;
 			sourceTree = "<group>";
 		};
+		AE63C4BA0743857F32CBBA7A /* ActiveInstall */ = {
+			isa = PBXGroup;
+			children = (
+				91A8967F6C2708A85C01C0B3 /* ActiveInstallView.swift */,
+				125A7F3FF3EA8F5AAE88EBF5 /* InstallCompletionView.swift */,
+				25D8F444C3835383393908CF /* InstallPhotoTabView.swift */,
+				EC9417F691BD0D9E3A054920 /* AreasTab */,
+				DA7A3894B04030A87A6D4ED0 /* ChecklistTab */,
+				CFACCE3905E400DBCF5F0658 /* SignTab */,
+				41F6FB5D3812C048643F3765 /* SiteTab */,
+			);
+			path = ActiveInstall;
+			sourceTree = "<group>";
+		};
 		AF0F956D0A84636C05B516BD /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				3A4B5C6D7E8F9A0B1C2D3E4F /* DraftManager.swift */,
+				B58BF54C6D90FB4EEE9DAF3F /* DraftManager.swift */,
 				409EFBC2A787F66C203B3575 /* ImageProcessor.swift */,
 				D14CC94B66B869E13D4CEA21 /* Auth */,
 				9F1225F5CCE4C73571C43B15 /* Location */,
@@ -365,10 +416,10 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		B759B46193434408B96F7B06 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				AE63C4BA0743857F32CBBA7A /* ActiveInstall */,
 				2B2064A00AD2D512C8E50540 /* ActiveVisit */,
-				CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */,
 				B009C3EB23661432E7578B15 /* Auth */,
-				D7A1B2C3D4E5F6A7B8C9D001 /* Home */,
+				1826C5410D9F9742B470F6B5 /* Home */,
 				136D6CDE5388E532640A9346 /* JobDetail */,
 				1F3B948DA0134BC893BA51CF /* Schedule */,
 				49699CEE3529393AF60146BE /* Settings */,
@@ -380,19 +431,19 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		C3F335D6F3BB44A35B9825E4 /* MeasurementTab */ = {
 			isa = PBXGroup;
 			children = (
+				29C33DC747B3D5CBCEAFE2E2 /* AddBacksplashSheet.swift */,
+				283D231F6A0AEE0F7DB28440 /* AddCutoutSheet.swift */,
+				0DA9A273D3C40A6616EB7DEA /* AddSurfaceSheet.swift */,
+				AB11ACF2B01BE70683FE8EF2 /* BacksplashSection.swift */,
+				DBC12D2BF9DD886CE9606046 /* CooktopCutoutForm.swift */,
+				BDEE9E49ABD9478924851723 /* CutoutSection.swift */,
+				594D22857496421D9A7BAAF3 /* EdgeProfilePicker.swift */,
+				4266D0D48DA1F96F3B77445A /* FinishedEdgesView.swift */,
+				B0E9DF8C906D0ACDDF73B775 /* FinishedEndsPicker.swift */,
 				298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */,
-				6647E376ECA6C0AC0876F533 /* AddSurfaceSheet.swift */,
-				56DEE4DB6718CBA7C2A09F10 /* EdgeProfilePicker.swift */,
-				E0C5FBE109E8E8D62CF93FE1 /* FinishedEndsPicker.swift */,
-				DC0CFB62A3E4012E3997251D /* SeamLocationEditor.swift */,
-				D628E1796B69EAA30AADAE39 /* CutoutSection.swift */,
-				E929AB9353424B9FC23287E7 /* AddCutoutSheet.swift */,
-				C795873F92F250D5B50A3E2E /* SinkCutoutForm.swift */,
-				A1C0FFEE5151000000000003 /* QuotedSinkCheckView.swift */,
-				39C41BFB7A8AA0EAA5BAEFC0 /* CooktopCutoutForm.swift */,
-				4890E7DB7050FE7AD3A108E5 /* BacksplashSection.swift */,
-				2915BF157D7DBB2DEA18640F /* AddBacksplashSheet.swift */,
-				A85CD8FFCD33A3FE4719DC2D /* FinishedEdgesView.swift */,
+				2FA7B0F36024AC71B53E2F1D /* QuotedSinkCheckView.swift */,
+				23275D7113ABB17A0DC07D17 /* SeamLocationEditor.swift */,
+				05F51BAE8FE697A419314D05 /* SinkCutoutForm.swift */,
 			);
 			path = MeasurementTab;
 			sourceTree = "<group>";
@@ -400,10 +451,20 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 		CF6316B425A90A854922D674 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				DD4CD2AC1356827AF824E09B /* Assets.xcassets */,
 				94A8D7FEB3D39DBFBBDF6920 /* FieldWork.entitlements */,
 				10D120AF9A23C5A57C4576B8 /* Info.plist */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		CFACCE3905E400DBCF5F0658 /* SignTab */ = {
+			isa = PBXGroup;
+			children = (
+				7108F818194362F74721C76C /* InstallSignTabView.swift */,
+				2115E03BC684D7386FA0C1EC /* SignaturePadView.swift */,
+			);
+			path = SignTab;
 			sourceTree = "<group>";
 		};
 		D14CC94B66B869E13D4CEA21 /* Auth */ = {
@@ -422,12 +483,12 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 			path = SignatureTab;
 			sourceTree = "<group>";
 		};
-		C4D5E6F7A8B9C0D1E2F3A4B5 /* SiteConditionTab */ = {
+		DA7A3894B04030A87A6D4ED0 /* ChecklistTab */ = {
 			isa = PBXGroup;
 			children = (
-				B2C3D4E5F6A7B8C9D0E1F2A3 /* SiteConditionTabView.swift */,
+				7B873E5D75F377CF5F413159 /* InstallChecklistTabView.swift */,
 			);
-			path = SiteConditionTab;
+			path = ChecklistTab;
 			sourceTree = "<group>";
 		};
 		EAE5CA1906BC8A487F8E6E6C /* Supabase */ = {
@@ -440,60 +501,13 @@ AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */ = {isa = PBXFileRef
 			path = Supabase;
 			sourceTree = "<group>";
 		};
-CC1B2C3D4E5F6A7B8C9D0E02 /* AreasTab */ = {
-	isa = PBXGroup;
-	children = (
-		AA1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift */,
-		AA1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift */,
-	);
-	path = AreasTab;
-	sourceTree = "<group>";
-};
-CC1B2C3D4E5F6A7B8C9D0E03 /* SiteTab */ = {
-	isa = PBXGroup;
-	children = (
-		AA1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift */,
-	);
-	path = SiteTab;
-	sourceTree = "<group>";
-};
-CC1B2C3D4E5F6A7B8C9D0E04 /* SignTab */ = {
-	isa = PBXGroup;
-	children = (
-		AA1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift */,
-		AA1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift */,
-	);
-	path = SignTab;
-	sourceTree = "<group>";
-};
-CC1B2C3D4E5F6A7B8C9D0E05 /* ChecklistTab */ = {
-	isa = PBXGroup;
-	children = (
-		AA1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift */,
-	);
-	path = ChecklistTab;
-	sourceTree = "<group>";
-};
-CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */ = {
-	isa = PBXGroup;
-	children = (
-		AA1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift */,
-		AA1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift */,
-		AA1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift */,
-		CC1B2C3D4E5F6A7B8C9D0E02 /* AreasTab */,
-		CC1B2C3D4E5F6A7B8C9D0E05 /* ChecklistTab */,
-		CC1B2C3D4E5F6A7B8C9D0E03 /* SiteTab */,
-		CC1B2C3D4E5F6A7B8C9D0E04 /* SignTab */,
-	);
-	path = ActiveInstall;
-	sourceTree = "<group>";
-};
-		D7A1B2C3D4E5F6A7B8C9D001 /* Home */ = {
+		EC9417F691BD0D9E3A054920 /* AreasTab */ = {
 			isa = PBXGroup;
 			children = (
-				F7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift */,
+				862257FC2F3FC918327BE03D /* AreasTabView.swift */,
+				1864222BD7640B9EA6659ED2 /* InstallSurfaceCard.swift */,
 			);
-			path = Home;
+			path = AreasTab;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -504,6 +518,7 @@ CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */ = {
 			buildConfigurationList = 00CEA3D2B6BA161A6557375E /* Build configuration list for PBXNativeTarget "FieldWork" */;
 			buildPhases = (
 				5F8FC138137158D0DB5FB65D /* Sources */,
+				D3DD47CEB06E88E0AB8BBB10 /* Resources */,
 				59C80035C12E90089536AEFF /* Frameworks */,
 			);
 			buildRules = (
@@ -551,78 +566,90 @@ CC1B2C3D4E5F6A7B8C9D0E01 /* ActiveInstall */ = {
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		D3DD47CEB06E88E0AB8BBB10 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D999C5760131EC6210D549CD /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		5F8FC138137158D0DB5FB65D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8792956182C5E7867587606F /* ActiveInstallView.swift in Sources */,
+				8B3BF65B0F4E00BB9A26F3AD /* ActiveInstallViewModel.swift in Sources */,
 				A872D6BE350EF15B3D02B3E2 /* ActiveVisitView.swift in Sources */,
-				1A2B3C4D5E6F7A8B9C0D1E2F /* BlockedVisitSheet.swift in Sources */,
-				3B4C5D6E7F8A9B0C1D2E3F4A /* StartTripSheet.swift in Sources */,
 				526EBEBF52CEB6535F0FE068 /* ActiveVisitViewModel.swift in Sources */,
+				2BF7881C7AFA4562D906632C /* AddBacksplashSheet.swift in Sources */,
+				C80866D5D9E53A8C52246669 /* AddCutoutSheet.swift in Sources */,
+				260390396CE137D0674F49F4 /* AddSurfaceSheet.swift in Sources */,
 				E783D1D0CECCA1285D750ED3 /* AppState.swift in Sources */,
+				85CC83502A993B3F4135461F /* AreasTabView.swift in Sources */,
 				24648163557BAD71CBD502F9 /* AuthManager.swift in Sources */,
-				C3D4E5F6A7B8C9D0E1F2A3B4 /* CachedMeasurement.swift in Sources */,
-				B29AA5D529E55A988A5C0AB9 /* CachedCutout.swift in Sources */,
-				A1C0FFEE5151000000000002 /* SinkSheet.swift in Sources */,
-				B914702F6571E0F78A313829 /* CachedBacksplashMeasurement.swift in Sources */,
-				078B8FC9ADBE4BAB3CED7B1F /* BacksplashSection.swift in Sources */,
-				4903D05290312E8A4DFA8115 /* AddBacksplashSheet.swift in Sources */,
-				F9E88E26A56289239766BCFB /* FinishedEdgesView.swift in Sources */,
+				C74CF533910C6FC8E020D163 /* BacksplashSection.swift in Sources */,
+				B1F1622E4AF3986763540A67 /* BlockedVisitSheet.swift in Sources */,
+				A562EFDDF4B8A942149ACF85 /* CachedBacksplashMeasurement.swift in Sources */,
+				24F48E040AC91B53BCEE2096 /* CachedCutout.swift in Sources */,
+				94AA12489E69D610296E11EB /* CachedMeasurement.swift in Sources */,
 				C5E196C8DA9030C9DD039053 /* CachedModels.swift in Sources */,
+				8AFCB00A0B4ADEB3EBA8ACA4 /* ChecklistPhotoChip.swift in Sources */,
+				09FEC987658E74CAFAB65F80 /* ChecklistPickerRow.swift in Sources */,
 				2E29744B87DB6F208C4DC5A4 /* ChecklistTabView.swift in Sources */,
-				7A1F2E3D4C5B6A8990817263 /* ChecklistToggleRow.swift in Sources */,
-				8B2E3F4D5C6A7B9901827364 /* ChecklistPickerRow.swift in Sources */,
-				9C3F4E5D6A7B8C0012938475 /* ChecklistPhotoChip.swift in Sources */,
+				01D2C43BEB12175D08D66303 /* ChecklistToggleRow.swift in Sources */,
 				4B46C871721BAB70FE7D6CAB /* Color+Theme.swift in Sources */,
 				AC26F6265EDEB751A67F5A2C /* CompletionView.swift in Sources */,
-				E3B1A49A27071FD8B1671044 /* PartialVisitSheet.swift in Sources */,
+				6210E92026B583664C557EBE /* CooktopCutoutForm.swift in Sources */,
+				63C4B14F7A4EBE619642F2BE /* CutoutSection.swift in Sources */,
 				AAC7F1F46DEAD091E49FD8DD /* Date+Extensions.swift in Sources */,
+				990D67F36357C7FBFEC2190E /* DraftManager.swift in Sources */,
+				16B80E85E4C81F88E5F1BE2B /* EdgeProfilePicker.swift in Sources */,
 				4E39643D5C43964BE71E5859 /* FieldWorkApp.swift in Sources */,
+				5FCF58D813F80A8B3CB0BD47 /* FinishedEdgesView.swift in Sources */,
+				A65183845BB6316479FD304F /* FinishedEndsPicker.swift in Sources */,
+				8CA4283A39281B0F5E89C584 /* HomeView.swift in Sources */,
 				C0085DDD0CCB71E6AC0B1829 /* ImageProcessor.swift in Sources */,
+				F538390DB899DC8B1A8DA834 /* InstallChecklistTabView.swift in Sources */,
+				5A7A2E333FE7ACAC717747FB /* InstallCompletionView.swift in Sources */,
+				3B708D30EFDD0D2F7BEBADD1 /* InstallModels.swift in Sources */,
+				89440D1A93AEE4497AB5F5CB /* InstallPhotoTabView.swift in Sources */,
+				EAD6616A41AA1C61B333F2C1 /* InstallSignTabView.swift in Sources */,
+				2A726B9D39546F7706F15C16 /* InstallSiteTabView.swift in Sources */,
+				B495271A667D79B91F33B68C /* InstallSurfaceCard.swift in Sources */,
 				A452A9259F703B23B14E28B2 /* JobDetailView.swift in Sources */,
 				287664ED5EE6FA31FF67E7A6 /* JobDetailViewModel.swift in Sources */,
 				DFD6751720E8BC77D2CBFCB5 /* LocationManager.swift in Sources */,
 				D8EFCE5EA67D0CA6AA8C7DF3 /* LoginView.swift in Sources */,
-				DD1B2C3D4E5F6A7B8C9D0E12 /* MainTabView.swift in Sources */,
+				178490781C483B84439E9D4C /* MainTabView.swift in Sources */,
 				6F9B8816F92E996B155BCEA6 /* MeasurementTabView.swift in Sources */,
-				CCEC7301B1D390E150941B69 /* AddSurfaceSheet.swift in Sources */,
-				32BA26396407495DD5BE9792 /* EdgeProfilePicker.swift in Sources */,
-				091C0F284ACCF74C712BEDA7 /* FinishedEndsPicker.swift in Sources */,
-				B5D89D34342C690D08CE07B4 /* SeamLocationEditor.swift in Sources */,
-				B68CBB526058162859CF419D /* CutoutSection.swift in Sources */,
-				43959281C71DF236702BEB96 /* AddCutoutSheet.swift in Sources */,
-				D9E50359B1CDC1F48D5ECC3F /* SinkCutoutForm.swift in Sources */,
-				A1C0FFEE5151000000000004 /* QuotedSinkCheckView.swift in Sources */,
-				3949AB717D8DC8EEE4667DE6 /* CooktopCutoutForm.swift in Sources */,
 				87188F997B4458025F430685 /* NetworkMonitor.swift in Sources */,
+				DCFC7701E9713852F05B4F3E /* PartialVisitSheet.swift in Sources */,
+				55FA049F47FADCE7DAFE1FF7 /* PhotoGroupHeader.swift in Sources */,
 				BE29816F88B4B9BCD56DE792 /* PhotoMarkupView.swift in Sources */,
-				6D7E8F9A0B1C2D3E4F506172 /* PhotoGroupHeader.swift in Sources */,
 				E6CE5DF4EFFC55090B2D9618 /* PhotoTabView.swift in Sources */,
+				ACA69A84EE5A5A137C8FC4FC /* QuotedSinkCheckView.swift in Sources */,
 				538B9725B724C3BA6FBE9B11 /* RemoteModels.swift in Sources */,
 				D42B1A34C42A84C7503F392F /* ScheduleJobRow.swift in Sources */,
 				D53707B73B6EFDD0A1698314 /* ScheduleView.swift in Sources */,
 				5FFFC382F4B050354B0AD656 /* ScheduleViewModel.swift in Sources */,
+				D947C95374D4633FA9464650 /* SeamLocationEditor.swift in Sources */,
 				3EF708983434DB95DB27E35F /* SettingsView.swift in Sources */,
 				5544954FA9E02160BB163569 /* SharedComponents.swift in Sources */,
+				5EEE3D9730A448B31AF3BE75 /* SignaturePadView.swift in Sources */,
 				13A0BDA236A02410DF984D6D /* SignatureTabView.swift in Sources */,
+				818DAB91AF7779CD7C1DB30E /* SinkCutoutForm.swift in Sources */,
+				BD656723E4F71D51FDEDAB5A /* SinkSheet.swift in Sources */,
+				F8496C2DF23DB78BDB0C710A /* SiteConditionDefinitions.swift in Sources */,
+				A48FC29D165F04AF6F604F75 /* SiteConditionTabView.swift in Sources */,
+				DA6C62F6E7685CD7D6E9A251 /* StartTripSheet.swift in Sources */,
+				CE2EE82DD76A0A3A43240A44 /* StoneFlowTheme.swift in Sources */,
 				D581C4D28793B15791631074 /* SupabaseManager.swift in Sources */,
-				4A5B6C7D8E9F0A1B2C3D4E5F /* DraftManager.swift in Sources */,
 				029D317833F1A4BDFB2C2BFD /* SyncEngine.swift in Sources */,
-				F1A2B3C4D5E6F7A8B9C0D1E2 /* SiteConditionDefinitions.swift in Sources */,
-				F2B3C4D5E6F7A8B9C0D1E2F3 /* SiteConditionTabView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E01 /* InstallModels.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E02 /* ActiveInstallViewModel.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E03 /* ActiveInstallView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E04 /* AreasTabView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E05 /* InstallSurfaceCard.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E06 /* InstallSiteTabView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E07 /* InstallPhotoTabView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E08 /* InstallSignTabView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E09 /* SignaturePadView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E10 /* InstallCompletionView.swift in Sources */,
-BB1B2C3D4E5F6A7B8C9D0E11 /* InstallChecklistTabView.swift in Sources */,
-				E7A1B2C3D4E5F6A7B8C9D001 /* HomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
