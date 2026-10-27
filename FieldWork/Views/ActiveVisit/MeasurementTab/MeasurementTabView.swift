@@ -311,8 +311,11 @@ struct SurfaceMeasurementCard: View {
 
                     Spacer()
                 }
+                // The whole row opens and closes the card, not just the words.
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
-            .tint(.primary)
+            .buttonStyle(.plain)
 
             if !isReadOnly {
                 if isSkipped {
@@ -346,11 +349,13 @@ struct SurfaceMeasurementCard: View {
 
             Button { withAnimation { isExpanded.toggle() } } label: {
                 Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                    .font(.subheadline.bold())
-                    .foregroundStyle(.primary)
-                    .frame(width: 32, height: 32)
+                    .font(.headline)
+                    .foregroundStyle(Color.sfInk)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
-            .tint(.primary)
+            .buttonStyle(.plain)
+            .accessibilityLabel(isExpanded ? "Close" : "Open")
         }
     }
 
