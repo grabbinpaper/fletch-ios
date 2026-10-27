@@ -189,6 +189,11 @@ struct HomeView: View {
 
     private func loadBookings() {
         todayBookings = (try? modelContext.fetch(ScheduleViewModel.todaysBookingsDescriptor())) ?? []
+        // After the app restarts mid-visit, the Visit tab picks the visit back up (with its badge).
+        if appState.activeBooking == nil,
+           let onSite = todayBookings.first(where: { $0.visitStatus == "on_site" }) {
+            appState.activeBooking = onSite
+        }
     }
 
     /// Downloads today's schedule (the same fetch the Schedule tab does) and redraws.
