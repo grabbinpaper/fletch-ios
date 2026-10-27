@@ -115,9 +115,9 @@ struct LoginView: View {
         error = nil
         NSLog("[FieldWork] Attempting email sign-in for: %@", email)
         do {
-            let authId = try await appState.authManager.signInWithEmail(email: email, password: password)
-            NSLog("[FieldWork] Auth succeeded, authId: %@", authId)
-            await appState.signIn(authProviderId: authId, email: email)
+            let clerkUserId = try await appState.authManager.signInWithEmail(email: email, password: password)
+            NSLog("[FieldWork] Signed in to Clerk: %@", clerkUserId)
+            await appState.signIn(clerkUserId: clerkUserId, email: email)
         } catch {
             NSLog("[FieldWork] Sign-in error: %@", "\(error)")
             self.error = error.localizedDescription

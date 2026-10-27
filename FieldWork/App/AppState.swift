@@ -47,7 +47,7 @@ final class AppState {
         self.modelContainer = try! ModelContainer(for: schema, configurations: [config])
 
         self.supabaseManager = SupabaseManager()
-        self.authManager = AuthManager(supabase: supabaseManager)
+        self.authManager = AuthManager()
         self.networkMonitor = NetworkMonitor()
         self.syncEngine = SyncEngine(
             supabase: supabaseManager,
@@ -74,15 +74,15 @@ final class AppState {
         }
         #endif
 
-        guard let session = await authManager.restoreSession() else {
+        guard let clerkUserId = await authManager.restoreSession() else {
             return
         }
 
-        await loadUserContext(authProviderId: session.user.id.uuidString, email: session.user.email)
+        await loadUserContext(clerkUserId: clerkUserId, email: nil)
     }
 
-    func signIn(authProviderId: String, email: String?) async {
-        await loadUserContext(authProviderId: authProviderId, email: email)
+    func signIn(clerkUserId: String, email: String?) async {
+        await loadUserContext(clerkUserId: clerkUserId, email: email)
     }
 
     func signOut() async {
@@ -116,17 +116,16 @@ final class AppState {
     }
     #endif
 
-    private func loadUserContext(authProviderId: String, email: String?) async {
-        let normalizedId = authProviderId.lowercased()
+    private func loadUserContext(clerkUserId: String, email: String?) async {
         signInError = nil
         do {
-            NSLog("[FieldWork] Loading user context for auth ID: %@", normalizedId)
+            NSLog("[FieldWork] Loading user context for Clerk user: %@", clerkUserId)
 
-            // Look up user_account by auth_provider_id
+            // The Fletch user this Clerk login belongs to (linked by Fletch's Clerk webhook)
             let userAccount: UserAccount = try await supabaseManager.client
                 .from("user_account")
                 .select()
-                .eq("auth_provider_id", value: normalizedId)
+                .eq("clerk_user_id", value: clerkUserId)
                 .eq("is_active", value: true)
                 .single()
                 .execute()

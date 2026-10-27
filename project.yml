@@ -13,6 +13,9 @@ packages:
   Supabase:
     url: https://github.com/supabase/supabase-swift.git
     from: "2.0.0"
+  Clerk:
+    url: https://github.com/clerk/clerk-ios.git
+    exactVersion: "1.5.9"
 
 targets:
   FieldWork:
@@ -35,6 +38,8 @@ targets:
     dependencies:
       - package: Supabase
         product: Supabase
+      - package: Clerk
+        product: ClerkKit
     info:
       path: FieldWork/Resources/Info.plist
       properties:
@@ -48,10 +53,6 @@ targets:
         NSLocationWhenInUseUsageDescription: "FieldWork uses your location to record GPS coordinates during site visits."
         NSPhotoLibraryUsageDescription: "FieldWork needs photo library access to attach existing photos to jobs."
         SUPABASE_HOST: "$(SUPABASE_HOST)"
+        CLERK_PUBLISHABLE_KEY: "$(CLERK_PUBLISHABLE_KEY)"
         SUPABASE_ANON_KEY: "$(SUPABASE_ANON_KEY)"
         WEB_APP_URL: "$(WEB_APP_URL)"
-    entitlements:
-      path: FieldWork/Resources/FieldWork.entitlements
-      properties:
-        com.apple.developer.applesignin:
-          - Default

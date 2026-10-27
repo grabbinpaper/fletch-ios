@@ -3,7 +3,13 @@ import SwiftData
 
 @main
 struct FieldWorkApp: App {
-    @State private var appState = AppState()
+    @State private var appState: AppState
+
+    init() {
+        // Clerk has to be running before AppState's Supabase client asks it for a token.
+        AuthManager.configure()
+        _appState = State(initialValue: AppState())
+    }
 
     var body: some Scene {
         WindowGroup {

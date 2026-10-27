@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import ClerkKit
 
 final class SupabaseManager: Sendable {
     let client: SupabaseClient
@@ -13,7 +14,19 @@ final class SupabaseManager: Sendable {
             fatalError("Missing SUPABASE_HOST or SUPABASE_ANON_KEY in Info.plist")
         }
 
-        self.client = SupabaseClient(supabaseURL: url, supabaseKey: anonKey)
+        // Every request carries the tech's Clerk sign-in (Supabase trusts Clerk via Third-party auth),
+        // so the database security rules know who is asking. Signed out → the public key alone.
+        self.client = SupabaseClient(
+            supabaseURL: url,
+            supabaseKey: anonKey,
+            options: SupabaseClientOptions(auth: .init(accessToken: { try await Self.clerkSessionToken() }))
+        )
+    }
+
+    /// The current Clerk session token, or nil when signed out.
+    @MainActor
+    static func clerkSessionToken() async throws -> String? {
+        try await Clerk.shared.auth.getToken()
     }
 }
 
@@ -36,12 +49,14 @@ enum FieldworkWebAPI {
         visitId: UUID, channel: SignoffChannel, address: String, name: String?, appState: AppState
     ) async throws {
         guard let baseURL else { throw APIError(message: "The website address (WEB_APP_URL) isn't set in this build") }
-        let session = try await appState.supabaseManager.client.auth.session
+        guard let token = try await SupabaseManager.clerkSessionToken() else {
+            throw APIError(message: "Not signed in")
+        }
 
         var request = URLRequest(url: baseURL.appendingPathComponent("api/fieldwork/send-signoff"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         let body: [String: Any] = [
             "visitId": visitId.uuidString,
             "channel": channel.rawValue,

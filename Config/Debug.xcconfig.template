@@ -3,3 +3,5 @@ SUPABASE_URL = https://your-project.supabase.co
 SUPABASE_ANON_KEY = your-anon-key-here
 // The Fletch website (sends sign-off links). "$()" keeps // from starting a comment.
 WEB_APP_URL = http:/$()/localhost:3000
+// Clerk (same instance as the Fletch website). The publishable key is safe to ship in the app.
+CLERK_PUBLISHABLE_KEY = pk_test_your-publishable-key
