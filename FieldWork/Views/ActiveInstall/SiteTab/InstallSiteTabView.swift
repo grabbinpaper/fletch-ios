@@ -89,12 +89,11 @@ struct InstallSiteTabView: View {
                         viewModel.isSiteCapture = true
                         showCamera = true
                     } label: {
-                        Label("Take Site Photo", systemImage: "camera.fill")
-                            .font(.subheadline.bold())
+                        Label("Take site photo", systemImage: "camera.fill")
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(SFSecondaryButtonStyle())
                 }
                 .padding()
                 .sfCard()

@@ -368,7 +368,9 @@ final class CachedSurface {
 
     var displayName: String {
         let room = roomName ?? ""
-        let qualifier = roomQualifier.map { " (\($0))" } ?? ""
+        // "Kitchen (Kitchen)" says nothing extra: show the qualifier only when it adds something.
+        let qualifier = roomQualifier
+            .flatMap { $0.isEmpty || $0.caseInsensitiveCompare(room) == .orderedSame ? nil : " (\($0))" } ?? ""
         if room.isEmpty { return name }
         return "\(room)\(qualifier) — \(name)"
     }

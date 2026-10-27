@@ -206,6 +206,11 @@ struct ActiveVisitView: View {
         return tabs
     }
 
+    private var completeButtonFill: Color {
+        if !viewModel.canComplete { return .sfSurface300 }
+        return viewModel.isAllMeasured ? .sfInk : .sfWarning
+    }
+
     private var bottomBar: some View {
         VStack(spacing: 8) {
             // Progress summary
@@ -243,19 +248,25 @@ struct ActiveVisitView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                 } else {
-                    Text("Complete as Partial (\(viewModel.measuredCount)/\(viewModel.totalMeasurementCount))")
+                    Text("Complete as partial (\(viewModel.measuredCount)/\(viewModel.totalMeasurementCount))")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                 }
             }
-            .buttonStyle(.borderedProminent)
-            .tint(viewModel.isAllMeasured ? .sfInk : .sfWarning)
-            .foregroundStyle(Color.sfOnFill)
+            // Drawn by hand so the disabled state stays readable (a faded system button vanished
+            // into the bar): grey with muted text until there's something to finish.
+            .buttonStyle(.plain)
+            .foregroundStyle(viewModel.canComplete ? Color.sfOnFill : Color.sfInkMuted)
+            .background(completeButtonFill)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .disabled(!viewModel.canComplete)
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
-        .background(.bar)
+        .background(Color.sfSurface100)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Color.sfHairline).frame(height: 1)
+        }
     }
 }

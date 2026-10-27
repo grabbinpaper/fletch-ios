@@ -268,6 +268,23 @@ struct SFEmptyState: View {
     }
 }
 
+// MARK: - Secondary button
+
+/// Outlined button for the second action on a screen (take a photo, pick from library), so the
+/// one solid ink button stays the obvious next step. surface-200 fill, border-strong outline.
+struct SFSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .foregroundStyle(Color.sfInk.opacity(isEnabled ? 1 : 0.4))
+            .background(configuration.isPressed ? Color.sfSurface300 : Color.sfSurface200)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.sfBorderStrong, lineWidth: 1))
+    }
+}
+
 // MARK: - Primary button
 
 /// Brand primary button: ink fill, surface text, 6pt radius. Teal stays out of big fills.

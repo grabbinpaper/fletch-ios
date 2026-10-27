@@ -52,15 +52,14 @@ struct SiteConditionTabView: View {
                     viewModel.isSiteCapture = true
                     showCamera = true
                 } label: {
-                    Label("Take Site Photo", systemImage: "camera.fill")
+                    Label("Take site photo", systemImage: "camera.fill")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(SFSecondaryButtonStyle())
                 .padding(.horizontal)
                 .padding(.bottom, 8)
-                .foregroundStyle(Color.sfOnFill)
             }
         }
         .sheet(isPresented: $showCamera) {

@@ -243,8 +243,7 @@ struct PhotoTabView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                 }
-                .buttonStyle(.borderedProminent)
-                .foregroundStyle(Color.sfOnFill)
+                .buttonStyle(SFSecondaryButtonStyle())
 
                 PhotosPicker(
                     selection: $selectedPhotos,
@@ -255,7 +254,7 @@ struct PhotoTabView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SFSecondaryButtonStyle())
             }
             .padding(.horizontal)
         }

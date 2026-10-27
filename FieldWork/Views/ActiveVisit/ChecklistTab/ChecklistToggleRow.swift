@@ -15,7 +15,8 @@ struct ChecklistToggleRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(item.label)
-                    .font(.subheadline)
+                    .font(.body)
+                    .foregroundStyle(Color.sfInk)
 
                 Spacer()
 
@@ -43,7 +44,14 @@ struct ChecklistToggleRow: View {
                     .padding(.leading, 4)
             }
         }
+        .frame(minHeight: 52)
         .padding(.horizontal)
-        .padding(.vertical, 6)
+        .padding(.vertical, 2)
+        // Tapping anywhere on the row flips the switch, not just the switch itself (gloves).
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard !isReadOnly else { return }
+            onUpdate(isOn ? "pending" : "passed", isOn ? "false" : "true")
+        }
     }
 }

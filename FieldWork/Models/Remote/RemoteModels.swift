@@ -305,7 +305,8 @@ struct ScheduleSurface: Codable, Identifiable {
 
     var displayName: String {
         let room = roomName ?? ""
-        let qualifier = roomQualifier.map { " (\($0))" } ?? ""
+        let qualifier = roomQualifier
+            .flatMap { $0.isEmpty || $0.caseInsensitiveCompare(room) == .orderedSame ? nil : " (\($0))" } ?? ""
         let surfaceName = name ?? "Surface"
         return "\(room)\(qualifier) — \(surfaceName)"
     }

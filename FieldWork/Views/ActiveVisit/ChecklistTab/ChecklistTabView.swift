@@ -142,16 +142,31 @@ struct ChecklistPassFailRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                statusIcon
-                    .frame(width: 24)
+            HStack(spacing: 12) {
+                // The whole row is the tap target (gloves): tap to tick, tap again to clear.
+                // Fail / skip / N/A / notes stay in the menu on the right.
+                Button {
+                    onStatusChange(item.status == "passed" ? "pending" : "passed")
+                } label: {
+                    HStack(spacing: 12) {
+                        statusIcon
+                            .font(.title2)
+                            .frame(width: 32)
 
-                Text(item.label)
-                    .font(.subheadline)
-                    .strikethrough(item.status == "skipped" || item.status == "not_applicable")
-                    .foregroundStyle(item.status == "skipped" ? .secondary : .primary)
+                        Text(item.label)
+                            .font(.body)
+                            .strikethrough(item.status == "skipped" || item.status == "not_applicable")
+                            .foregroundStyle(item.status == "skipped" ? Color.sfInkMuted : Color.sfInk)
+                            .multilineTextAlignment(.leading)
 
-                Spacer()
+                        Spacer(minLength: 0)
+                    }
+                    .frame(minHeight: 52)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(isReadOnly)
+                .accessibilityAddTraits(item.status == "passed" ? .isSelected : [])
 
                 if let photoChip {
                     photoChip
@@ -182,8 +197,12 @@ struct ChecklistPassFailRow: View {
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(.secondary)
+                            .font(.title2)
+                            .foregroundStyle(Color.sfInkMuted)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
+                    .accessibilityLabel("More options")
                 }
             }
 
@@ -209,7 +228,7 @@ struct ChecklistPassFailRow: View {
             }
         }
         .padding(.horizontal)
-        .padding(.vertical, 6)
+        .padding(.vertical, 2)
         .onAppear {
             notesText = item.notes ?? ""
         }
