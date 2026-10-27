@@ -694,8 +694,10 @@ final class ActiveVisitViewModel {
 
     // MARK: - Completion
 
+    /// A laser visit has nothing to type: the sizes come from the laser file, so it's always "all measured".
     var isAllMeasured: Bool {
-        !booking.measurements.isEmpty && booking.measurements.allSatisfy(\.isMeasured)
+        if booking.isLaserVisit { return true }
+        return !booking.measurements.isEmpty && booking.measurements.allSatisfy(\.isMeasured)
     }
 
     var isPartial: Bool {
@@ -718,6 +720,7 @@ final class ActiveVisitViewModel {
     }
 
     var canComplete: Bool {
+        if booking.isLaserVisit { return !isValidating }
         let hasMeasurements = !booking.measurements.isEmpty
         let atLeastOneMeasured = booking.measurements.contains(where: \.isMeasured)
         // Not gated on completionBlockers: tapping Complete is what re-checks them, so gating here

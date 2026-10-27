@@ -171,12 +171,13 @@ struct SinkCheck: Equatable {
 
     /// What's still needed before this sink counts as checked (same as the office's
     /// visit_cutout_missing_evidence). Photos are counted by the caller.
-    func missingEvidence(quoted q: QuotedSinkSheet, hasSinkPhoto: Bool, hasFaucetPhoto: Bool) -> [String] {
+    /// `laser`: the laser captures the cutout, so it isn't measured by hand.
+    func missingEvidence(quoted q: QuotedSinkSheet, hasSinkPhoto: Bool, hasFaucetPhoto: Bool, laser: Bool = false) -> [String] {
         var out: [String] = []
         if sinkOnSite == nil { out.append("Say whether the sink is on site") }
         if sinkOnSite == true {
             if !hasSinkPhoto { out.append("Photo of the sink's box label or model number") }
-            if measuredWidth == nil || measuredDepth == nil { out.append("Measure the sink's cutout") }
+            if !laser && (measuredWidth == nil || measuredDepth == nil) { out.append("Measure the sink's cutout") }
         }
         if q.hasFaucet && !hasFaucetPhoto { out.append("Photo of the faucet or its spec sheet") }
         return out

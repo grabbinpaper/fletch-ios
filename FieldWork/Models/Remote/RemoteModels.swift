@@ -129,12 +129,15 @@ struct ScheduleService: Codable {
     let visitTypeCode: String?
     /// Install visits: another install day is still booked for this job after this one.
     let moreInstallDays: Bool?
+    /// Template visits: "tape" (sizes typed here) or "laser" (sizes come from the laser file the office uploads).
+    let measuredWith: String?
 
     enum CodingKeys: String, CodingKey {
         case serviceId = "service_id"
         case name, code
         case visitTypeCode = "visit_type_code"
         case moreInstallDays = "more_install_days"
+        case measuredWith = "measured_with"
     }
 }
 

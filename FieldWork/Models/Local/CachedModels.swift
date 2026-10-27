@@ -51,6 +51,7 @@ final class CachedBooking: Hashable {
     var serviceId: UUID
     var visitTypeCode: String?
     var moreInstallDays: Bool = false
+    var measuredWith: String?
 
     // Denormalized job fields
     var jobId: UUID?
@@ -124,6 +125,7 @@ final class CachedBooking: Hashable {
         self.serviceId = booking.service.serviceId
         self.visitTypeCode = booking.service.visitTypeCode
         self.moreInstallDays = booking.service.moreInstallDays ?? false
+        self.measuredWith = booking.service.measuredWith
 
         self.jobId = booking.job?.jobId
         self.jobServiceId = booking.jobService?.jobServiceId
@@ -217,6 +219,7 @@ final class CachedBooking: Hashable {
         self.visitCompletedAt = booking.visit?.completedAt.flatMap { parseDatetime($0) }
         self.visitTypeCode = booking.service.visitTypeCode
         self.moreInstallDays = booking.service.moreInstallDays ?? false
+        self.measuredWith = booking.service.measuredWith
         self.jobStatus = booking.job?.status ?? self.jobStatus
         self.signatureRequired = booking.signatureRequired
         self.signatureCaptured = booking.visit?.signatureCaptured ?? false
@@ -276,6 +279,9 @@ final class CachedBooking: Hashable {
 
     /// The service's visit type decides it (set per shop in Settings), never the service's name.
     var isInstallVisit: Bool { visitTypeCode == "INST" }
+
+    /// Templated with a laser: no sizes typed on the phone; the office uploads the laser's file.
+    var isLaserVisit: Bool { measuredWith == "laser" && !isInstallVisit }
 
     var fullAddress: String {
         [siteAddressLine1, siteCity, siteState, siteZip]

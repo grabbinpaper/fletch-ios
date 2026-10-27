@@ -76,8 +76,10 @@ struct CompletionView: View {
                                 if measurement?.hasDimensionChange == true {
                                     StatusBadge(text: "Changed", color: .sfWarning)
                                 }
-                                Image(systemName: measurement?.isMeasured == true ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(measurement?.isMeasured == true ? .sfSuccess : .secondary)
+                                // Laser visits: the laser file has every surface's size, so each one is done.
+                                let done = viewModel.booking.isLaserVisit || measurement?.isMeasured == true
+                                Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(done ? .sfSuccess : .secondary)
                                     .font(.caption)
                             }
                         }
@@ -184,6 +186,7 @@ struct CompletionView: View {
     }
 
     private var measurementStatus: String {
+        if viewModel.booking.isLaserVisit { return "By laser" }
         let total = viewModel.totalMeasurementCount
         let measured = viewModel.measuredCount
         return "\(measured)/\(total) surfaces"

@@ -209,21 +209,28 @@ struct ActiveVisitView: View {
     private var bottomBar: some View {
         VStack(spacing: 8) {
             // Progress summary
-            HStack {
-                ProgressView(value: viewModel.measurementProgress)
-                    .tint(.sfInk)
-                HStack(spacing: 4) {
-                    Text("\(viewModel.measuredCount)/\(viewModel.totalMeasurementCount) measured")
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                    if viewModel.skippedCount > 0 {
-                        Text("\u{00B7} \(viewModel.skippedCount) skipped")
+            if viewModel.booking.isLaserVisit {
+                Label("Measured by laser · sizes come from the laser file", systemImage: "scope")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+            } else {
+                HStack {
+                    ProgressView(value: viewModel.measurementProgress)
+                        .tint(.sfInk)
+                    HStack(spacing: 4) {
+                        Text("\(viewModel.measuredCount)/\(viewModel.totalMeasurementCount) measured")
                             .font(.caption.monospacedDigit())
-                            .foregroundStyle(.sfWarning)
+                            .foregroundStyle(.secondary)
+                        if viewModel.skippedCount > 0 {
+                            Text("\u{00B7} \(viewModel.skippedCount) skipped")
+                                .font(.caption.monospacedDigit())
+                                .foregroundStyle(.sfWarning)
+                        }
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
 
             Button {
                 viewModel.initiateCompletion()

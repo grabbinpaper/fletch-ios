@@ -10,6 +10,8 @@ struct MeasurementTabView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
+                if viewModel.booking.isLaserVisit { laserBanner }
+
                 ForEach(viewModel.booking.surfacesInOrder, id: \.surfaceId) { surface in
                     let measurement = viewModel.booking.measurement(for: surface.surfaceId)
                     SurfaceMeasurementCard(
@@ -17,6 +19,7 @@ struct MeasurementTabView: View {
                         measurement: measurement,
                         edgeProfiles: viewModel.edgeProfiles,
                         isReadOnly: viewModel.booking.visitStatus == "completed",
+                        isLaser: viewModel.booking.isLaserVisit,
                         onSave: {
                             if let m = measurement {
                                 viewModel.saveMeasurement(m, context: modelContext)
@@ -74,6 +77,22 @@ struct MeasurementTabView: View {
                                 isReadOnly: viewModel.booking.visitStatus == "completed")
         }
     }
+
+    /// Laser visits: say plainly what's not needed here, and what still is.
+    private var laserBanner: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("Measured by laser", systemImage: "scope")
+                .font(.headline)
+            Text("No sizes to type. The office adds the laser file and the sizes come from it.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Text("Still needed: photos of each surface, and the brand and model of anything the customer is supplying (sink, faucet, cooktop, soap dispenser) with a photo of its label or box.")
+                .font(.subheadline)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .sfCard()
+    }
 }
 
 // MARK: - Helpers
@@ -125,6 +144,8 @@ struct SurfaceMeasurementCard: View {
     let measurement: CachedMeasurement?
     let edgeProfiles: [EdgeProfileOption]
     let isReadOnly: Bool
+    /// Laser visit: no size, edge, seam or splash fields; fixtures, photos and notes stay.
+    var isLaser: Bool = false
     let onSave: () -> Void
     let onAddCutout: (CutoutFormData) -> Void
     let onRemoveCutout: (CachedCutout) -> Void
@@ -162,13 +183,15 @@ struct SurfaceMeasurementCard: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 12) {
                     quotedDimensions
-                    actualDimensions
+                    if !isLaser {
+                        actualDimensions
 
-                    Divider()
+                        Divider()
 
-                    edgeProfileSection
+                        edgeProfileSection
+                    }
 
-                    // Cutouts
+                    // Cutouts (on a laser visit: what the customer supplies, with its brand and model)
                     if let measurement {
                         Divider()
                         CutoutSection(
@@ -180,37 +203,39 @@ struct SurfaceMeasurementCard: View {
                         )
                     }
 
-                    Divider()
+                    if !isLaser {
+                        Divider()
 
-                    overhangSection
+                        overhangSection
 
-                    Divider()
+                        Divider()
 
-                    finishedEdgesSection
+                        finishedEdgesSection
 
-                    Divider()
+                        Divider()
 
-                    // Backsplash per-piece measurements
-                    if let measurement {
-                        BacksplashSection(
-                            backsplashMeasurements: measurement.backsplashMeasurements,
-                            isReadOnly: isReadOnly,
-                            onSave: onSaveBacksplash,
-                            onAdd: onAddBacksplash,
-                            onRemove: onRemoveBacksplash
-                        )
+                        // Backsplash per-piece measurements
+                        if let measurement {
+                            BacksplashSection(
+                                backsplashMeasurements: measurement.backsplashMeasurements,
+                                isReadOnly: isReadOnly,
+                                onSave: onSaveBacksplash,
+                                onAdd: onAddBacksplash,
+                                onRemove: onRemoveBacksplash
+                            )
+                        }
+
+                        Divider()
+
+                        seamSection
                     }
-
-                    Divider()
-
-                    seamSection
 
                     Divider()
 
                     notesSection
 
                     // Rare, so it lives inside the card in words rather than as an icon on every header.
-                    if !isReadOnly && measurement?.isMeasured == false && !isSkipped {
+                    if !isReadOnly && !isLaser && measurement?.isMeasured == false && !isSkipped {
                         Button { showSkipPicker = true } label: {
                             Label {
                                 Text("Can't measure this surface")

@@ -46,7 +46,8 @@ struct QuotedSinkCheckView: View {
     private func form(_ q: QuotedSinkSheet) -> some View {
         let hasSinkPhoto = viewModel.hasEvidencePhoto(cutout, category: "sink_label")
         let hasFaucetPhoto = viewModel.hasEvidencePhoto(cutout, category: "faucet")
-        let missing = check.missingEvidence(quoted: q, hasSinkPhoto: hasSinkPhoto, hasFaucetPhoto: hasFaucetPhoto)
+        let missing = check.missingEvidence(quoted: q, hasSinkPhoto: hasSinkPhoto, hasFaucetPhoto: hasFaucetPhoto,
+                                            laser: viewModel.booking.isLaserVisit)
         let changes = check.changeLines(from: q)
 
         return Form {
@@ -144,7 +145,7 @@ struct QuotedSinkCheckView: View {
                 ForEach(SinkCheck.mounts, id: \.0) { Text($0.1).tag(Optional($0.0)) }
             }
             .disabled(isReadOnly)
-            if check.sinkOnSite == true {
+            if check.sinkOnSite == true && !viewModel.booking.isLaserVisit {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Measure the sink's cutout").font(.subheadline)
                     HStack {
