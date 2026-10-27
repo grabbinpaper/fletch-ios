@@ -268,6 +268,22 @@ struct SFEmptyState: View {
     }
 }
 
+// MARK: - Filled action button
+
+/// Full-width filled action (Complete visit, Confirm & complete): `fill` with on-fill text when it
+/// can be tapped; grey with muted text when disabled, so it never fades into the background.
+struct SFFilledButtonStyle: ButtonStyle {
+    var fill: Color = .sfInk
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(isEnabled ? Color.sfOnFill : Color.sfInkMuted)
+            .background(isEnabled ? fill.opacity(configuration.isPressed ? 0.85 : 1) : Color.sfSurface300)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
 // MARK: - Secondary button
 
 /// Outlined button for the second action on a screen (take a photo, pick from library), so the

@@ -99,7 +99,8 @@ struct CompletionView: View {
                             title: "Checklist",
                             icon: "checklist",
                             status: "\(completed)/\(viewModel.checklistItems.count) items",
-                            isComplete: !hasBlocker("checklist_complete")
+                            // A check only when every item is answered; "0/12" with a check read as done.
+                            isComplete: completed == viewModel.checklistItems.count
                         ) {
                             EmptyView()
                         }
@@ -153,9 +154,7 @@ struct CompletionView: View {
                                 .frame(height: 50)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.sfInk)
-                    .foregroundStyle(Color.sfOnFill)
+                    .buttonStyle(SFFilledButtonStyle())
                     .disabled(viewModel.isCompleting || !viewModel.completionBlockers.isEmpty)
 
                     if let error = viewModel.error {

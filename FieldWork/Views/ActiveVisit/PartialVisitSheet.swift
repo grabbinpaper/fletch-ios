@@ -105,16 +105,14 @@ struct PartialVisitSheet: View {
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
                         } else {
-                            Text("Complete as Partial")
+                            Text("Complete as partial")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.sfWarning)
+                    .buttonStyle(SFFilledButtonStyle(fill: .sfWarning))
                     .disabled(viewModel.isCompleting || !viewModel.allSkippedHaveReasons || !viewModel.completionBlockers.isEmpty)
-                    .foregroundStyle(Color.sfOnFill)
 
                     if !viewModel.allSkippedHaveReasons {
                         Text("Please provide a skip reason for all unmeasured surfaces.")

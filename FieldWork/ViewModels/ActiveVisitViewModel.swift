@@ -691,7 +691,9 @@ final class ActiveVisitViewModel {
     var canComplete: Bool {
         let hasMeasurements = !booking.measurements.isEmpty
         let atLeastOneMeasured = booking.measurements.contains(where: \.isMeasured)
-        return hasMeasurements && atLeastOneMeasured && completionBlockers.isEmpty && !isValidating
+        // Not gated on completionBlockers: tapping Complete is what re-checks them, so gating here
+        // left the button dead after the tech fixed what was missing. The sheets block instead.
+        return hasMeasurements && atLeastOneMeasured && !isValidating
     }
 
     var allSkippedHaveReasons: Bool {
