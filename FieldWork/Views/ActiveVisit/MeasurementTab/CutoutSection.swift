@@ -25,7 +25,7 @@ struct CutoutSection: View {
                 if !isReadOnly {
                     Button { showAddSheet = true } label: {
                         Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(.sfAccentStrong)
+                            .foregroundStyle(.sfInkMuted)
                     }
                 }
             }
@@ -68,7 +68,7 @@ private struct QuotedSinkRow: View {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Text("Sink").font(.subheadline.bold())
-                        StatusBadge(text: "Sink sheet v\(cutout.sinkSheetVersion ?? 1)", color: .sfAccentStrong)
+                        StatusBadge(text: "Sink sheet v\(cutout.sinkSheetVersion ?? 1)", color: .sfInkMuted)
                         if cutout.checkedAt == nil {
                             StatusBadge(text: "Check on site", color: .sfWarning)
                         } else if !changes.isEmpty {

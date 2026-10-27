@@ -19,8 +19,7 @@ struct InstallSiteTabView: View {
                         .lineLimit(3...6)
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
 
                 // Access issues
                 VStack(alignment: .leading, spacing: 8) {
@@ -36,8 +35,7 @@ struct InstallSiteTabView: View {
                     }
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
 
                 // Tearout status
                 VStack(alignment: .leading, spacing: 8) {
@@ -63,8 +61,7 @@ struct InstallSiteTabView: View {
                     }
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
 
                 // Site photos
                 VStack(alignment: .leading, spacing: 8) {
@@ -100,8 +97,7 @@ struct InstallSiteTabView: View {
                     .buttonStyle(.bordered)
                 }
                 .padding()
-                .background(.regularMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .sfCard()
             }
             .padding()
         }

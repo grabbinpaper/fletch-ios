@@ -52,12 +52,12 @@ struct MeasurementTabView: View {
 
                 if viewModel.booking.visitStatus != "completed" {
                     Button { viewModel.showAddSurface = true } label: {
-                        Label("Add Surface", systemImage: "plus.circle.fill")
+                        Label("Add surface", systemImage: "plus.circle.fill")
                             .font(.subheadline.bold())
+                            .foregroundStyle(.sfInk)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(.regularMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .sfCard()
                     }
                 }
             }
@@ -214,8 +214,7 @@ struct SurfaceMeasurementCard: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
         .onAppear(perform: loadFields)
         .sheet(isPresented: $showEdgeSheet) {
             EdgeProfileListSheet(
@@ -336,9 +335,9 @@ struct SurfaceMeasurementCard: View {
                     Button { onCamera() } label: {
                         Image(systemName: "camera.fill")
                             .font(.title3)
-                            .foregroundStyle(.sfAccentStrong)
+                            .foregroundStyle(.sfInk)
                             .frame(width: 44, height: 44)
-                            .background(.sfAccentStrong.opacity(0.1))
+                            .background(.sfSurface300)
                             .clipShape(Circle())
                     }
                 }

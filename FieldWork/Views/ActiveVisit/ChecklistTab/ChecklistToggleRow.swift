@@ -32,7 +32,7 @@ struct ChecklistToggleRow: View {
                         }
                     ))
                     .labelsHidden()
-                    .tint(.sfSuccess)
+                    .tint(.sfInk)
                 }
             }
 

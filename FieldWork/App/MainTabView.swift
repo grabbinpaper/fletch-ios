@@ -15,22 +15,27 @@ struct MainTabView: View {
     var body: some View {
         @Bindable var appState = appState
 
+        // Teal marks only the selected tab; inside each tab, buttons and links are charcoal.
         TabView(selection: $appState.selectedTab) {
             Tab("Home", systemImage: "house.fill", value: AppTab.home) {
                 HomeView()
+                    .tint(.sfInk)
             }
 
             Tab("Schedule", systemImage: "calendar", value: AppTab.schedule) {
                 ScheduleView()
+                    .tint(.sfInk)
             }
 
             Tab("Visit", systemImage: activeVisitIcon, value: AppTab.activeVisit) {
                 activeVisitContent
+                    .tint(.sfInk)
             }
             .badge(appState.activeBooking != nil ? 1 : 0)
 
             Tab("Settings", systemImage: "gear", value: AppTab.settings) {
                 SettingsView()
+                    .tint(.sfInk)
             }
         }
     }

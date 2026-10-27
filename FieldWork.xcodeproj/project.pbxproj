@@ -36,6 +36,7 @@
 		63C4B14F7A4EBE619642F2BE /* CutoutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEE9E49ABD9478924851723 /* CutoutSection.swift */; };
 		6F9B8816F92E996B155BCEA6 /* MeasurementTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298BDA54DC3CD9AA57120FCD /* MeasurementTabView.swift */; };
 		818DAB91AF7779CD7C1DB30E /* SinkCutoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F51BAE8FE697A419314D05 /* SinkCutoutForm.swift */; };
+		82E7207686D64A08BB5088D4 /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097521570C8FBFE5A69FBDB1 /* DemoMode.swift */; };
 		85CC83502A993B3F4135461F /* AreasTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862257FC2F3FC918327BE03D /* AreasTabView.swift */; };
 		87188F997B4458025F430685 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F464765E79993386ACE039 /* NetworkMonitor.swift */; };
 		8792956182C5E7867587606F /* ActiveInstallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A8967F6C2708A85C01C0B3 /* ActiveInstallView.swift */; };
@@ -82,6 +83,7 @@
 /* Begin PBXFileReference section */
 		00896E7C841DF9C57102B3C0 /* ChecklistPickerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistPickerRow.swift; sourceTree = "<group>"; };
 		05F51BAE8FE697A419314D05 /* SinkCutoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinkCutoutForm.swift; sourceTree = "<group>"; };
+		097521570C8FBFE5A69FBDB1 /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoMode.swift; sourceTree = "<group>"; };
 		0DA9A273D3C40A6616EB7DEA /* AddSurfaceSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSurfaceSheet.swift; sourceTree = "<group>"; };
 		10D120AF9A23C5A57C4576B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		125A7F3FF3EA8F5AAE88EBF5 /* InstallCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallCompletionView.swift; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				12BFA3CEC304527B30E2A2BA /* AppState.swift */,
+				097521570C8FBFE5A69FBDB1 /* DemoMode.swift */,
 				8A8B8C7E0C6F31FD3EBDAABC /* FieldWorkApp.swift */,
 				B76224E972F3E3166BFE2368 /* MainTabView.swift */,
 			);
@@ -607,6 +610,7 @@
 				6210E92026B583664C557EBE /* CooktopCutoutForm.swift in Sources */,
 				63C4B14F7A4EBE619642F2BE /* CutoutSection.swift in Sources */,
 				AAC7F1F46DEAD091E49FD8DD /* Date+Extensions.swift in Sources */,
+				82E7207686D64A08BB5088D4 /* DemoMode.swift in Sources */,
 				990D67F36357C7FBFEC2190E /* DraftManager.swift in Sources */,
 				16B80E85E4C81F88E5F1BE2B /* EdgeProfilePicker.swift in Sources */,
 				4E39643D5C43964BE71E5859 /* FieldWorkApp.swift in Sources */,

@@ -68,7 +68,7 @@ struct EdgeProfileListSheet: View {
                         Spacer()
                         if profile.id == currentId {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(.sfAccentStrong)
+                                .foregroundStyle(.sfInkMuted)
                                 .fontWeight(.semibold)
                         }
                     }

@@ -1,6 +1,33 @@
 import Foundation
 import SwiftData
 
+/// The day the Schedule tab is showing. Crews only look one day ahead.
+enum ScheduleDay: String, CaseIterable {
+    case today, tomorrow
+
+    var title: String { self == .today ? "Today" : "Tomorrow" }
+
+    /// Start of this day on the phone's calendar.
+    var date: Date {
+        let today = Calendar.current.startOfDay(for: Date())
+        return self == .today ? today : Calendar.current.date(byAdding: .day, value: 1, to: today)!
+    }
+
+    /// "yyyy-MM-dd", as the schedule RPC takes it.
+    var apiString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+
+    /// "Wednesday, Oct 28"
+    var formatted: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter.string(from: date)
+    }
+}
+
 @Observable
 final class ScheduleViewModel {
     var bookings: [CachedBooking] = []
@@ -31,7 +58,7 @@ final class ScheduleViewModel {
     }
 
     @MainActor
-    func loadSchedule(context: ModelContext) async {
+    func loadSchedule(context: ModelContext, day: ScheduleDay = .today) async {
         guard let appState else {
             NSLog("[FieldWork] loadSchedule: appState is nil")
             return
@@ -40,6 +67,13 @@ final class ScheduleViewModel {
         isLoading = true
         error = nil
 
+        // The demo's jobs live only on the phone; there's no server schedule to fetch.
+        if appState.isDemo {
+            loadFromCache(context: context, day: day)
+            isLoading = false
+            return
+        }
+
         let hasNetwork = appState.networkMonitor.isConnected
         let staffId = appState.staffId
         NSLog("[FieldWork] loadSchedule: network=%d staffId=%@", hasNetwork ? 1 : 0, staffId?.uuidString ?? "nil")
@@ -47,8 +81,8 @@ final class ScheduleViewModel {
         // Try to load from remote first
         if hasNetwork, let staffId {
             do {
-                NSLog("[FieldWork] Fetching schedule for staff: %@ date: %@", staffId.uuidString, Date.todayString)
-                let remoteBookings = try await Self.fetchTodaysBookings(appState: appState, staffId: staffId)
+                NSLog("[FieldWork] Fetching schedule for staff: %@ date: %@", staffId.uuidString, day.apiString)
+                let remoteBookings = try await Self.fetchBookings(appState: appState, staffId: staffId, date: day.apiString)
                 NSLog("[FieldWork] Decoded %d bookings", remoteBookings.count)
 
                 // Upsert into SwiftData
@@ -68,22 +102,27 @@ final class ScheduleViewModel {
         }
 
         // Always read from local cache
-        loadFromCache(context: context)
+        loadFromCache(context: context, day: day)
         NSLog("[FieldWork] loadFromCache returned %d bookings", bookings.count)
         isLoading = false
     }
 
-    func loadFromCache(context: ModelContext) {
-        bookings = (try? context.fetch(Self.todaysBookingsDescriptor())) ?? []
+    func loadFromCache(context: ModelContext, day: ScheduleDay = .today) {
+        bookings = (try? context.fetch(Self.bookingsDescriptor(for: day))) ?? []
     }
 
     /// Today's bookings stored on the phone, earliest first (Schedule and Home tabs).
     static func todaysBookingsDescriptor() -> FetchDescriptor<CachedBooking> {
-        let today = Calendar.current.startOfDay(for: Date())
-        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        bookingsDescriptor(for: .today)
+    }
+
+    /// One day's bookings stored on the phone, earliest first.
+    static func bookingsDescriptor(for day: ScheduleDay) -> FetchDescriptor<CachedBooking> {
+        let start = day.date
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
         return FetchDescriptor<CachedBooking>(
             predicate: #Predicate<CachedBooking> {
-                $0.scheduledDate >= today && $0.scheduledDate < tomorrow
+                $0.scheduledDate >= start && $0.scheduledDate < end
             },
             sortBy: [SortDescriptor(\.startDatetime)]
         )
@@ -91,10 +130,15 @@ final class ScheduleViewModel {
 
     /// Today's bookings for this tech, straight from the server.
     static func fetchTodaysBookings(appState: AppState, staffId: UUID) async throws -> [ScheduleBooking] {
+        try await fetchBookings(appState: appState, staffId: staffId, date: ScheduleDay.today.apiString)
+    }
+
+    /// One day's bookings for this tech ("yyyy-MM-dd"), straight from the server.
+    static func fetchBookings(appState: AppState, staffId: UUID, date: String) async throws -> [ScheduleBooking] {
         let response: ScheduleResponse = try await appState.supabaseManager.client
             .rpc("get_tech_schedule", params: [
                 "p_staff_id": staffId.uuidString,
-                "p_date": Date.todayString
+                "p_date": date
             ])
             .execute()
             .value

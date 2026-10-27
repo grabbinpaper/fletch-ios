@@ -33,8 +33,7 @@ struct InstallSurfaceCard: View {
                 expandedContent
             }
         }
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
         .onAppear {
             // Load existing issue details
             if let status = surfaceStatus {
@@ -75,9 +74,9 @@ struct InstallSurfaceCard: View {
                 Button(action: onCamera) {
                     Image(systemName: "camera.fill")
                         .font(.subheadline)
-                        .foregroundStyle(.sfOnFill)
+                        .foregroundStyle(.sfInk)
                         .frame(width: 32, height: 32)
-                        .background(.sfAccentStrong)
+                        .background(.sfSurface300)
                         .clipShape(Circle())
                 }
             }
@@ -213,7 +212,7 @@ struct InstallSurfaceCard: View {
                 } label: {
                     HStack {
                         Image(systemName: picked ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(picked ? .sfAccentStrong : .secondary)
+                            .foregroundStyle(picked ? .sfInk : .secondary)
                         Text(reason.label)
                             .font(.subheadline)
                             .foregroundStyle(.primary)
@@ -227,7 +226,7 @@ struct InstallSurfaceCard: View {
             if viewModel.issueReason(id: selectedReasonCode)?.requiresPhoto == true {
                 Label("Take a photo of this with the camera button", systemImage: "camera")
                     .font(.caption)
-                    .foregroundStyle(.sfAccentStrong)
+                    .foregroundStyle(.sfInkMuted)
             }
 
             // Notes

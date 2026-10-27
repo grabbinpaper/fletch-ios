@@ -48,7 +48,7 @@ struct InstallPhotoTabView: View {
         for surface in viewModel.booking.surfaces {
             let surfacePhotos = viewModel.photos.filter { $0.surfaceId == surface.surfaceId }
             if !surfacePhotos.isEmpty {
-                groups.append((key: surface.surfaceId.uuidString, title: surface.displayName, icon: "square.stack.3d.up", tint: .sfAccentStrong, photos: surfacePhotos))
+                groups.append((key: surface.surfaceId.uuidString, title: surface.displayName, icon: "square.stack.3d.up", tint: .sfInkMuted, photos: surfacePhotos))
             }
         }
         return groups
@@ -172,7 +172,7 @@ struct InstallPhotoTabView: View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: selectedSurfaceId == nil ? "mappin.circle.fill" : "square.stack.3d.up")
-                    .foregroundStyle(selectedSurfaceId == nil ? .sfWarning : .sfAccentStrong)
+                    .foregroundStyle(selectedSurfaceId == nil ? .sfWarning : .sfInk)
                     .font(.subheadline)
                 Picker("Surface", selection: $selectedSurfaceId) {
                     Text("Site Photo").tag(nil as UUID?)
@@ -195,6 +195,7 @@ struct InstallPhotoTabView: View {
                         .frame(height: 44)
                 }
                 .buttonStyle(.borderedProminent)
+                .foregroundStyle(Color.sfOnFill)
 
                 PhotosPicker(
                     selection: $selectedPhotos,
@@ -224,7 +225,7 @@ struct InstallPhotoTabView: View {
         selectedPhotoForDetail = nil
     }
 
-    private func filterChip(_ label: String, count: Int, isSelected: Bool, tint: Color = .sfAccentStrong, action: @escaping () -> Void) -> some View {
+    private func filterChip(_ label: String, count: Int, isSelected: Bool, tint: Color = .sfInk, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 4) {
                 Text(label)

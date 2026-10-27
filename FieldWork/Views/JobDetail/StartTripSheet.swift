@@ -67,7 +67,7 @@ struct StartTripSheet: View {
                             Spacer()
                         }
                     }
-                    .listRowBackground(Color.sfAccentStrong)
+                    .listRowBackground(Color.sfInk)
                     .foregroundStyle(.sfOnFill)
                 }
             }

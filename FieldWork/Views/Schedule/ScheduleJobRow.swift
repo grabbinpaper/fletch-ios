@@ -8,7 +8,7 @@ struct ScheduleJobRow: View {
             HStack {
                 // Time
                 Text(booking.startDatetime.formatted(date: .omitted, time: .shortened))
-                    .font(.system(.subheadline, design: .monospaced))
+                    .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.sfInkMuted)
 
                 Spacer()
@@ -24,7 +24,7 @@ struct ScheduleJobRow: View {
                 // Visit type
                 StatusBadge(
                     text: booking.isInstallVisit ? "Install" : "Template",
-                    color: booking.isInstallVisit ? .sfInfo : .sfAccentStrong
+                    color: .sfInkMuted
                 )
 
                 // Visit status
@@ -39,8 +39,8 @@ struct ScheduleJobRow: View {
             // Job number + customer
             HStack {
                 if let jobNumber = booking.jobNumber {
-                    Text("#\(jobNumber)")
-                        .font(.system(.headline, design: .monospaced))
+                    Text(jobNumber)
+                        .font(.headline.monospacedDigit())
                         .foregroundStyle(.sfInk)
                 }
 
@@ -71,7 +71,7 @@ struct ScheduleJobRow: View {
                     }
                 }
 
-                Label("\(booking.surfaceCount) surfaces",
+                Label(booking.surfaceCount == 1 ? "1 surface" : "\(booking.surfaceCount) surfaces",
                       systemImage: "square.dashed")
                     .font(.caption)
             }

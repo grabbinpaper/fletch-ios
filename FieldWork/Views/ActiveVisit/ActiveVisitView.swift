@@ -69,7 +69,8 @@ struct ActiveVisitView: View {
         .onChange(of: visibleTabs) { _, tabs in
             if !tabs.contains(viewModel.selectedTab) { viewModel.selectedTab = .measurements }
         }
-        .navigationTitle("Template Visit")
+        .background(Color.sfSurface100.ignoresSafeArea())
+        .navigationTitle("Template visit")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -210,7 +211,7 @@ struct ActiveVisitView: View {
             // Progress summary
             HStack {
                 ProgressView(value: viewModel.measurementProgress)
-                    .tint(viewModel.measurementProgress == 1.0 ? .sfSuccess : .sfAccentStrong)
+                    .tint(.sfInk)
                 HStack(spacing: 4) {
                     Text("\(viewModel.measuredCount)/\(viewModel.totalMeasurementCount) measured")
                         .font(.caption.monospacedDigit())
@@ -249,7 +250,8 @@ struct ActiveVisitView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
-            .tint(viewModel.isAllMeasured ? .sfSuccess : .sfWarning)
+            .tint(viewModel.isAllMeasured ? .sfInk : .sfWarning)
+            .foregroundStyle(Color.sfOnFill)
             .disabled(!viewModel.canComplete)
             .padding(.horizontal)
         }

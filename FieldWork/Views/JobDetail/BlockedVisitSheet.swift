@@ -33,7 +33,7 @@ struct BlockedVisitSheet: View {
                                 Spacer()
                                 if selectedReason == reason {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(.sfAccentStrong)
+                                        .foregroundStyle(.sfInkMuted)
                                         .fontWeight(.semibold)
                                 }
                             }
@@ -115,7 +115,7 @@ enum BlockedReason: String, CaseIterable, Identifiable {
     var iconColor: Color {
         switch self {
         case .noSiteAccess: return .sfWarning
-        case .customerNotHome: return .sfAccentStrong
+        case .customerNotHome: return .sfInkMuted
         case .siteNotReady: return .sfInfo
         case .safetyHazard: return .sfDanger
         case .wrongAddress: return .sfInkMuted

@@ -36,7 +36,7 @@ struct FinishedEdgesView: View {
                                 .font(.caption.bold())
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(isSelected ? Color.sfAccentStrong : Color(.systemGray5))
+                                .background(isSelected ? Color.sfInk : Color.sfSurface300)
                                 .foregroundStyle(isSelected ? .sfOnFill : .primary)
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                         }

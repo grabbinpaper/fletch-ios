@@ -23,6 +23,7 @@ struct SettingsView: View {
                         LabeledContent("Crew", value: crewId.uuidString.prefix(8) + "...")
                     }
                 }
+                .listRowBackground(Color.sfSurface200)
 
                 // Travel
                 Section("Default start location") {
@@ -35,6 +36,7 @@ struct SettingsView: View {
                             .foregroundStyle(.sfInkMuted)
                     }
                 }
+                .listRowBackground(Color.sfSurface200)
 
                 // Sync Status
                 Section("Sync") {
@@ -63,6 +65,7 @@ struct SettingsView: View {
                         }
                     }
                 }
+                .listRowBackground(Color.sfSurface200)
 
                 // Sign Out
                 Section {
@@ -85,6 +88,7 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 32)
                 }
+                .listRowBackground(Color.sfSurface200)
             }
             .sfScreenBackground()
             .navigationTitle("Settings")

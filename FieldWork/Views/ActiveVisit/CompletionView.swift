@@ -110,7 +110,7 @@ struct CompletionView: View {
                         HStack(spacing: 10) {
                             Image(systemName: "signature")
                                 .font(.title3)
-                                .foregroundStyle(.sfAccentStrong)
+                                .foregroundStyle(.sfInkMuted)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Signature link will be sent")
                                     .font(.subheadline.bold())
@@ -120,7 +120,7 @@ struct CompletionView: View {
                             }
                         }
                         .padding()
-                        .background(Color.sfAccentStrong.opacity(0.06))
+                        .background(Color.sfSurface300)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
@@ -154,7 +154,8 @@ struct CompletionView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.sfSuccess)
+                    .tint(.sfInk)
+                    .foregroundStyle(Color.sfOnFill)
                     .disabled(viewModel.isCompleting || !viewModel.completionBlockers.isEmpty)
 
                     if let error = viewModel.error {
@@ -220,8 +221,7 @@ struct CompletionView: View {
             content()
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     private func formatInches(_ value: Double) -> String {

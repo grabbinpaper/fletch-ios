@@ -28,7 +28,7 @@ struct NavigateButton: View {
                 .font(.subheadline)
         }
         .buttonStyle(.bordered)
-        .tint(.sfAccentStrong)
+        .tint(.sfInk)
     }
 }
 

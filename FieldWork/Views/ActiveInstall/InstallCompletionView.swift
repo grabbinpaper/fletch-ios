@@ -125,7 +125,7 @@ struct InstallCompletionView: View {
                 if let how = viewModel.linkTargetsDescription {
                     Label("Sign-off link will be \(how) when you finish", systemImage: "paperplane.fill")
                         .font(.subheadline)
-                        .foregroundStyle(.sfAccentStrong)
+                        .foregroundStyle(.sfInkMuted)
                 } else {
                     Label("No phone or email picked — go back to the Sign tab to choose where the link goes",
                           systemImage: "exclamationmark.triangle")
@@ -139,8 +139,7 @@ struct InstallCompletionView: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Flagged Surfaces
@@ -252,7 +251,7 @@ struct InstallCompletionView: View {
             if result.signaturePending == true {
                 if viewModel.signatureLinkSent {
                     Label("Sign-off link sent", systemImage: "paperplane.fill")
-                        .foregroundStyle(.sfAccentStrong)
+                        .foregroundStyle(.sfInkMuted)
                 } else {
                     Label("Customer still needs to sign off — send the link from the Sign tab, or the office can",
                           systemImage: "signature")
@@ -266,8 +265,7 @@ struct InstallCompletionView: View {
         .font(.subheadline)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Notes
@@ -283,8 +281,7 @@ struct InstallCompletionView: View {
                 .lineLimit(3...6)
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Confirm
@@ -312,7 +309,8 @@ struct InstallCompletionView: View {
             }
         }
         .buttonStyle(.borderedProminent)
-        .tint(viewModel.flaggedCount > 0 ? .sfWarning : .sfSuccess)
+        .tint(viewModel.flaggedCount > 0 ? .sfWarning : .sfInk)
+        .foregroundStyle(Color.sfOnFill)
         .disabled(viewModel.isCompleting)
     }
 }

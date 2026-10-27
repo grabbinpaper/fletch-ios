@@ -12,10 +12,14 @@ final class AppState {
     var staffName: String = ""
     /// Why the last sign-in didn't get past the login screen (shown there).
     var signInError: String?
+    /// Signed in to the development-only demo (sample jobs, no server).
+    var isDemo = false
 
     // Active visit tracking for tab navigation
     var activeBooking: CachedBooking?
     var selectedTab: AppTab = .home
+    /// Which day the Schedule tab shows (Home's "See tomorrow" switches it).
+    var scheduleDay: ScheduleDay = .today
 
     let modelContainer: ModelContainer
     let authManager: AuthManager
@@ -63,6 +67,13 @@ final class AppState {
     func checkExistingSession() async {
         defer { isCheckingAuth = false }
 
+        #if DEBUG
+        if DemoMode.requestedAtLaunch {
+            await startDemo()
+            return
+        }
+        #endif
+
         guard let session = await authManager.restoreSession() else {
             return
         }
@@ -75,6 +86,13 @@ final class AppState {
     }
 
     func signOut() async {
+        #if DEBUG
+        if isDemo {
+            let container = modelContainer
+            await MainActor.run { DemoMode.clear(from: container.mainContext) }
+            isDemo = false
+        }
+        #endif
         await authManager.signOut()
         staffId = nil
         organizationId = nil
@@ -82,6 +100,21 @@ final class AppState {
         staffName = ""
         isAuthenticated = false
     }
+
+    #if DEBUG
+    /// Signs in as the demo tech with today's sample jobs. Development builds only.
+    @MainActor
+    func startDemo() {
+        DemoMode.seed(into: modelContainer.mainContext)
+        staffId = DemoMode.staffId
+        organizationId = DemoMode.organizationId
+        crewId = DemoMode.crewId
+        staffName = "Dave"
+        signInError = nil
+        isDemo = true
+        isAuthenticated = true
+    }
+    #endif
 
     private func loadUserContext(authProviderId: String, email: String?) async {
         let normalizedId = authProviderId.lowercased()

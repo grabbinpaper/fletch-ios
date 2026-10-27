@@ -213,7 +213,7 @@ final class ActiveInstallViewModel {
     }
 
     var ctaColor: Color {
-        if allInstalled { return .sfSuccess }
+        if allInstalled { return .sfInk }
         if flaggedCount > 0 { return .sfWarning }
         return .sfWarning
     }

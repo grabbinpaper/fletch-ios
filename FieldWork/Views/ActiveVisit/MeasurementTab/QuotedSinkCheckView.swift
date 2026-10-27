@@ -267,8 +267,8 @@ private struct YesNo: View {
             Text(label).font(.subheadline).frame(maxWidth: .infinity).padding(.vertical, 6)
         }
         .buttonStyle(.bordered)
-        .tint(value == v ? .sfAccentStrong : .sfInkMuted)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(value == v ? Color.sfAccentStrong : .clear, lineWidth: 2))
+        .tint(value == v ? .sfInk : .sfInkMuted)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(value == v ? Color.sfInk : .clear, lineWidth: 2))
     }
 }
 
@@ -286,7 +286,7 @@ private struct EvidencePhotoButton: View {
     var body: some View {
         HStack {
             Image(systemName: done ? "checkmark.circle.fill" : "camera.fill")
-                .foregroundStyle(done ? .sfSuccess : .sfAccentStrong)
+                .foregroundStyle(done ? .sfSuccess : .sfInk)
             #if targetEnvironment(simulator)
             PhotosPicker(selection: $pick, matching: .images) { Text(done ? "\(title) ✓ (add another)" : title) }
                 .disabled(disabled)

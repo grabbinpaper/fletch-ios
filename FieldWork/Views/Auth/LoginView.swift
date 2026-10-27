@@ -71,6 +71,14 @@ struct LoginView: View {
                 .disabled(email.isEmpty || password.isEmpty || isSigningIn)
                 .padding(.top, 4)
 
+                #if DEBUG
+                Button("Open demo") {
+                    appState.startDemo()
+                }
+                .font(.footnote)
+                .foregroundStyle(Color.sfInkMuted)
+                #endif
+
                 if let error = error ?? appState.signInError {
                     Text(error)
                         .font(.caption)

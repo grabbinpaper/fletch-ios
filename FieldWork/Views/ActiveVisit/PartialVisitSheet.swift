@@ -114,6 +114,7 @@ struct PartialVisitSheet: View {
                     .buttonStyle(.borderedProminent)
                     .tint(.sfWarning)
                     .disabled(viewModel.isCompleting || !viewModel.allSkippedHaveReasons || !viewModel.completionBlockers.isEmpty)
+                    .foregroundStyle(Color.sfOnFill)
 
                     if !viewModel.allSkippedHaveReasons {
                         Text("Please provide a skip reason for all unmeasured surfaces.")
@@ -187,7 +188,6 @@ private struct SurfaceSkipRow: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 }

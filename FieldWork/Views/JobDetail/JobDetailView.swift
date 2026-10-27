@@ -30,7 +30,8 @@ struct JobDetailView: View {
             // Sticky bottom CTA
             bottomCTA
         }
-        .navigationTitle(viewModel.booking.jobNumber.map { "#\($0)" } ?? "Job Detail")
+        .background(Color.sfSurface100.ignoresSafeArea())
+        .navigationTitle(viewModel.booking.jobNumber ?? "Job detail")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             viewModel.configure(appState: appState)
@@ -83,8 +84,7 @@ struct JobDetailView: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Warnings
@@ -106,7 +106,7 @@ struct JobDetailView: View {
                 if viewModel.booking.plumbingDisconnect {
                     HStack(spacing: 8) {
                         Image(systemName: "wrench.and.screwdriver.fill")
-                            .foregroundStyle(.sfAccentStrong)
+                            .foregroundStyle(.sfInkMuted)
                             .font(.caption)
                         Text("Plumbing Disconnect")
                             .font(.caption.bold())
@@ -141,7 +141,7 @@ struct JobDetailView: View {
                     Button { viewModel.callPhone(phone) } label: {
                         Image(systemName: "phone.fill")
                             .font(.subheadline)
-                            .foregroundStyle(.sfAccentStrong)
+                            .foregroundStyle(.sfInkMuted)
                     }
                 }
             }
@@ -158,7 +158,7 @@ struct JobDetailView: View {
                         Button { viewModel.callPhone(phone) } label: {
                             Image(systemName: "phone.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.sfAccentStrong)
+                                .foregroundStyle(.sfInkMuted)
                         }
                     }
                 }
@@ -166,8 +166,7 @@ struct JobDetailView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Site Card
@@ -181,7 +180,7 @@ struct JobDetailView: View {
                 Button { viewModel.openInMaps() } label: {
                     Image(systemName: "arrow.triangle.turn.up.right.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.sfAccentStrong)
+                        .foregroundStyle(.sfInkMuted)
                 }
             }
 
@@ -196,7 +195,7 @@ struct JobDetailView: View {
                         Button { viewModel.callPhone(phone) } label: {
                             Image(systemName: "phone.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.sfAccentStrong)
+                                .foregroundStyle(.sfInkMuted)
                         }
                     }
                 }
@@ -210,8 +209,7 @@ struct JobDetailView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Scope
@@ -238,8 +236,7 @@ struct JobDetailView: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sfCard()
     }
 
     // MARK: - Travel Card
@@ -257,8 +254,7 @@ struct JobDetailView: View {
             }
             .foregroundStyle(.secondary)
             .padding()
-            .background(.regularMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .sfCard()
         }
     }
 
@@ -299,6 +295,7 @@ struct JobDetailView: View {
                     .frame(height: 44)
             }
             .buttonStyle(.borderedProminent)
+            .foregroundStyle(Color.sfOnFill)
         }
     }
 
@@ -306,7 +303,7 @@ struct JobDetailView: View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "location.fill")
-                    .foregroundStyle(.sfAccentStrong)
+                    .foregroundStyle(.sfInkMuted)
                 Text("Location needed to track mileage and verify on-site work")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -320,6 +317,7 @@ struct JobDetailView: View {
                     .frame(height: 44)
             }
             .buttonStyle(.borderedProminent)
+            .foregroundStyle(Color.sfOnFill)
         }
     }
 
@@ -347,6 +345,7 @@ struct JobDetailView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(viewModel.isStartingVisit)
+                .foregroundStyle(Color.sfOnFill)
 
                 cantMakeItButton
 
@@ -371,7 +370,8 @@ struct JobDetailView: View {
                     .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.sfSuccess)
+                .tint(.sfInk)
+                .foregroundStyle(Color.sfOnFill)
                 .disabled(viewModel.isArrivingAtSite)
 
                 cantMakeItButton
@@ -387,6 +387,7 @@ struct JobDetailView: View {
                     .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
+                .foregroundStyle(Color.sfOnFill)
 
             case .completed:
                 Button { openActiveVisit() } label: {

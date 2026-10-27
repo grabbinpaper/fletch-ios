@@ -59,7 +59,8 @@ struct ActiveInstallView: View {
         .onChange(of: viewModel.visibleTabs) { _, tabs in
             if !tabs.contains(viewModel.selectedTab) { viewModel.selectedTab = .areas }
         }
-        .navigationTitle("Install Visit")
+        .background(Color.sfSurface100.ignoresSafeArea())
+        .navigationTitle("Install visit")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -190,7 +191,7 @@ struct ActiveInstallView: View {
             // Progress summary
             HStack {
                 ProgressView(value: viewModel.surfaceProgress)
-                    .tint(viewModel.allInstalled ? .sfSuccess : .sfAccentStrong)
+                    .tint(.sfInk)
                 HStack(spacing: 4) {
                     Text("\(viewModel.confirmedCount)/\(viewModel.totalSurfaceCount) confirmed")
                         .font(.caption.monospacedDigit())
@@ -214,6 +215,7 @@ struct ActiveInstallView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(viewModel.ctaColor)
+            .foregroundStyle(Color.sfOnFill)
             .padding(.horizontal)
         }
         .padding(.vertical, 8)

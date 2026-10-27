@@ -29,7 +29,7 @@ struct ChecklistPhotoChip: View {
 
     private var chipBackground: Color {
         if photoCount > 0 {
-            return .sfSuccess.opacity(0.15)
+            return .sfSurface300
         } else if isRequired {
             return .sfWarning.opacity(0.15)
         }

@@ -57,7 +57,7 @@ struct PhotoTabView: View {
         for surface in viewModel.booking.surfaces {
             let surfacePhotos = viewModel.photos.filter { $0.surfaceId == surface.surfaceId }
             if !surfacePhotos.isEmpty {
-                groups.append((key: surface.surfaceId.uuidString, title: surface.displayName, icon: "square.stack.3d.up", tint: .sfAccentStrong, photos: surfacePhotos))
+                groups.append((key: surface.surfaceId.uuidString, title: surface.displayName, icon: "square.stack.3d.up", tint: .sfInkMuted, photos: surfacePhotos))
             }
         }
 
@@ -219,7 +219,7 @@ struct PhotoTabView: View {
             // Surface picker — site photo if no surface selected
             HStack(spacing: 8) {
                 Image(systemName: selectedSurfaceId == nil ? "mappin.circle.fill" : "square.stack.3d.up")
-                    .foregroundStyle(selectedSurfaceId == nil ? .sfWarning : .sfAccentStrong)
+                    .foregroundStyle(selectedSurfaceId == nil ? .sfWarning : .sfInk)
                     .font(.subheadline)
 
                 Picker("Surface", selection: $selectedSurfaceId) {
@@ -244,6 +244,7 @@ struct PhotoTabView: View {
                         .frame(height: 44)
                 }
                 .buttonStyle(.borderedProminent)
+                .foregroundStyle(Color.sfOnFill)
 
                 PhotosPicker(
                     selection: $selectedPhotos,
@@ -301,7 +302,7 @@ private struct FilterChip: View {
     let label: String
     let count: Int
     let isSelected: Bool
-    var tint: Color = .sfAccentStrong
+    var tint: Color = .sfInk
     let action: () -> Void
 
     var body: some View {
@@ -356,7 +357,7 @@ struct PhotoThumbnail: View {
                     categoryBadge(icon: "mappin.circle.fill", color: .sfWarning)
                 }
                 if photo.hasAnnotations {
-                    categoryBadge(icon: "pencil.tip.crop.circle.fill", color: .sfAccentStrong)
+                    categoryBadge(icon: "pencil.tip.crop.circle.fill", color: .sfInkMuted)
                 }
             }
             .padding(4)
@@ -442,7 +443,7 @@ struct PhotoDetailView: View {
                     HStack {
                         Image(systemName: selectedSurfaceId == nil ? "mappin.circle.fill" : "square.stack.3d.up")
                             .font(.caption)
-                            .foregroundStyle(selectedSurfaceId == nil ? .sfWarning : .sfAccentStrong)
+                            .foregroundStyle(selectedSurfaceId == nil ? .sfWarning : .sfInk)
 
                         Picker("Surface", selection: $selectedSurfaceId) {
                             Text("Site").tag(nil as UUID?)
@@ -498,7 +499,7 @@ struct PhotoDetailView: View {
                         if photo.hasAnnotations {
                             Label("Annotated", systemImage: "pencil.tip.crop.circle.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.sfAccentStrong)
+                                .foregroundStyle(.sfInkMuted)
                         }
 
                         if !photo.isSynced {
